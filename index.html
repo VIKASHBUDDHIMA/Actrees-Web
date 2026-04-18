@@ -15,6 +15,7 @@
         :root { --accent: #ff0055; --gold: #d4af37; --bg: #030303; --surface: #0a0a0c; --text: #ffffff; }
         
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+        html { scroll-behavior: smooth; }
         body { background: var(--bg); color: var(--text); overflow-x: hidden; }
 
         /* --- LOADING SCREEN --- */
@@ -72,20 +73,20 @@
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
         
-        /* Smaller Actresses Cards (2 Rows Limit) */
         #actress-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
         
         .card { 
             background: var(--surface); position: relative; border-radius: 15px; overflow: hidden; 
             border: 1px solid rgba(255,255,255,0.05); transition: 0.5s;
         }
-        /* Initial cards will be visible, new cards will be animated from JS */
         .card.new-card { opacity: 0; transform: translateY(30px); }
         
         .card:hover { border-color: var(--accent); transform: translateY(-10px); }
         .card-img-wrap { height: 350px; overflow: hidden; }
         #actress-grid .card-img-wrap { height: 280px; }
-        .card img { width: 100%; height: 100%; object-fit: cover; transition: 0.8s; }
+        
+        /* Fix for mobile image cropping */
+        .card img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: 0.8s; }
         .card:hover img { transform: scale(1.1); }
 
         .video-container { position: relative; width: 100%; padding-top: 177%; background: #000; }
@@ -118,6 +119,7 @@
         @media (max-width: 768px) {
             .nav-links { display: none; }
             .menu-toggle { display: block; }
+            #actress-grid .card-img-wrap { height: 240px; } /* Slightly shorter on mobile to see more */
             #video-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; scrollbar-width: none; }
             #video-grid .card { min-width: 85%; scroll-snap-align: center; flex-shrink: 0; }
             .mobile-slider-controls { display: flex !important; position: absolute; width: 100%; top: 50%; justify-content: space-between; z-index: 10; pointer-events: none; }
@@ -202,12 +204,19 @@
     </footer>
 
     <script>
+        // Use history.scrollRestoration = 'manual' to prevent browser from auto-scrolling to last position
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTr0Iyy40tk0ruBQhi1yYtf4-mh26HPt3eZAZzVqhj62Hk_DH01r41cwvkEY40TWmnC1ZwKjFd03gJa/pub?gid=1227904236&single=true&output=csv'; 
 
         let allData = [], shuffledVideos = [], shuffledPhotos = [], names = [];
         let aIndex = 8, vIndex = 3, pIndex = 3;
 
         window.addEventListener('load', () => {
+            // Always scroll to home on refresh
+            window.scrollTo(0, 0);
             gsap.to("#loader", { opacity: 0, duration: 1, delay: 1, onComplete: () => document.getElementById("loader").style.display = "none" });
         });
 
@@ -231,7 +240,9 @@
                     return { name: n, profile: p, type: c[2]?.trim().toLowerCase(), link: c[3]?.trim() };
                 }).filter(i => i.name && i.link);
 
-                names = [...new Set(allData.map(i => i.name))];
+                // Shuffle names to randomize Actresses section
+                names = [...new Set(allData.map(i => i.name))].sort(() => Math.random() - 0.5);
+                
                 shuffledVideos = allData.filter(i => i.type === 'video').sort(() => Math.random() - 0.5);
                 shuffledPhotos = allData.filter(i => i.type === 'photo').sort(() => Math.random() - 0.5);
 
@@ -253,14 +264,13 @@
             }
 
             pGrid.innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i)).join('');
-            
             ScrollTrigger.refresh();
         }
 
-        // --- SECTION RENDERING HELPERS ---
-        function createActressCard(name) {
+        function createActressCard(name, isNew = false) {
             const m = allData.find(i => i.name === name);
-            return `<div class="card"><div class="card-img-wrap"><img src="${m.profile}"></div><div class="card-info"><h3>${name}</h3><div class="btn-row"><button class="btn-sm">VIDEO</button><button class="btn-sm">PHOTOS</button></div></div></div>`;
+            const newClass = isNew ? 'new-card' : '';
+            return `<div class="card ${newClass}"><div class="card-img-wrap"><img src="${m.profile}"></div><div class="card-info"><h3>${name}</h3><div class="btn-row"><button class="btn-sm">VIDEO</button><button class="btn-sm">PHOTOS</button></div></div></div>`;
         }
 
         function createMediaItem(i, isNew = false) {
@@ -269,15 +279,10 @@
             return `<div class="card ${newClass}" style="height:auto;"><img src="${i.link}" style="width:100%; height:auto;"></div>`;
         }
 
-        // --- LOAD MORE WITH SELECTIVE ANIMATION ---
         function loadMoreActresses() {
             const grid = document.getElementById('actress-grid');
             const nextSet = names.slice(aIndex, aIndex + 8);
-            const newHTML = nextSet.map(name => {
-                const m = allData.find(i => i.name === name);
-                return `<div class="card new-card"><div class="card-img-wrap"><img src="${m.profile}"></div><div class="card-info"><h3>${name}</h3><div class="btn-row"><button class="btn-sm">VIDEO</button><button class="btn-sm">PHOTOS</button></div></div></div>`;
-            }).join('');
-            
+            const newHTML = nextSet.map(name => createActressCard(name, true)).join('');
             grid.insertAdjacentHTML('beforeend', newHTML);
             animateNewCards();
             aIndex += 8;
@@ -307,7 +312,6 @@
             document.getElementById('p-hide').style.display = 'block';
         }
 
-        // --- HIDE LOGIC (FIXED) ---
         function hideActresses() {
             aIndex = 8;
             document.getElementById('actress-grid').innerHTML = names.slice(0, 8).map(name => createActressCard(name)).join('');
