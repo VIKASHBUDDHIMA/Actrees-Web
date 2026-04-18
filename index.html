@@ -114,10 +114,8 @@
             #video-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; scrollbar-width: none; }
             #video-grid .card { min-width: 85%; scroll-snap-align: center; flex-shrink: 0; }
             .mobile-slider-controls { display: flex !important; position: absolute; width: 100%; top: 50%; justify-content: space-between; z-index: 10; pointer-events: none; }
-            .slider-arrow { pointer-events: auto; background: var(--accent); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; margin: 0 5px; }
             #video-controls-desktop { display: none !important; }
         }
-        .mobile-slider-controls { display: none; }
     </style>
 </head>
 <body>
@@ -166,10 +164,6 @@
 
     <section id="videos" style="background: #000; position: relative;">
         <h2 class="section-title">VIP <span>CLIPS</span></h2>
-        <div class="mobile-slider-controls">
-            <button class="slider-arrow" onclick="scrollSlider('left')"><i class="ri-arrow-left-s-line"></i></button>
-            <button class="slider-arrow" onclick="scrollSlider('right')"><i class="ri-arrow-right-s-line"></i></button>
-        </div>
         <div id="video-grid" class="grid"></div>
         <div class="controls" id="video-controls-desktop">
             <button class="control-btn" id="v-more" onclick="loadMoreVideos()">See More</button>
@@ -318,8 +312,6 @@
             if (u.includes('drive.google.com')) u = u.replace('/view', '/preview');
             return `<iframe src="${u}" allowfullscreen></iframe>`;
         }
-
-        function scrollSlider(d) { document.getElementById('video-grid').scrollBy({ left: d === 'right' ? 300 : -300, behavior: 'smooth' }); }
         fetchData();
     </script>
 </body>
