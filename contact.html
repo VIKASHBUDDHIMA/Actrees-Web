@@ -49,6 +49,13 @@
         .contact-wrap { width: 100%; max-width: 800px; background: #080808; padding: 60px; border-top: 4px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         input, textarea { width: 100%; padding: 18px; margin-bottom: 15px; background: #111; border: 1px solid #222; color: white; outline: none; font-size: 1rem; }
         input:focus, textarea:focus { border-color: var(--accent); }
+        
+        footer { padding: 60px 6%; background: #050505; border-top: 1px solid #111; text-align: center; }
+        .footer-logo { font-family: 'Syncopate', sans-serif; font-size: 1.5rem; margin-bottom: 20px; display: block; color: #fff; text-decoration: none; }
+        .footer-socials { display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; }
+        .footer-socials a { font-size: 1.5rem; color: #444; transition: 0.3s; }
+        .footer-socials a:hover { color: var(--accent); }
+        .footer-copy { font-size: 0.7rem; color: #333; letter-spacing: 2px; }
 
         @media (max-width: 768px) { .nav-links { display: none; } .contact-wrap { padding: 30px; } }
     </style>
@@ -75,6 +82,15 @@
             <button class="vip-btn" style="width: 100%;">SUBMIT ARCHIVE</button>
         </div>
     </section>
+    <footer>
+        <a href="#" class="footer-logo">NEXUS<span>VIP</span></a>
+        <div class="footer-socials">
+            <a href="#"><i class="ri-instagram-line"></i></a>
+            <a href="#"><i class="ri-twitter-x-line"></i></a>
+            <a href="#"><i class="ri-telegram-line"></i></a>
+        </div>
+        <p class="footer-copy">© 2026 NEXUS VIP ENTERTAINMENT. ALL RIGHTS RESERVED.</p>
+    </footer>
 
 </body>
 </html>
