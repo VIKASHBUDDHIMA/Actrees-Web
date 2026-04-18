@@ -35,11 +35,9 @@
         }
         .logo { font-family: 'Syncopate', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--text); text-decoration: none; }
         .logo span { color: var(--accent); }
-        
         .nav-links { display: flex; gap: 30px; }
         .nav-links a { color: #888; text-decoration: none; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s; }
         .nav-links a:hover { color: var(--accent); }
-
         .menu-toggle { display: none; font-size: 1.8rem; color: var(--text); cursor: pointer; }
 
         #mobile-menu {
@@ -64,7 +62,6 @@
             font-weight: 900; letter-spacing: 3px; cursor: pointer; border-radius: 50px;
             box-shadow: 0 0 30px rgba(255, 0, 85, 0.4); transition: 0.4s;
         }
-        .vip-btn:hover { transform: scale(1.05); box-shadow: 0 0 50px rgba(255, 0, 85, 0.6); }
 
         /* --- GRID & CARDS --- */
         section { padding: 100px 6%; }
@@ -72,7 +69,6 @@
         .section-title span { color: var(--accent); }
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
-        
         #actress-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
         
         .card { 
@@ -80,59 +76,58 @@
             border: 1px solid rgba(255,255,255,0.05); transition: 0.5s;
         }
         .card.new-card { opacity: 0; transform: translateY(30px); }
-        
-        .card:hover { border-color: var(--accent); transform: translateY(-10px); }
         .card-img-wrap { height: 350px; overflow: hidden; }
         #actress-grid .card-img-wrap { height: 280px; }
-        
-        /* Fix for mobile image cropping */
         .card img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: 0.8s; }
-        .card:hover img { transform: scale(1.1); }
 
         .video-container { position: relative; width: 100%; padding-top: 177%; background: #000; }
-        .video-container iframe, video { position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; }
+        .video-container iframe { position: absolute; top:0; left:0; width:100%; height:100%; border:none; }
 
         .card-info { 
             position: absolute; bottom: 0; width: 100%; padding: 20px; 
             background: linear-gradient(to top, #000 40%, transparent); text-align: center; 
         }
         .card-info h3 { font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; }
-
         .btn-row { display: flex; gap: 10px; }
-        .btn-sm { flex: 1; padding: 10px; background: rgba(255,0,85,0.1); color: var(--accent); border: 1px solid var(--accent); border-radius: 5px; cursor: pointer; font-size: 0.6rem; font-weight: 800; transition: 0.3s; }
-        .btn-sm:hover { background: var(--accent); color: white; }
+        .btn-sm { flex: 1; padding: 10px; background: rgba(255,0,85,0.1); color: var(--accent); border: 1px solid var(--accent); border-radius: 5px; cursor: pointer; font-size: 0.6rem; font-weight: 800; }
+
+        /* --- OVERLAY SYSTEM --- */
+        #media-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 5000;
+            display: none; flex-direction: column; overflow-y: auto; padding: 100px 6% 40px;
+            backdrop-filter: blur(15px);
+        }
+        .close-overlay { position: fixed; top: 30px; right: 30px; font-size: 2.5rem; color: #fff; cursor: pointer; z-index: 5001; }
+        .overlay-title { font-family: 'Syncopate', sans-serif; text-align: center; margin-bottom: 40px; font-size: 1.5rem; }
+        .overlay-title span { color: var(--accent); }
 
         /* --- CONTROLS --- */
         .controls { display: flex; justify-content: center; gap: 15px; margin-top: 50px; }
         .control-btn { background: transparent; border: 1px solid #333; color: #fff; padding: 12px 35px; border-radius: 50px; cursor: pointer; font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; }
-        .control-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-        /* --- FOOTER --- */
         footer { padding: 60px 6%; background: #050505; border-top: 1px solid #111; text-align: center; }
-        .footer-logo { font-family: 'Syncopate', sans-serif; font-size: 1.5rem; margin-bottom: 20px; display: block; color: #fff; text-decoration: none; }
-        .footer-socials { display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; }
-        .footer-socials a { font-size: 1.5rem; color: #444; transition: 0.3s; }
-        .footer-socials a:hover { color: var(--accent); }
-        .footer-copy { font-size: 0.7rem; color: #333; letter-spacing: 2px; }
+        .footer-logo { font-family: 'Syncopate', sans-serif; font-size: 1.5rem; color: #fff; text-decoration: none; }
 
-        /* --- MOBILE SLIDER --- */
         @media (max-width: 768px) {
             .nav-links { display: none; }
             .menu-toggle { display: block; }
-            #actress-grid .card-img-wrap { height: 240px; } /* Slightly shorter on mobile to see more */
             #video-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; scrollbar-width: none; }
             #video-grid .card { min-width: 85%; scroll-snap-align: center; flex-shrink: 0; }
             .mobile-slider-controls { display: flex !important; position: absolute; width: 100%; top: 50%; justify-content: space-between; z-index: 10; pointer-events: none; }
             .slider-arrow { pointer-events: auto; background: var(--accent); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; margin: 0 5px; }
+            #video-controls-desktop { display: none !important; }
         }
-
         .mobile-slider-controls { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div class="loader-logo">NEXUS</div>
+    <div id="loader"><div class="loader-logo">NEXUS</div></div>
+
+    <div id="media-overlay">
+        <i class="ri-close-circle-line close-overlay" onclick="closeOverlay()"></i>
+        <h2 class="overlay-title" id="overlay-title">MODEL <span>ARCHIVE</span></h2>
+        <div id="overlay-grid" class="grid"></div>
     </div>
 
     <div id="mobile-menu">
@@ -141,7 +136,6 @@
         <a href="#actresses" onclick="toggleMenu(false)">MODELS</a>
         <a href="#videos" onclick="toggleMenu(false)">VIP CLIPS</a>
         <a href="#photos" onclick="toggleMenu(false)">GALLERY</a>
-        <a href="contact.html">JOIN US</a>
     </div>
 
     <nav>
@@ -151,7 +145,6 @@
             <a href="#actresses">Models</a>
             <a href="#videos">VIP Clips</a>
             <a href="#photos">Galleries</a>
-            <a href="contact.html">Join Us</a>
         </div>
         <i class="ri-menu-4-line menu-toggle" onclick="toggleMenu(true)"></i>
     </nav>
@@ -195,34 +188,22 @@
 
     <footer>
         <a href="#" class="footer-logo">NEXUS<span>VIP</span></a>
-        <div class="footer-socials">
-            <a href="#"><i class="ri-instagram-line"></i></a>
-            <a href="#"><i class="ri-twitter-x-line"></i></a>
-            <a href="#"><i class="ri-telegram-line"></i></a>
-        </div>
-        <p class="footer-copy">© 2026 NEXUS VIP ENTERTAINMENT. ALL RIGHTS RESERVED.</p>
+        <p>© 2026 NEXUS VIP ENTERTAINMENT. ALL RIGHTS RESERVED.</p>
     </footer>
 
     <script>
-        // Use history.scrollRestoration = 'manual' to prevent browser from auto-scrolling to last position
-        if ('scrollRestoration' in history) {
-            history.scrollRestoration = 'manual';
-        }
-
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTr0Iyy40tk0ruBQhi1yYtf4-mh26HPt3eZAZzVqhj62Hk_DH01r41cwvkEY40TWmnC1ZwKjFd03gJa/pub?gid=1227904236&single=true&output=csv'; 
 
         let allData = [], shuffledVideos = [], shuffledPhotos = [], names = [];
         let aIndex = 8, vIndex = 3, pIndex = 3;
 
         window.addEventListener('load', () => {
-            // Always scroll to home on refresh
             window.scrollTo(0, 0);
             gsap.to("#loader", { opacity: 0, duration: 1, delay: 1, onComplete: () => document.getElementById("loader").style.display = "none" });
         });
 
-        function toggleMenu(show) {
-            document.getElementById("mobile-menu").style.display = show ? "flex" : "none";
-        }
+        function toggleMenu(s) { document.getElementById("mobile-menu").style.display = s ? "flex" : "none"; }
 
         async function fetchData() {
             try {
@@ -230,7 +211,6 @@
                 const text = await res.text();
                 const rows = text.split('\n').slice(1);
                 let lastN = "", lastP = "";
-                
                 allData = rows.map(r => {
                     const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     let n = c[0]?.replace(/"/g, '').trim();
@@ -240,50 +220,67 @@
                     return { name: n, profile: p, type: c[2]?.trim().toLowerCase(), link: c[3]?.trim() };
                 }).filter(i => i.name && i.link);
 
-                // Shuffle names to randomize Actresses section
                 names = [...new Set(allData.map(i => i.name))].sort(() => Math.random() - 0.5);
-                
                 shuffledVideos = allData.filter(i => i.type === 'video').sort(() => Math.random() - 0.5);
                 shuffledPhotos = allData.filter(i => i.type === 'photo').sort(() => Math.random() - 0.5);
-
                 renderInitial();
             } catch (e) { console.error(e); }
         }
 
         function renderInitial() {
-            const aGrid = document.getElementById('actress-grid');
-            const vGrid = document.getElementById('video-grid');
-            const pGrid = document.getElementById('photo-grid');
-
-            aGrid.innerHTML = names.slice(0, 8).map(name => createActressCard(name)).join('');
-            
-            if (window.innerWidth <= 768) {
-                vGrid.innerHTML = shuffledVideos.map(i => createMediaItem(i)).join('');
-            } else {
-                vGrid.innerHTML = shuffledVideos.slice(0, 3).map(i => createMediaItem(i)).join('');
-            }
-
-            pGrid.innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i)).join('');
-            ScrollTrigger.refresh();
+            document.getElementById('actress-grid').innerHTML = names.slice(0, 8).map(n => createActressCard(n)).join('');
+            document.getElementById('video-grid').innerHTML = (window.innerWidth <= 768 ? shuffledVideos : shuffledVideos.slice(0, 3)).map(i => createMediaItem(i)).join('');
+            document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i)).join('');
         }
 
         function createActressCard(name, isNew = false) {
             const m = allData.find(i => i.name === name);
-            const newClass = isNew ? 'new-card' : '';
-            return `<div class="card ${newClass}"><div class="card-img-wrap"><img src="${m.profile}"></div><div class="card-info"><h3>${name}</h3><div class="btn-row"><button class="btn-sm">VIDEO</button><button class="btn-sm">PHOTOS</button></div></div></div>`;
+            return `<div class="card ${isNew ? 'new-card' : ''}">
+                <div class="card-img-wrap"><img src="${m.profile}"></div>
+                <div class="card-info">
+                    <h3>${name}</h3>
+                    <div class="btn-row">
+                        <button class="btn-sm" onclick="openOverlay('${name}', 'video')">VIDEO</button>
+                        <button class="btn-sm" onclick="openOverlay('${name}', 'photo')">PHOTOS</button>
+                    </div>
+                </div>
+            </div>`;
         }
 
         function createMediaItem(i, isNew = false) {
-            const newClass = isNew ? 'new-card' : '';
-            if (i.type === 'video') return `<div class="card ${newClass}"><div class="video-container">${getVideoElement(i.link)}</div></div>`;
-            return `<div class="card ${newClass}" style="height:auto;"><img src="${i.link}" style="width:100%; height:auto;"></div>`;
+            const nc = isNew ? 'new-card' : '';
+            if (i.type === 'video') return `<div class="card ${nc}"><div class="video-container">${getVideoElement(i.link)}</div></div>`;
+            return `<div class="card ${nc}" style="height:auto;"><img src="${i.link}" style="width:100%; height:auto;"></div>`;
+        }
+
+        // --- OVERLAY LOGIC ---
+        function openOverlay(name, type) {
+            const filtered = allData.filter(i => i.name === name && i.type === type);
+            const overlay = document.getElementById('media-overlay');
+            const grid = document.getElementById('overlay-grid');
+            
+            document.getElementById('overlay-title').innerHTML = `${name} <span>${type.toUpperCase()}S</span>`;
+            grid.innerHTML = filtered.map(i => createMediaItem(i, true)).join('');
+            
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Stop body scroll
+            
+            gsap.fromTo(overlay, {opacity: 0}, {opacity: 1, duration: 0.5});
+            animateNewCards();
+        }
+
+        function closeOverlay() {
+            const overlay = document.getElementById('media-overlay');
+            gsap.to(overlay, {opacity: 0, duration: 0.3, onComplete: () => {
+                overlay.style.display = 'none';
+                document.getElementById('overlay-grid').innerHTML = '';
+                document.body.style.overflow = 'auto'; // Restore scroll
+            }});
         }
 
         function loadMoreActresses() {
-            const grid = document.getElementById('actress-grid');
-            const nextSet = names.slice(aIndex, aIndex + 8);
-            const newHTML = nextSet.map(name => createActressCard(name, true)).join('');
-            grid.insertAdjacentHTML('beforeend', newHTML);
+            const set = names.slice(aIndex, aIndex + 8);
+            document.getElementById('actress-grid').insertAdjacentHTML('beforeend', set.map(n => createActressCard(n, true)).join(''));
             animateNewCards();
             aIndex += 8;
             if (aIndex >= names.length) document.getElementById('a-more').style.display = 'none';
@@ -291,10 +288,8 @@
         }
 
         function loadMoreVideos() {
-            const grid = document.getElementById('video-grid');
-            const nextSet = shuffledVideos.slice(vIndex, vIndex + 3);
-            const newHTML = nextSet.map(i => createMediaItem(i, true)).join('');
-            grid.insertAdjacentHTML('beforeend', newHTML);
+            const set = shuffledVideos.slice(vIndex, vIndex + 3);
+            document.getElementById('video-grid').insertAdjacentHTML('beforeend', set.map(i => createMediaItem(i, true)).join(''));
             animateNewCards();
             vIndex += 3;
             if (vIndex >= shuffledVideos.length) document.getElementById('v-more').style.display = 'none';
@@ -302,47 +297,20 @@
         }
 
         function loadMorePhotos() {
-            const grid = document.getElementById('photo-grid');
-            const nextSet = shuffledPhotos.slice(pIndex, pIndex + 3);
-            const newHTML = nextSet.map(i => createMediaItem(i, true)).join('');
-            grid.insertAdjacentHTML('beforeend', newHTML);
+            const set = shuffledPhotos.slice(pIndex, pIndex + 3);
+            document.getElementById('photo-grid').insertAdjacentHTML('beforeend', set.map(i => createMediaItem(i, true)).join(''));
             animateNewCards();
             pIndex += 3;
             if (pIndex >= shuffledPhotos.length) document.getElementById('p-more').style.display = 'none';
             document.getElementById('p-hide').style.display = 'block';
         }
 
-        function hideActresses() {
-            aIndex = 8;
-            document.getElementById('actress-grid').innerHTML = names.slice(0, 8).map(name => createActressCard(name)).join('');
-            document.getElementById('a-more').style.display = 'block';
-            document.getElementById('a-hide').style.display = 'none';
-            ScrollTrigger.refresh();
-        }
-
-        function hideVideos() {
-            vIndex = 3;
-            document.getElementById('video-grid').innerHTML = shuffledVideos.slice(0, 3).map(i => createMediaItem(i)).join('');
-            document.getElementById('v-more').style.display = 'block';
-            document.getElementById('v-hide').style.display = 'none';
-            ScrollTrigger.refresh();
-        }
-
-        function hidePhotos() {
-            pIndex = 3;
-            document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i)).join('');
-            document.getElementById('p-more').style.display = 'block';
-            document.getElementById('p-hide').style.display = 'none';
-            ScrollTrigger.refresh();
-        }
+        function hideActresses() { aIndex = 8; renderInitial(); document.getElementById('a-more').style.display = 'block'; document.getElementById('a-hide').style.display = 'none'; }
+        function hideVideos() { vIndex = 3; renderInitial(); document.getElementById('v-more').style.display = 'block'; document.getElementById('v-hide').style.display = 'none'; }
+        function hidePhotos() { pIndex = 3; renderInitial(); document.getElementById('p-more').style.display = 'block'; document.getElementById('p-hide').style.display = 'none'; }
 
         function animateNewCards() {
-            gsap.to(".new-card", {
-                opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: "power2.out",
-                onComplete: function() {
-                    document.querySelectorAll('.new-card').forEach(el => el.classList.remove('new-card'));
-                }
-            });
+            gsap.to(".new-card", { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: "power2.out", onComplete: () => document.querySelectorAll('.new-card').forEach(el => el.classList.remove('new-card')) });
         }
 
         function getVideoElement(u) {
@@ -351,11 +319,7 @@
             return `<iframe src="${u}" allowfullscreen></iframe>`;
         }
 
-        function scrollSlider(dir) {
-            const g = document.getElementById('video-grid');
-            g.scrollBy({ left: dir === 'right' ? 300 : -300, behavior: 'smooth' });
-        }
-
+        function scrollSlider(d) { document.getElementById('video-grid').scrollBy({ left: d === 'right' ? 300 : -300, behavior: 'smooth' }); }
         fetchData();
     </script>
 </body>
