@@ -6,7 +6,7 @@
     <title>NEXUS VIP | EXCLUSIVE ARCHIVE</title>
     
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Playfair+Display:ital,wght@1,700&swap" rel="stylesheet">
 
     <style>
         :root {
@@ -68,11 +68,10 @@
         .card img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8); transition: 0.5s; }
         .card:hover img { filter: brightness(1.1); }
 
-        /* 9:16 Video Container (Works for Iframe & HTML5 Video) */
         .video-container {
             position: relative;
             width: 100%;
-            padding-top: 177.77%; /* 9:16 Portrait Ratio */
+            padding-top: 177.77%; /* 9:16 Ratio */
             background: #000;
         }
         .video-container iframe, .video-container video {
@@ -158,16 +157,12 @@
     </section>
 
     <script>
-        // ඔයා දීපු Google Sheet Link එක
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSlC5rHr5IXgKcaBRry2zxfrhpBjmLKjBhLqMzhKwY8UNUtD17nHK96afzVk3cFeCQDzRXOtmHOzwAw/pub?gid=1177191944&single=true&output=csv'; 
 
         let allData = [];
 
-        // ඕනෑම video link එකක් (YouTube/Direct/Drive) හඳුනාගෙන වැඩ කරන විදිහට හදන Function එක
         function getVideoElement(url) {
             let finalUrl = url.trim();
-
-            // YouTube Formatting
             if (finalUrl.includes('youtube.com/watch?v=')) {
                 finalUrl = finalUrl.replace('watch?v=', 'embed/');
                 return `<iframe src="${finalUrl}" allowfullscreen></iframe>`;
@@ -175,20 +170,13 @@
                 finalUrl = finalUrl.replace('youtu.be/', 'youtube.com/embed/');
                 return `<iframe src="${finalUrl}" allowfullscreen></iframe>`;
             } 
-            
-            // Direct Video Files (.mp4, .webm, etc)
-            const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov'];
-            if (videoExtensions.some(ext => finalUrl.toLowerCase().endsWith(ext)) || finalUrl.includes('drive.google.com')) {
-                // Google Drive fix (if not already a direct link)
-                if(finalUrl.includes('drive.google.com') && finalUrl.includes('/view')) {
-                    finalUrl = finalUrl.replace('/view', '/preview');
-                    return `<iframe src="${finalUrl}" allowfullscreen></iframe>`;
-                }
-                // Standard HTML5 Video Player
-                return `<video controls playsinline><source src="${finalUrl}" type="video/mp4">Your browser does not support the video tag.</video>`;
+            if (finalUrl.includes('drive.google.com') && finalUrl.includes('/view')) {
+                finalUrl = finalUrl.replace('/view', '/preview');
+                return `<iframe src="${finalUrl}" allowfullscreen></iframe>`;
             }
-
-            // Default fallback as Iframe (for Mega or other embeds)
+            if (finalUrl.toLowerCase().endsWith('.mp4') || finalUrl.toLowerCase().endsWith('.webm')) {
+                return `<video controls playsinline><source src="${finalUrl}" type="video/mp4"></video>`;
+            }
             return `<iframe src="${finalUrl}" allowfullscreen></iframe>`;
         }
 
@@ -198,22 +186,31 @@
                 const text = await res.text();
                 const rows = text.split('\n').slice(1);
                 
+                let lastKnownName = "";
+                let lastKnownProfile = "";
+
                 allData = rows.map(r => {
-                    // CSV splitting logic that handles commas inside quotes (if any)
                     const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    
+                    // Auto-fill logic
+                    let name = c[0]?.replace(/"/g, '').trim();
+                    let profile = c[1]?.replace(/"/g, '').trim();
+                    
+                    if (!name && lastKnownName) name = lastKnownName; else lastKnownName = name;
+                    if (!profile && lastKnownProfile) profile = lastKnownProfile; else lastKnownProfile = profile;
+
                     return { 
-                        name: c[0]?.replace(/"/g, '').trim(), 
-                        profile: c[1]?.replace(/"/g, '').trim(), 
+                        name: name, 
+                        profile: profile, 
                         type: c[2]?.replace(/"/g, '').trim().toLowerCase(), 
-                        link: c[3]?.replace(/"/g, '').trim(), 
-                        title: c[4]?.replace(/"/g, '').trim() 
+                        link: c[3]?.replace(/"/g, '').trim()
                     };
                 }).filter(i => i.name && i.link);
 
                 document.getElementById('status').style.display = 'none';
                 render();
             } catch (e) {
-                document.getElementById('status').innerText = "PRIVATE DATABASE OFFLINE. CHECK LINK.";
+                document.getElementById('status').innerText = "PRIVATE DATABASE OFFLINE.";
             }
         }
 
@@ -239,27 +236,15 @@
                 `;
             }).join('');
 
-            vGrid.innerHTML = allData.filter(i => i.type === 'video').slice(0, 8).map(i => createMediaItem(i)).join('');
-            pGrid.innerHTML = allData.filter(i => i.type === 'photo').slice(0, 8).map(i => createMediaItem(i)).join('');
+            vGrid.innerHTML = allData.filter(i => i.type === 'video').slice(0, 12).map(i => createMediaItem(i)).join('');
+            pGrid.innerHTML = allData.filter(i => i.type === 'photo').slice(0, 12).map(i => createMediaItem(i)).join('');
         }
 
         function createMediaItem(i) {
             if (i.type === 'video') {
-                return `
-                    <div class="card">
-                        <div class="video-container">
-                            ${getVideoElement(i.link)}
-                        </div>
-                        <div style="padding:15px; font-weight:700; font-size:0.75rem; letter-spacing:1px; color:#888;">${i.title}</div>
-                    </div>
-                `;
+                return `<div class="card"><div class="video-container">${getVideoElement(i.link)}</div></div>`;
             } else {
-                return `
-                    <div class="card" style="height:auto; padding-bottom: 10px;">
-                        <img src="${i.link}" style="width:100%; height:auto; display:block;">
-                        <div style="padding:15px; font-weight:700; font-size:0.75rem; letter-spacing:1px; color:#888;">${i.title}</div>
-                    </div>
-                `;
+                return `<div class="card" style="height:auto;"><img src="${i.link}" style="width:100%; height:auto; display:block;"></div>`;
             }
         }
 
