@@ -77,8 +77,11 @@
         
         .card { 
             background: var(--surface); position: relative; border-radius: 15px; overflow: hidden; 
-            border: 1px solid rgba(255,255,255,0.05); transition: 0.5s; opacity: 0; transform: translateY(30px);
+            border: 1px solid rgba(255,255,255,0.05); transition: 0.5s;
         }
+        /* Initial cards will be visible, new cards will be animated from JS */
+        .card.new-card { opacity: 0; transform: translateY(30px); }
+        
         .card:hover { border-color: var(--accent); transform: translateY(-10px); }
         .card-img-wrap { height: 350px; overflow: hidden; }
         #actress-grid .card-img-wrap { height: 280px; }
@@ -116,7 +119,7 @@
             .nav-links { display: none; }
             .menu-toggle { display: block; }
             #video-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; scrollbar-width: none; }
-            #video-grid .card { min-width: 85%; scroll-snap-align: center; flex-shrink: 0; opacity: 1; transform: none; }
+            #video-grid .card { min-width: 85%; scroll-snap-align: center; flex-shrink: 0; }
             .mobile-slider-controls { display: flex !important; position: absolute; width: 100%; top: 50%; justify-content: space-between; z-index: 10; pointer-events: none; }
             .slider-arrow { pointer-events: auto; background: var(--accent); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; margin: 0 5px; }
         }
@@ -204,15 +207,12 @@
         let allData = [], shuffledVideos = [], shuffledPhotos = [], names = [];
         let aIndex = 8, vIndex = 3, pIndex = 3;
 
-        // --- LOADER ---
         window.addEventListener('load', () => {
             gsap.to("#loader", { opacity: 0, duration: 1, delay: 1, onComplete: () => document.getElementById("loader").style.display = "none" });
         });
 
-        // --- MOBILE MENU ---
         function toggleMenu(show) {
-            const menu = document.getElementById("mobile-menu");
-            menu.style.display = show ? "flex" : "none";
+            document.getElementById("mobile-menu").style.display = show ? "flex" : "none";
         }
 
         async function fetchData() {
@@ -235,64 +235,110 @@
                 shuffledVideos = allData.filter(i => i.type === 'video').sort(() => Math.random() - 0.5);
                 shuffledPhotos = allData.filter(i => i.type === 'photo').sort(() => Math.random() - 0.5);
 
-                renderAll();
-                initAnimations();
+                renderInitial();
             } catch (e) { console.error(e); }
         }
 
-        function renderAll() {
+        function renderInitial() {
             const aGrid = document.getElementById('actress-grid');
             const vGrid = document.getElementById('video-grid');
             const pGrid = document.getElementById('photo-grid');
 
-            // Actresses (2 Rows Initial)
-            aGrid.innerHTML = names.slice(0, aIndex).map(name => {
-                const m = allData.find(i => i.name === name);
-                return `<div class="card"><div class="card-img-wrap"><img src="${m.profile}"></div><div class="card-info"><h3>${name}</h3><div class="btn-row"><button class="btn-sm">VIDEO</button><button class="btn-sm">PHOTOS</button></div></div></div>`;
-            }).join('');
-
-            // Videos
+            aGrid.innerHTML = names.slice(0, 8).map(name => createActressCard(name)).join('');
+            
             if (window.innerWidth <= 768) {
                 vGrid.innerHTML = shuffledVideos.map(i => createMediaItem(i)).join('');
             } else {
-                vGrid.innerHTML = shuffledVideos.slice(0, vIndex).map(i => createMediaItem(i)).join('');
+                vGrid.innerHTML = shuffledVideos.slice(0, 3).map(i => createMediaItem(i)).join('');
             }
 
-            // Photos
-            pGrid.innerHTML = shuffledPhotos.slice(0, pIndex).map(i => createMediaItem(i)).join('');
+            pGrid.innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i)).join('');
+            
+            ScrollTrigger.refresh();
         }
 
-        // --- LOAD MORE LOGIC ---
+        // --- SECTION RENDERING HELPERS ---
+        function createActressCard(name) {
+            const m = allData.find(i => i.name === name);
+            return `<div class="card"><div class="card-img-wrap"><img src="${m.profile}"></div><div class="card-info"><h3>${name}</h3><div class="btn-row"><button class="btn-sm">VIDEO</button><button class="btn-sm">PHOTOS</button></div></div></div>`;
+        }
+
+        function createMediaItem(i, isNew = false) {
+            const newClass = isNew ? 'new-card' : '';
+            if (i.type === 'video') return `<div class="card ${newClass}"><div class="video-container">${getVideoElement(i.link)}</div></div>`;
+            return `<div class="card ${newClass}" style="height:auto;"><img src="${i.link}" style="width:100%; height:auto;"></div>`;
+        }
+
+        // --- LOAD MORE WITH SELECTIVE ANIMATION ---
         function loadMoreActresses() {
+            const grid = document.getElementById('actress-grid');
+            const nextSet = names.slice(aIndex, aIndex + 8);
+            const newHTML = nextSet.map(name => {
+                const m = allData.find(i => i.name === name);
+                return `<div class="card new-card"><div class="card-img-wrap"><img src="${m.profile}"></div><div class="card-info"><h3>${name}</h3><div class="btn-row"><button class="btn-sm">VIDEO</button><button class="btn-sm">PHOTOS</button></div></div></div>`;
+            }).join('');
+            
+            grid.insertAdjacentHTML('beforeend', newHTML);
+            animateNewCards();
             aIndex += 8;
-            renderAll();
             if (aIndex >= names.length) document.getElementById('a-more').style.display = 'none';
             document.getElementById('a-hide').style.display = 'block';
-            initAnimations();
         }
-        function hideActresses() { aIndex = 8; renderAll(); document.getElementById('a-more').style.display = 'block'; document.getElementById('a-hide').style.display = 'none'; }
 
         function loadMoreVideos() {
+            const grid = document.getElementById('video-grid');
+            const nextSet = shuffledVideos.slice(vIndex, vIndex + 3);
+            const newHTML = nextSet.map(i => createMediaItem(i, true)).join('');
+            grid.insertAdjacentHTML('beforeend', newHTML);
+            animateNewCards();
             vIndex += 3;
-            renderAll();
             if (vIndex >= shuffledVideos.length) document.getElementById('v-more').style.display = 'none';
             document.getElementById('v-hide').style.display = 'block';
-            initAnimations();
         }
-        function hideVideos() { vIndex = 3; renderAll(); document.getElementById('v-more').style.display = 'block'; document.getElementById('v-hide').style.display = 'none'; }
 
         function loadMorePhotos() {
+            const grid = document.getElementById('photo-grid');
+            const nextSet = shuffledPhotos.slice(pIndex, pIndex + 3);
+            const newHTML = nextSet.map(i => createMediaItem(i, true)).join('');
+            grid.insertAdjacentHTML('beforeend', newHTML);
+            animateNewCards();
             pIndex += 3;
-            renderAll();
             if (pIndex >= shuffledPhotos.length) document.getElementById('p-more').style.display = 'none';
             document.getElementById('p-hide').style.display = 'block';
-            initAnimations();
         }
-        function hidePhotos() { pIndex = 3; renderAll(); document.getElementById('p-more').style.display = 'block'; document.getElementById('p-hide').style.display = 'none'; }
 
-        function createMediaItem(i) {
-            if (i.type === 'video') return `<div class="card"><div class="video-container">${getVideoElement(i.link)}</div></div>`;
-            return `<div class="card" style="height:auto;"><img src="${i.link}" style="width:100%; height:auto;"></div>`;
+        // --- HIDE LOGIC (FIXED) ---
+        function hideActresses() {
+            aIndex = 8;
+            document.getElementById('actress-grid').innerHTML = names.slice(0, 8).map(name => createActressCard(name)).join('');
+            document.getElementById('a-more').style.display = 'block';
+            document.getElementById('a-hide').style.display = 'none';
+            ScrollTrigger.refresh();
+        }
+
+        function hideVideos() {
+            vIndex = 3;
+            document.getElementById('video-grid').innerHTML = shuffledVideos.slice(0, 3).map(i => createMediaItem(i)).join('');
+            document.getElementById('v-more').style.display = 'block';
+            document.getElementById('v-hide').style.display = 'none';
+            ScrollTrigger.refresh();
+        }
+
+        function hidePhotos() {
+            pIndex = 3;
+            document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i)).join('');
+            document.getElementById('p-more').style.display = 'block';
+            document.getElementById('p-hide').style.display = 'none';
+            ScrollTrigger.refresh();
+        }
+
+        function animateNewCards() {
+            gsap.to(".new-card", {
+                opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: "power2.out",
+                onComplete: function() {
+                    document.querySelectorAll('.new-card').forEach(el => el.classList.remove('new-card'));
+                }
+            });
         }
 
         function getVideoElement(u) {
@@ -304,17 +350,6 @@
         function scrollSlider(dir) {
             const g = document.getElementById('video-grid');
             g.scrollBy({ left: dir === 'right' ? 300 : -300, behavior: 'smooth' });
-        }
-
-        // --- GSAP ANIMATIONS ---
-        function initAnimations() {
-            gsap.registerPlugin(ScrollTrigger);
-            gsap.utils.toArray(".card").forEach(card => {
-                gsap.to(card, {
-                    scrollTrigger: { trigger: card, start: "top 90%" },
-                    opacity: 1, y: 0, duration: 1, ease: "power2.out"
-                });
-            });
         }
 
         fetchData();
