@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS VIP | EXCLUSIVE ARCHIVE</title>
+    <title>ACTRESS HUB | EXCLUSIVE ARCHIVE</title>
     
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Playfair+Display:ital,wght@1,700&swap" rel="stylesheet">
@@ -58,13 +58,19 @@
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 
+        /* Actresses Grid Specific Styles (Smaller Cards) */
+        #actress-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+        #actress-grid .card-img-wrap { height: 280px; }
+        #actress-grid .card-info { padding: 15px; }
+        #actress-grid .card-info h3 { font-size: 1.2rem; margin-bottom: 10px; }
+
         .card { 
             background: var(--surface); position: relative; overflow: hidden; 
             border: 1px solid #1a1a1a; transition: 0.4s ease-in-out;
         }
         .card:hover { border-color: var(--accent); z-index: 10; }
         
-        .card-img-wrap { width: 100%; height: 450px; position: relative; }
+        .card-img-wrap { width: 100%; position: relative; }
         .card img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8); transition: 0.5s; }
         .card:hover img { filter: brightness(1.1); }
 
@@ -88,15 +94,12 @@
         .card-info h3 { font-size: 1.5rem; letter-spacing: 1px; margin-bottom: 15px; }
         
         .btn-row { display: flex; gap: 5px; }
-        .btn-sm { flex: 1; padding: 12px; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; text-transform: uppercase; font-size: 0.7rem; font-weight: 700; transition: 0.3s; }
+        .btn-sm { flex: 1; padding: 10px; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; text-transform: uppercase; font-size: 0.65rem; font-weight: 700; transition: 0.3s; }
         .btn-sm:hover { background: var(--accent); border-color: var(--accent); }
 
         #detail-view { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: none; overflow-y: auto; padding: 100px 6%; }
         .close-btn { position: fixed; top: 30px; right: 40px; font-size: 3rem; color: var(--accent); cursor: pointer; }
 
-        .contact-wrap { max-width: 800px; margin: 0 auto; background: #080808; padding: 60px; border-top: 4px solid var(--accent); }
-        input, textarea { width: 100%; padding: 18px; margin-bottom: 15px; background: #111; border: 1px solid #222; color: white; outline: none; font-size: 1rem; }
-        
         #status { text-align: center; font-style: italic; color: var(--gold); margin-bottom: 20px; }
 
         @media (max-width: 768px) { .nav-links { display: none; } #home h1 { font-size: 4rem; } }
@@ -105,13 +108,13 @@
 <body>
 
     <nav>
-        <a href="#home" class="logo">NEXUS<span>VIP</span></a>
+        <a href="#home" class="logo">ACTRESS<span>HUB</span></a>
         <div class="nav-links">
             <a href="#home">Home</a>
             <a href="#actresses">Models</a>
             <a href="#videos">VIP Clips</a>
             <a href="#photos">Galleries</a>
-            <a href="#contact">Join Us</a>
+            <a href="contact.html">Join Us</a> 
         </div>
     </nav>
 
@@ -124,7 +127,7 @@
     <section id="home">
         <div class="hero-content">
             <p>PREMIUM ACCESS ONLY</p>
-            <h1>Pure <span>Desire.</span></h1>
+            <h1>Actress <span>Hub.</span></h1>
             <button class="vip-btn" onclick="location.href='#actresses'">ENTER THE ARCHIVE</button>
         </div>
     </section>
@@ -143,17 +146,6 @@
     <section id="photos">
         <h2 class="section-title">EXCLUSIVE <span>SHOTS</span></h2>
         <div class="grid" id="photo-grid"></div>
-    </section>
-
-    <section id="contact">
-        <div class="contact-wrap">
-            <h2 class="section-title" style="margin-bottom: 10px;">BECOME A <span>CONTRIBUTOR</span></h2>
-            <p style="text-align: center; color: #555; margin-bottom: 40px;">Upload your exclusive content and join the elite circle.</p>
-            <input type="text" placeholder="DISPLAY NAME">
-            <input type="email" placeholder="EMAIL ADDRESS">
-            <textarea rows="5" placeholder="PASTE LINKS (MEGA, DRIVE, ETC.)"></textarea>
-            <button class="vip-btn" style="width: 100%;">SUBMIT ARCHIVE</button>
-        </div>
     </section>
 
     <script>
@@ -192,7 +184,6 @@
                 allData = rows.map(r => {
                     const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     
-                    // Auto-fill logic
                     let name = c[0]?.replace(/"/g, '').trim();
                     let profile = c[1]?.replace(/"/g, '').trim();
                     
@@ -236,8 +227,11 @@
                 `;
             }).join('');
 
-            vGrid.innerHTML = allData.filter(i => i.type === 'video').slice(0, 12).map(i => createMediaItem(i)).join('');
-            pGrid.innerHTML = allData.filter(i => i.type === 'photo').slice(0, 12).map(i => createMediaItem(i)).join('');
+            const shuffledVideos = allData.filter(i => i.type === 'video').sort(() => Math.random() - 0.5);
+            const shuffledPhotos = allData.filter(i => i.type === 'photo').sort(() => Math.random() - 0.5);
+
+            vGrid.innerHTML = shuffledVideos.slice(0, 12).map(i => createMediaItem(i)).join('');
+            pGrid.innerHTML = shuffledPhotos.slice(0, 12).map(i => createMediaItem(i)).join('');
         }
 
         function createMediaItem(i) {
