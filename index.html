@@ -51,7 +51,7 @@
         #home { 
             height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
             background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop') center/cover;
-            background-attachment: fixed; /* Fixed is problematic on mobile */
+            background-attachment: fixed;
             position: relative;
         }
         #home h1 { font-family: 'Syncopate', sans-serif; font-size: clamp(2.5rem, 10vw, 6rem); text-transform: uppercase; line-height: 1; margin-bottom: 20px; }
@@ -73,6 +73,8 @@
 
         /* --- GRID & CARDS --- */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        
+        /* Auto-fill adaptively handles columns based on screen width */
         #actress-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
         
         .card { 
@@ -81,7 +83,6 @@
             width: 100%;
         }
         
-        /* New loading cards */
         .reveal-card { opacity: 0; transform: translateY(30px); }
 
         .card-img-wrap { height: 350px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; }
@@ -130,9 +131,10 @@
 
         /* --- MOBILE BUG FIXES --- */
         @media (max-width: 768px) {
-            #home { background-attachment: scroll; } /* Fix for mobile background bug */
+            #home { background-attachment: scroll; } 
             .nav-links { display: none; }
             .menu-toggle { display: block; }
+            
             #video-controls-desktop { display: none !important; }
             #video-grid { 
                 display: flex; overflow-x: auto; scroll-snap-type: x mandatory; 
@@ -226,20 +228,16 @@
     <script>
         gsap.registerPlugin(ScrollTrigger);
         
-        // Mobile view height fix
         let vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`);
 
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTr0Iyy40tk0ruBQhi1yYtf4-mh26HPt3eZAZzVqhj62Hk_DH01r41cwvkEY40TWmnC1ZwKjFd03gJa/pub?gid=1227904236&single=true&output=csv'; 
         let allData = [], shuffledVideos = [], shuffledPhotos = [], names = [];
-        let aIndex = 8, vIndex = 3, pIndex = 3;
+        let aIndex = 0, vIndex = 3, pIndex = 3;
 
         function toggleMenu(s) { document.getElementById("mobile-menu").style.display = s ? "flex" : "none"; }
 
-        // Safety timeout to hide loader if data takes too long
-        const loaderTimeout = setTimeout(() => {
-            hideLoader();
-        }, 6000);
+        const loaderTimeout = setTimeout(() => { hideLoader(); }, 6000);
 
         function hideLoader() {
             clearTimeout(loaderTimeout);
@@ -248,6 +246,20 @@
                 window.scrollTo(0, 0);
                 initScrollAnimations();
             }});
+        }
+
+        // --- DYNAMIC GRID COLUMN CALCULATION ---
+        function getCols() {
+            if (window.innerWidth <= 768) return 1; // Mobile usually wraps to 1 item
+            const grid = document.getElementById('actress-grid');
+            try {
+                const colsString = window.getComputedStyle(grid).getPropertyValue('grid-template-columns');
+                if (colsString === 'none') return 4;
+                const cols = colsString.trim().split(' ').length;
+                return (cols && !isNaN(cols) && cols > 0) ? cols : 4;
+            } catch (e) {
+                return 4;
+            }
         }
 
         async function fetchData() {
@@ -285,14 +297,17 @@
         }
 
         function renderInitial() {
-            document.getElementById('actress-grid').innerHTML = names.slice(0, 8).map(n => createCard(n, false)).join('');
+            let cols = getCols();
+            // Initial load: 2 rows for PC (cols * 2), 4 items for Mobile
+            aIndex = window.innerWidth <= 768 ? 4 : cols * 2; 
+
+            document.getElementById('actress-grid').innerHTML = names.slice(0, aIndex).map(n => createCard(n, false)).join('');
             document.getElementById('video-grid').innerHTML = (window.innerWidth <= 768 ? shuffledVideos : shuffledVideos.slice(0, 3)).map(i => createMediaItem(i, false)).join('');
             document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
             ScrollTrigger.refresh();
         }
 
         function initScrollAnimations() {
-            // Animating titles
             gsap.utils.toArray('.section-title, .section-desc').forEach(el => {
                 gsap.fromTo(el, { opacity: 0, y: 30 }, {
                     scrollTrigger: { trigger: el, start: "top 90%" },
@@ -300,7 +315,6 @@
                 });
             });
 
-            // Animating cards with a slightly safer trigger for mobile
             gsap.utils.toArray('.card').forEach(el => {
                 gsap.fromTo(el, { opacity: 0, y: 40 }, {
                     scrollTrigger: { trigger: el, start: "top 95%" },
@@ -345,14 +359,39 @@
         }
 
         function loadMoreActresses() {
-            const set = names.slice(aIndex, aIndex + 8);
+            let cols = getCols();
+            let loadAmount;
+
+            if (window.innerWidth <= 768) {
+                loadAmount = 4; // Add 4 at a time on mobile
+            } else {
+                // Ensure we complete the row perfectly and add 2 full new rows
+                let remainder = aIndex % cols;
+                let neededToCompleteRow = remainder === 0 ? 0 : (cols - remainder);
+                loadAmount = neededToCompleteRow + (cols * 2);
+            }
+
+            const set = names.slice(aIndex, aIndex + loadAmount);
             const html = set.map(n => createCard(n, true)).join('');
             document.getElementById('actress-grid').insertAdjacentHTML('beforeend', html);
             gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
-            aIndex += 8;
-            if (aIndex >= names.length) document.getElementById('a-more').style.display = 'none';
+            
+            aIndex += loadAmount;
+            if (aIndex >= names.length) {
+                document.getElementById('a-more').style.display = 'none';
+            }
             document.getElementById('a-hide').style.display = 'block';
             setTimeout(() => ScrollTrigger.refresh(), 100);
+        }
+
+        function hideActresses() { 
+            let cols = getCols();
+            aIndex = window.innerWidth <= 768 ? 4 : cols * 2; 
+
+            document.getElementById('actress-grid').innerHTML = names.slice(0, aIndex).map(n => createCard(n, false)).join('');
+            document.getElementById('a-more').style.display = 'block'; 
+            document.getElementById('a-hide').style.display = 'none'; 
+            ScrollTrigger.refresh(); 
         }
 
         function loadMoreVideos() {
@@ -375,14 +414,6 @@
             setTimeout(() => ScrollTrigger.refresh(), 100);
         }
 
-        function hideActresses() { 
-            aIndex = 8; 
-            document.getElementById('actress-grid').innerHTML = names.slice(0, 8).map(n => createCard(n, false)).join('');
-            document.getElementById('a-more').style.display = 'block'; 
-            document.getElementById('a-hide').style.display = 'none'; 
-            ScrollTrigger.refresh(); 
-        }
-        
         function hideVideos() { 
             vIndex = 3; 
             document.getElementById('video-grid').innerHTML = shuffledVideos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
