@@ -160,6 +160,7 @@
         <a href="#actresses" onclick="toggleMenu(false)">MODELS</a>
         <a href="#videos" onclick="toggleMenu(false)">VIP CLIPS</a>
         <a href="#photos" onclick="toggleMenu(false)">GALLERY</a>
+        <a href="contact.html" onclick="toggleMenu(false)">JOIN US</a>
     </div>
 
     <nav>
@@ -169,6 +170,7 @@
             <a href="#actresses">Models</a>
             <a href="#videos">VIP Clips</a>
             <a href="#photos">Galleries</a>
+            <a href="contact.html">Join Us</a>
         </div>
         <i class="ri-menu-4-line menu-toggle" onclick="toggleMenu(true)"></i>
     </nav>
@@ -213,7 +215,7 @@
     <section id="cta">
         <h2>JOIN THE <span>ELITE</span></h2>
         <p>You've seen a glimpse of the archive. Unlock unlimited access, VIP events, and full-length private collections by becoming a premium member today.</p>
-        <button class="vip-btn">GET FULL ACCESS</button>
+        <button class="vip-btn" onclick="window.location.href='contact.html'">GET FULL ACCESS</button>
     </section>
 
     <footer>
@@ -222,16 +224,17 @@
     </footer>
 
     <script>
+        // Start at top when loaded naturally
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        
+        window.addEventListener('load', () => {
+            window.scrollTo(0, 0);
+        });
+
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTr0Iyy40tk0ruBQhi1yYtf4-mh26HPt3eZAZzVqhj62Hk_DH01r41cwvkEY40TWmnC1ZwKjFd03gJa/pub?gid=1227904236&single=true&output=csv'; 
 
         let allData = [], shuffledVideos = [], shuffledPhotos = [], names = [];
         let aIndex = 8, vIndex = 3, pIndex = 3;
-
-        window.addEventListener('load', () => {
-            window.scrollTo(0, 0);
-            gsap.to("#loader", { opacity: 0, duration: 1, delay: 1, onComplete: () => document.getElementById("loader").style.display = "none" });
-        });
 
         function toggleMenu(s) { document.getElementById("mobile-menu").style.display = s ? "flex" : "none"; }
 
@@ -266,7 +269,17 @@
                 
                 renderInitial();
                 initScrollAnimations();
-            } catch (e) { console.error(e); }
+
+                // Wait until everything is rendered, then hide the loading screen
+                gsap.to("#loader", { opacity: 0, duration: 1, onComplete: () => {
+                    document.getElementById("loader").style.display = "none";
+                    window.scrollTo(0, 0); // Force to top just to be safe
+                }});
+
+            } catch (e) { 
+                console.error(e); 
+                document.getElementById("loader").style.display = "none"; // Hide loader even if there's an error
+            }
         }
 
         function renderInitial() {
@@ -277,17 +290,10 @@
         }
 
         function initScrollAnimations() {
-            // Animate Section Titles & Descriptions on Scroll
+            // Animate Section Titles & Descriptions on Scroll ONLY
+            // Removed card initial animation to ensure they are visible right away
             gsap.utils.toArray('.section-title, .section-desc').forEach(el => {
                 gsap.from(el, { scrollTrigger: { trigger: el, start: "top 85%" }, opacity: 0, y: 30, duration: 1, ease: "power3.out" });
-            });
-            
-            // Animate initial cards on scroll
-            gsap.utils.toArray('.grid').forEach(grid => {
-                gsap.from(grid.children, {
-                    scrollTrigger: { trigger: grid, start: "top 85%" },
-                    opacity: 0, y: 40, duration: 0.8, stagger: 0.1, ease: "power2.out"
-                });
             });
 
             // Animate CTA section
@@ -314,7 +320,8 @@
         function createMediaItem(i, isNew = false) {
             const nc = isNew ? 'new-card' : '';
             if (i.type === 'video') return `<div class="card ${nc}"><div class="video-container">${getVideoElement(i.link)}</div></div>`;
-            return `<div class="card ${nc}" style="height:auto;"><img src="${i.link}" style="width:100%; height:auto;"></div>`;
+            // Fixed the photo wrapper to ensure images fit properly
+            return `<div class="card ${nc}"><div class="card-img-wrap"><img src="${i.link}"></div></div>`;
         }
 
         function openOverlay(name, type) {
