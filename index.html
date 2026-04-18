@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS PRO | ARCHIVE</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #ff003c; --bg: #050505; --card: #111; --text: #fff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); overflow-x: hidden; }
+        
+        /* Navigation */
+        nav { position: fixed; width: 100%; padding: 20px 5%; display: flex; justify-content: space-between; z-index: 1000; background: rgba(5,5,5,0.8); backdrop-filter: blur(10px); }
+        .logo { font-family: 'Syncopate'; color: var(--primary); font-size: 1.5rem; cursor: pointer; }
+        .nav-links a { color: #888; text-decoration: none; margin-left: 25px; font-size: 0.8rem; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
+        .nav-links a:hover { color: var(--primary); }
+
+        /* Sections */
+        section { min-height: 100vh; padding: 100px 5%; display: none; }
+        section.active { display: block; }
+        .hero { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .hero h1 { font-family: 'Syncopate'; font-size: 5vw; line-height: 1; }
+
+        /* Grid System */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; margin-top: 50px; }
+        
+        /* Actress Card */
+        .card { background: var(--card); border-radius: 15px; overflow: hidden; border: 1px solid #222; transition: 0.5s; position: relative; }
+        .card:hover { border-color: var(--primary); transform: translateY(-10px); }
+        .card img { width: 100%; height: 350px; object-fit: cover; }
+        .card-body { padding: 20px; }
+        .card-stats { display: flex; gap: 10px; margin-top: 10px; font-size: 0.8rem; color: #888; }
+        .btn-sm { padding: 8px 15px; background: var(--primary); color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-top: 15px; font-size: 0.7rem; }
+
+        /* Media View (Individual Actress) */
+        .back-btn { margin-bottom: 20px; background: #333; color: #fff; padding: 10px 20px; border: none; cursor: pointer; }
+
+        /* Gallery Sections */
+        .gallery-container { margin-top: 30px; }
+        .see-more-btn { display: block; margin: 40px auto; padding: 15px 40px; background: transparent; color: var(--primary); border: 2px solid var(--primary); cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .see-more-btn:hover { background: var(--primary); color: #fff; }
+
+        /* Contact Section */
+        .contact-box { max-width: 600px; margin: 0 auto; background: var(--card); padding: 40px; border-radius: 20px; text-align: center; }
+        .contact-box input, .contact-box textarea { width: 100%; padding: 15px; margin-bottom: 20px; background: #1a1a1a; border: 1px solid #333; color: #fff; }
+        
+        /* Responsive */
+        @media (max-width: 768px) { .hero h1 { font-size: 10vw; } .nav-links { display: none; } }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo" onclick="showSection('home')">NEXUS PRO</div>
+    <div class="nav-links">
+        <a onclick="showSection('actresses')">Actresses</a>
+        <a onclick="showSection('all-videos')">Videos</a>
+        <a onclick="showSection('all-photos')">Photos</a>
+        <a onclick="showSection('contact')">Contact</a>
+    </div>
+</nav>
+
+<section id="home" class="hero active">
+    <h1 class="reveal">ULTIMATE<br><span style="color:var(--primary)">COLLECTION</span></h1>
+    <button class="see-more-btn" onclick="showSection('actresses')">EXPLORE ARCHIVE</button>
+</section>
+
+<section id="actresses">
+    <h2 style="font-family: 'Syncopate';">ACTRESS <span style="color:var(--primary)">GALLERY</span></h2>
+    <div class="grid" id="actressGrid"></div>
+</section>
+
+<section id="actress-detail">
+    <button class="back-btn" onclick="showSection('actresses')">← Back to Gallery</button>
+    <h2 id="detail-name" style="font-family: 'Syncopate';"></h2>
+    <div class="grid" id="detailGrid"></div>
+</section>
+
+<section id="all-videos">
+    <h2 style="font-family: 'Syncopate';">ALL <span style="color:var(--primary)">VIDEOS</span></h2>
+    <div class="grid" id="videoGrid"></div>
+    <button id="videoSeeMore" class="see-more-btn">SEE MORE</button>
+</section>
+
+<section id="all-photos">
+    <h2 style="font-family: 'Syncopate';">ALL <span style="color:var(--primary)">PHOTOS</span></h2>
+    <div class="grid" id="photoGrid"></div>
+    <button id="photoSeeMore" class="see-more-btn">SEE MORE</button>
+</section>
+
+<section id="contact">
+    <div class="contact-box">
+        <h2>CONTACT <span style="color:var(--primary)">US</span></h2>
+        <p style="margin-bottom: 20px; color: #888;">Have content to share? Send us a message.</p>
+        <input type="text" placeholder="Your Name">
+        <input type="email" placeholder="Email Address">
+        <textarea rows="5" placeholder="Message or Links"></textarea>
+        <button class="see-more-btn" style="width: 100%;">SEND MESSAGE</button>
+    </div>
+</section>
+
+<script>
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSphovHC5iSBWT3lhX0B492JfCNNXKh66PxwOsEhmK8Qjtp31mezs3oLLC-pKvBa9GKrX0tgBT-X2F3/pub?output=csv'; // මෙතනට ඔයාගේ ලින්ක් එක දාන්න
+    let allData = [];
+    let videoLimit = 6;
+    let photoLimit = 8;
+
+    // Fetch Data from Google Sheets
+    async function fetchData() {
+        const response = await fetch(CSV_URL);
+        const data = await response.text();
+        const rows = data.split('\n').slice(1);
+        allData = rows.map(row => {
+            const cols = row.split(',');
+            return {
+                name: cols[0]?.trim(),
+                profile: cols[1]?.trim(),
+                type: cols[2]?.trim().toLowerCase(),
+                link: cols[3]?.trim(),
+                title: cols[4]?.trim()
+            };
+        }).filter(item => item.name);
+        
+        renderActressGallery();
+        renderGlobalGalleries();
+    }
+
+    // Render Main Actress Gallery
+    function renderActressGallery() {
+        const grid = document.getElementById('actressGrid');
+        const actresses = [...new Set(allData.map(item => item.name))];
+        
+        grid.innerHTML = actresses.map(name => {
+            const actressMedia = allData.filter(i => i.name === name);
+            const vCount = actressMedia.filter(i => i.type === 'video').length;
+            const pCount = actressMedia.filter(i => i.type === 'photo').length;
+            const profile = actressMedia[0].profile;
+
+            return `
+                <div class="card reveal">
+                    <img src="${profile}" alt="${name}">
+                    <div class="card-body">
+                        <h3>${name}</h3>
+                        <div class="card-stats">
+                            <span><i class="ri-video-line"></i> ${vCount} Videos</span>
+                            <span>|</span>
+                            <span><i class="ri-image-line"></i> ${pCount} Photos</span>
+                        </div>
+                        <button class="btn-sm" onclick="showActressDetail('${name}', 'video')">View Videos</button>
+                        <button class="btn-sm" style="background:#333" onclick="showActressDetail('${name}', 'photo')">View Photos</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Show Detail for One Actress
+    function showActressDetail(name, type) {
+        showSection('actress-detail');
+        document.getElementById('detail-name').innerText = `${name}'s ${type === 'video' ? 'Videos' : 'Photos'}`;
+        const grid = document.getElementById('detailGrid');
+        const filtered = allData.filter(i => i.name === name && i.type === type);
+        
+        grid.innerHTML = filtered.map(item => createMediaCard(item)).join('');
+    }
+
+    // Render All Videos/Photos with See More
+    function renderGlobalGalleries() {
+        const vGrid = document.getElementById('videoGrid');
+        const pGrid = document.getElementById('photoGrid');
+        
+        const videos = allData.filter(i => i.type === 'video');
+        const photos = allData.filter(i => i.type === 'photo');
+
+        vGrid.innerHTML = videos.slice(0, videoLimit).map(i => createMediaCard(i)).join('');
+        pGrid.innerHTML = photos.slice(0, photoLimit).map(i => createMediaCard(i)).join('');
+
+        // See More Logic
+        document.getElementById('videoSeeMore').onclick = () => {
+            videoLimit = videoLimit === 6 ? videos.length : 6;
+            document.getElementById('videoSeeMore').innerText = videoLimit === 6 ? "SEE MORE" : "SEE LESS";
+            renderGlobalGalleries();
+        };
+        
+        document.getElementById('photoSeeMore').onclick = () => {
+            photoLimit = photoLimit === 8 ? photos.length : 8;
+            document.getElementById('photoSeeMore').innerText = photoLimit === 8 ? "SEE MORE" : "SEE LESS";
+            renderGlobalGalleries();
+        };
+    }
+
+    function createMediaCard(item) {
+        if(item.type === 'video') {
+            return `<div class="card reveal"><iframe width="100%" height="200" src="${item.link}" frameborder="0" allowfullscreen></iframe><div class="card-body"><h4>${item.title}</h4></div></div>`;
+        } else {
+            return `<div class="card reveal"><img src="${item.link}" style="height:250px"><div class="card-body"><h4>${item.title}</h4></div></div>`;
+        }
+    }
+
+    // SPA Section Switching
+    function showSection(id) {
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        window.scrollTo(0,0);
+        
+        // GSAP Reveal
+        gsap.from(`#${id} .reveal`, { y: 50, opacity: 0, duration: 1, stagger: 0.1, ease: "power4.out" });
+    }
+
+    // Initialize
+    fetchData();
+</script>
+
+</body>
+</html>
