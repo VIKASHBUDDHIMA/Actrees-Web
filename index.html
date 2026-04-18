@@ -26,19 +26,18 @@
         .loader-logo { font-family: 'Syncopate', sans-serif; font-size: 2rem; letter-spacing: 10px; color: var(--accent); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; text-shadow: 0 0 20px var(--accent); } 50% { opacity: 0.3; } }
 
-        /* --- NAVIGATION & MOBILE MENU --- */
+        /* --- NAVIGATION --- */
         nav { 
             position: fixed; width: 100%; padding: 20px 6%; display: flex; 
             justify-content: space-between; align-items: center; z-index: 1000; 
             background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
             backdrop-filter: blur(10px);
         }
-        .logo { font-family: 'Syncopate', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--text); text-decoration: none; transition: 0.3s; }
-        .logo:hover { text-shadow: 0 0 10px rgba(255,0,85,0.8); }
+        .logo { font-family: 'Syncopate', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--text); text-decoration: none; }
         .logo span { color: var(--accent); }
         .nav-links { display: flex; gap: 30px; }
         .nav-links a { color: #888; text-decoration: none; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s; }
-        .nav-links a:hover { color: var(--accent); text-shadow: 0 0 8px rgba(255,0,85,0.5); }
+        .nav-links a:hover { color: var(--accent); }
         .menu-toggle { display: none; font-size: 1.8rem; color: var(--text); cursor: pointer; }
 
         #mobile-menu {
@@ -48,12 +47,11 @@
         #mobile-menu a { font-size: 1.5rem; color: #fff; text-decoration: none; font-family: 'Syncopate', sans-serif; }
         .close-menu { position: absolute; top: 30px; right: 40px; font-size: 2.5rem; }
 
-        /* --- HERO SECTION --- */
+        /* --- HERO --- */
         #home { 
             height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
             background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop') center/cover;
             background-attachment: fixed;
-            position: relative;
         }
         #home h1 { font-family: 'Syncopate', sans-serif; font-size: clamp(2.5rem, 10vw, 6rem); text-transform: uppercase; line-height: 1; margin-bottom: 20px; }
         #home h1 span { color: var(--accent); -webkit-text-stroke: 1px var(--accent); -webkit-text-fill-color: transparent; }
@@ -64,35 +62,36 @@
             font-weight: 900; letter-spacing: 3px; cursor: pointer; border-radius: 50px;
             box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); transition: 0.4s ease;
         }
-        .vip-btn:hover { transform: scale(1.08) translateY(-3px); box-shadow: 0 10px 40px rgba(255, 0, 85, 0.7); }
+        .vip-btn:hover { transform: scale(1.08); }
 
-        /* --- SECTIONS & TEXT --- */
+        /* --- SECTIONS --- */
         section { padding: 100px 6%; }
         .section-title { font-family: 'Syncopate', sans-serif; font-size: 2rem; margin-bottom: 10px; text-align: center; }
         .section-title span { color: var(--accent); }
         .section-desc { text-align: center; color: #777; font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 50px; text-transform: uppercase; }
 
         /* --- GRID & CARDS --- */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; opacity: 1; }
         #actress-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
         
         .card { 
             background: var(--surface); position: relative; border-radius: 15px; overflow: hidden; 
-            border: 1px solid rgba(255,255,255,0.05); transition: all 0.4s ease;
+            border: 1px solid rgba(255,255,255,0.05); transition: 0.4s ease;
         }
-        .card.new-card { opacity: 0; transform: translateY(30px); }
-        
-        /* Hover Animations */
-        .card:hover { border-color: var(--accent); transform: translateY(-10px); box-shadow: 0 15px 35px rgba(255, 0, 85, 0.15); z-index: 2; }
-        
-        .card-img-wrap { height: 350px; overflow: hidden; }
+        .reveal-card { opacity: 0; transform: translateY(40px); }
+
+        .card-img-wrap { height: 350px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; }
         #actress-grid .card-img-wrap { height: 280px; }
         
-        /* Only Actress Cards get object-position: top */
-        .card img { width: 100%; height: 100%; object-fit: cover; object-position: center; transition: transform 0.8s ease; }
-        #actress-grid .card img { object-position: top; }
+        /* Fixed Image Fit Logic */
+        .card img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; /* Shows full image without cropping or stretching */
+            transition: 0.8s ease; 
+        }
         
-        .card:hover img { transform: scale(1.1); }
+        .card:hover img { transform: scale(1.05); }
 
         .video-container { position: relative; width: 100%; padding-top: 177%; background: #000; }
         .video-container iframe { position: absolute; top:0; left:0; width:100%; height:100%; border:none; }
@@ -101,44 +100,36 @@
             position: absolute; bottom: 0; width: 100%; padding: 20px; 
             background: linear-gradient(to top, rgba(0,0,0,0.9) 40%, transparent); text-align: center; 
         }
-        .card-info h3 { font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; }
+        .card-info h3 { font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
         
         .btn-row { display: flex; gap: 10px; }
-        .btn-sm { flex: 1; padding: 10px; background: rgba(255,0,85,0.05); color: var(--accent); border: 1px solid var(--accent); border-radius: 5px; cursor: pointer; font-size: 0.6rem; font-weight: 800; transition: all 0.3s ease; }
-        .btn-sm:hover { background: var(--accent); color: white; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,0,85,0.4); }
+        .btn-sm { flex: 1; padding: 10px; background: rgba(255,0,85,0.1); color: var(--accent); border: 1px solid var(--accent); border-radius: 5px; cursor: pointer; font-size: 0.6rem; font-weight: 800; }
 
-        /* --- OVERLAY SYSTEM --- */
+        /* --- OVERLAY --- */
         #media-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 5000;
             display: none; flex-direction: column; overflow-y: auto; padding: 100px 6% 40px;
-            backdrop-filter: blur(15px);
         }
-        .close-overlay { position: fixed; top: 30px; right: 30px; font-size: 2.5rem; color: #fff; cursor: pointer; z-index: 5001; transition: 0.3s; }
-        .close-overlay:hover { color: var(--accent); transform: scale(1.1) rotate(90deg); }
-        .overlay-title { font-family: 'Syncopate', sans-serif; text-align: center; margin-bottom: 40px; font-size: 1.5rem; }
-        .overlay-title span { color: var(--accent); }
+        .close-overlay { position: fixed; top: 30px; right: 30px; font-size: 2.5rem; color: #fff; cursor: pointer; z-index: 5001; }
 
         /* --- CONTROLS --- */
         .controls { display: flex; justify-content: center; gap: 15px; margin-top: 50px; }
-        .control-btn { background: transparent; border: 1px solid #333; color: #fff; padding: 12px 35px; border-radius: 50px; cursor: pointer; font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; transition: 0.3s ease; }
-        .control-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(255,0,85,0.05); }
+        .control-btn { background: transparent; border: 1px solid #333; color: #fff; padding: 12px 35px; border-radius: 50px; cursor: pointer; font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; }
 
-        /* --- NEW CTA SECTION BEFORE FOOTER --- */
-        #cta { text-align: center; padding: 120px 6%; background: linear-gradient(to top, #050505, var(--bg)); border-top: 1px solid rgba(255,255,255,0.02); }
-        #cta h2 { font-family: 'Syncopate', sans-serif; font-size: 2.5rem; margin-bottom: 15px; }
+        /* --- FOOTER & CTA --- */
+        #cta { text-align: center; padding: 100px 6%; border-top: 1px solid rgba(255,255,255,0.02); }
+        #cta h2 { font-family: 'Syncopate', sans-serif; font-size: 2rem; margin-bottom: 15px; }
         #cta h2 span { color: var(--accent); }
-        #cta p { max-width: 600px; margin: 0 auto 40px; color: #888; font-size: 0.9rem; line-height: 1.6; letter-spacing: 1px; }
+        #cta p { max-width: 600px; margin: 0 auto 30px; color: #888; font-size: 0.9rem; }
 
-        /* --- FOOTER --- */
-        footer { padding: 60px 6%; background: #030303; border-top: 1px solid rgba(255,0,85,0.2); text-align: center; }
-        .footer-logo { font-family: 'Syncopate', sans-serif; font-size: 1.5rem; color: #fff; text-decoration: none; transition: 0.3s; }
-        .footer-logo:hover { text-shadow: 0 0 10px var(--accent); }
-        .footer-logo span { color: var(--accent); }
-        .footer-copy { font-size: 0.7rem; color: #444; letter-spacing: 2px; margin-top: 20px; }
+        footer { padding: 50px 6%; background: #030303; border-top: 1px solid rgba(255,0,85,0.2); text-align: center; }
+        .footer-copy { font-size: 0.7rem; color: #444; margin-top: 20px; letter-spacing: 2px; }
 
         @media (max-width: 768px) {
             .nav-links { display: none; }
             .menu-toggle { display: block; }
+            /* Hide Video See More button on mobile */
+            #video-controls-desktop { display: none !important; }
             #video-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; scrollbar-width: none; }
             #video-grid .card { min-width: 85%; scroll-snap-align: center; flex-shrink: 0; }
         }
@@ -150,7 +141,7 @@
 
     <div id="media-overlay">
         <i class="ri-close-circle-line close-overlay" onclick="closeOverlay()"></i>
-        <h2 class="overlay-title" id="overlay-title">MODEL <span>ARCHIVE</span></h2>
+        <h2 class="section-title" id="overlay-title" style="margin-bottom: 40px;">MODEL <span>ARCHIVE</span></h2>
         <div id="overlay-grid" class="grid"></div>
     </div>
 
@@ -160,7 +151,7 @@
         <a href="#actresses" onclick="toggleMenu(false)">MODELS</a>
         <a href="#videos" onclick="toggleMenu(false)">VIP CLIPS</a>
         <a href="#photos" onclick="toggleMenu(false)">GALLERY</a>
-        <a href="contact.html" onclick="toggleMenu(false)">JOIN US</a>
+        <a href="contact.html">JOIN US</a>
     </div>
 
     <nav>
@@ -178,7 +169,7 @@
     <section id="home">
         <p><i class="ri-shield-flash-line"></i> PRIVATE ARCHIVE</p>
         <h1>Pure <span>Desire.</span></h1>
-        <p style="text-transform: none; font-family: sans-serif; letter-spacing: 2px; color: #ccc;">Experience the ultimate private collection of exclusive models.</p>
+        <p style="text-transform: none; letter-spacing: 2px; color: #ccc;">Experience the ultimate private collection of exclusive models.</p>
         <button class="vip-btn" onclick="document.getElementById('actresses').scrollIntoView()">UNLEASH NOW</button>
     </section>
 
@@ -192,7 +183,7 @@
         </div>
     </section>
 
-    <section id="videos" style="background: #000; position: relative;">
+    <section id="videos" style="background: #000;">
         <h2 class="section-title">VIP <span>CLIPS</span></h2>
         <p class="section-desc">Cinematic, high-definition private footage straight from the archive.</p>
         <div id="video-grid" class="grid"></div>
@@ -214,25 +205,20 @@
 
     <section id="cta">
         <h2>JOIN THE <span>ELITE</span></h2>
-        <p>You've seen a glimpse of the archive. Unlock unlimited access, VIP events, and full-length private collections by becoming a premium member today.</p>
+        <p>Unlock unlimited access and full-length private collections by becoming a premium member.</p>
         <button class="vip-btn" onclick="window.location.href='contact.html'">GET FULL ACCESS</button>
     </section>
 
     <footer>
-        <a href="#" class="footer-logo">NEXUS<span>VIP</span></a>
+        <a href="#" class="logo">NEXUS<span>VIP</span></a>
         <p class="footer-copy">© 2026 NEXUS VIP ENTERTAINMENT. ALL RIGHTS RESERVED.</p>
     </footer>
 
     <script>
-        // Start at top when loaded naturally
+        gsap.registerPlugin(ScrollTrigger);
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
         
-        window.addEventListener('load', () => {
-            window.scrollTo(0, 0);
-        });
-
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTr0Iyy40tk0ruBQhi1yYtf4-mh26HPt3eZAZzVqhj62Hk_DH01r41cwvkEY40TWmnC1ZwKjFd03gJa/pub?gid=1227904236&single=true&output=csv'; 
-
         let allData = [], shuffledVideos = [], shuffledPhotos = [], names = [];
         let aIndex = 8, vIndex = 3, pIndex = 3;
 
@@ -247,66 +233,48 @@
                 
                 let tempAllData = rows.map(r => {
                     const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    let n = c[0]?.replace(/"/g, '').trim();
-                    let p = c[1]?.replace(/"/g, '').trim();
-                    if (!n && lastN) n = lastN; else lastN = n;
-                    if (!p && lastP) p = lastP; else lastP = p;
+                    let n = c[0]?.replace(/"/g, '').trim() || lastN; lastN = n;
+                    let p = c[1]?.replace(/"/g, '').trim() || lastP; lastP = p;
                     return { name: n, profile: p, type: c[2]?.trim().toLowerCase(), link: c[3]?.trim() };
                 }).filter(i => i.link);
 
-                // Setup Dynamic Background from Sheet
                 const bgData = tempAllData.find(i => i.type === 'background');
-                if (bgData && bgData.link) {
-                    document.getElementById('home').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url('${bgData.link}')`;
-                }
+                if (bgData) document.getElementById('home').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url('${bgData.link}')`;
 
-                // Filter out background item so it doesn't appear in grids
-                allData = tempAllData.filter(i => i.type !== 'background' && i.name);
-
+                allData = tempAllData.filter(i => i.type !== 'background');
                 names = [...new Set(allData.map(i => i.name))].sort(() => Math.random() - 0.5);
                 shuffledVideos = allData.filter(i => i.type === 'video').sort(() => Math.random() - 0.5);
                 shuffledPhotos = allData.filter(i => i.type === 'photo').sort(() => Math.random() - 0.5);
                 
                 renderInitial();
-                initScrollAnimations();
-
-                // Wait until everything is rendered, then hide the loading screen
+                
                 gsap.to("#loader", { opacity: 0, duration: 1, onComplete: () => {
                     document.getElementById("loader").style.display = "none";
-                    window.scrollTo(0, 0); // Force to top just to be safe
+                    window.scrollTo(0, 0);
+                    initScrollAnimations();
                 }});
-
-            } catch (e) { 
-                console.error(e); 
-                document.getElementById("loader").style.display = "none"; // Hide loader even if there's an error
-            }
+            } catch (e) { console.error(e); document.getElementById("loader").style.display = "none"; }
         }
 
         function renderInitial() {
-            document.getElementById('actress-grid').innerHTML = names.slice(0, 8).map(n => createActressCard(n)).join('');
+            document.getElementById('actress-grid').innerHTML = names.slice(0, 8).map(n => createCard(n, 'actress')).join('');
             document.getElementById('video-grid').innerHTML = (window.innerWidth <= 768 ? shuffledVideos : shuffledVideos.slice(0, 3)).map(i => createMediaItem(i)).join('');
             document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i)).join('');
-            ScrollTrigger.refresh();
         }
 
         function initScrollAnimations() {
-            // Animate Section Titles & Descriptions on Scroll ONLY
-            // Removed card initial animation to ensure they are visible right away
-            gsap.utils.toArray('.section-title, .section-desc').forEach(el => {
-                gsap.from(el, { scrollTrigger: { trigger: el, start: "top 85%" }, opacity: 0, y: 30, duration: 1, ease: "power3.out" });
-            });
-
-            // Animate CTA section
-            gsap.from("#cta h2, #cta p, #cta button", {
-                scrollTrigger: { trigger: "#cta", start: "top 80%" },
-                opacity: 0, y: 30, duration: 1, stagger: 0.2, ease: "power3.out"
+            gsap.utils.toArray('.section-title, .section-desc, .card').forEach(el => {
+                gsap.fromTo(el, { opacity: 0, y: 50 }, {
+                    scrollTrigger: { trigger: el, start: "top 90%" },
+                    opacity: 1, y: 0, duration: 1, ease: "power2.out"
+                });
             });
         }
 
-        function createActressCard(name, isNew = false) {
+        function createCard(name, type) {
             const m = allData.find(i => i.name === name);
-            return `<div class="card ${isNew ? 'new-card' : ''}">
-                <div class="card-img-wrap"><img src="${m.profile}"></div>
+            return `<div class="card reveal-card">
+                <div class="card-img-wrap"><img src="${m.profile}" style="object-position: top;"></div>
                 <div class="card-info">
                     <h3>${name}</h3>
                     <div class="btn-row">
@@ -318,40 +286,29 @@
         }
 
         function createMediaItem(i, isNew = false) {
-            const nc = isNew ? 'new-card' : '';
+            const nc = isNew ? 'reveal-card' : '';
             if (i.type === 'video') return `<div class="card ${nc}"><div class="video-container">${getVideoElement(i.link)}</div></div>`;
-            // Fixed the photo wrapper to ensure images fit properly
             return `<div class="card ${nc}"><div class="card-img-wrap"><img src="${i.link}"></div></div>`;
         }
 
         function openOverlay(name, type) {
             const filtered = allData.filter(i => i.name === name && i.type === type);
-            const overlay = document.getElementById('media-overlay');
-            const grid = document.getElementById('overlay-grid');
-            
             document.getElementById('overlay-title').innerHTML = `${name} <span>${type.toUpperCase()}S</span>`;
-            grid.innerHTML = filtered.map(i => createMediaItem(i, true)).join('');
-            
-            overlay.style.display = 'block';
-            document.body.style.overflow = 'hidden'; 
-            
-            gsap.fromTo(overlay, {opacity: 0}, {opacity: 1, duration: 0.5});
-            animateNewCards();
+            document.getElementById('overlay-grid').innerHTML = filtered.map(i => createMediaItem(i, true)).join('');
+            document.getElementById('media-overlay').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.1, duration: 0.8 });
         }
 
         function closeOverlay() {
-            const overlay = document.getElementById('media-overlay');
-            gsap.to(overlay, {opacity: 0, duration: 0.3, onComplete: () => {
-                overlay.style.display = 'none';
-                document.getElementById('overlay-grid').innerHTML = '';
-                document.body.style.overflow = 'auto'; 
-            }});
+            document.getElementById('media-overlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
 
         function loadMoreActresses() {
             const set = names.slice(aIndex, aIndex + 8);
-            document.getElementById('actress-grid').insertAdjacentHTML('beforeend', set.map(n => createActressCard(n, true)).join(''));
-            animateNewCards();
+            document.getElementById('actress-grid').insertAdjacentHTML('beforeend', set.map(n => createCard(n, 'actress')).join(''));
+            gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.1, duration: 0.8 });
             aIndex += 8;
             if (aIndex >= names.length) document.getElementById('a-more').style.display = 'none';
             document.getElementById('a-hide').style.display = 'block';
@@ -361,7 +318,7 @@
         function loadMoreVideos() {
             const set = shuffledVideos.slice(vIndex, vIndex + 3);
             document.getElementById('video-grid').insertAdjacentHTML('beforeend', set.map(i => createMediaItem(i, true)).join(''));
-            animateNewCards();
+            gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.1, duration: 0.8 });
             vIndex += 3;
             if (vIndex >= shuffledVideos.length) document.getElementById('v-more').style.display = 'none';
             document.getElementById('v-hide').style.display = 'block';
@@ -371,20 +328,16 @@
         function loadMorePhotos() {
             const set = shuffledPhotos.slice(pIndex, pIndex + 3);
             document.getElementById('photo-grid').insertAdjacentHTML('beforeend', set.map(i => createMediaItem(i, true)).join(''));
-            animateNewCards();
+            gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.1, duration: 0.8 });
             pIndex += 3;
             if (pIndex >= shuffledPhotos.length) document.getElementById('p-more').style.display = 'none';
             document.getElementById('p-hide').style.display = 'block';
             ScrollTrigger.refresh();
         }
 
-        function hideActresses() { aIndex = 8; renderInitial(); document.getElementById('a-more').style.display = 'block'; document.getElementById('a-hide').style.display = 'none'; }
-        function hideVideos() { vIndex = 3; renderInitial(); document.getElementById('v-more').style.display = 'block'; document.getElementById('v-hide').style.display = 'none'; }
-        function hidePhotos() { pIndex = 3; renderInitial(); document.getElementById('p-more').style.display = 'block'; document.getElementById('p-hide').style.display = 'none'; }
-
-        function animateNewCards() {
-            gsap.to(".new-card", { opacity: 1, y: 0, duration: 0.8, stagger: 0.2, ease: "power2.out", onComplete: () => document.querySelectorAll('.new-card').forEach(el => el.classList.remove('new-card')) });
-        }
+        function hideActresses() { aIndex = 8; renderInitial(); document.getElementById('a-more').style.display = 'block'; document.getElementById('a-hide').style.display = 'none'; ScrollTrigger.refresh(); }
+        function hideVideos() { vIndex = 3; renderInitial(); document.getElementById('v-more').style.display = 'block'; document.getElementById('v-hide').style.display = 'none'; ScrollTrigger.refresh(); }
+        function hidePhotos() { pIndex = 3; renderInitial(); document.getElementById('p-more').style.display = 'block'; document.getElementById('p-hide').style.display = 'none'; ScrollTrigger.refresh(); }
 
         function getVideoElement(u) {
             if (u.includes('youtube.com')) u = u.replace('watch?v=', 'embed/');
