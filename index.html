@@ -10,8 +10,8 @@
 
     <style>
         :root {
-            --accent: #ff0055; /* Hot Pink/Magenta */
-            --gold: #d4af37; /* Premium Gold */
+            --accent: #ff0055;
+            --gold: #d4af37;
             --bg: #050505;
             --surface: #0a0a0c;
             --text: #ffffff;
@@ -20,7 +20,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; scroll-behavior: smooth; }
         body { background: var(--bg); color: var(--text); overflow-x: hidden; }
 
-        /* --- Custom Navigation (Sleek) --- */
         nav { 
             position: fixed; width: 100%; padding: 15px 6%; display: flex; 
             justify-content: space-between; align-items: center; z-index: 1000; 
@@ -32,7 +31,6 @@
         .nav-links a { color: #eee; text-decoration: none; margin-left: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; transition: 0.3s; }
         .nav-links a:hover { color: var(--accent); }
 
-        /* --- Hero Section (Cinematic) --- */
         #home { 
             height: 100vh; display: flex; flex-direction: column; 
             justify-content: center; align-items: center; text-align: center;
@@ -54,23 +52,34 @@
         }
         .vip-btn:hover { box-shadow: inset 0 0 50px 0 var(--accent); border-color: white; }
 
-        /* --- Sections --- */
         section { padding: 80px 6%; }
         .section-title { font-size: 2.5rem; font-weight: 900; margin-bottom: 40px; text-transform: uppercase; text-align: center; letter-spacing: 2px; }
         .section-title span { color: var(--accent); }
 
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 
-        /* --- VIP Cards --- */
         .card { 
             background: var(--surface); position: relative; overflow: hidden; 
             border: 1px solid #1a1a1a; transition: 0.4s ease-in-out;
         }
-        .card:hover { transform: scale(1.02); border-color: var(--accent); z-index: 10; }
+        .card:hover { border-color: var(--accent); z-index: 10; }
         
         .card-img-wrap { width: 100%; height: 450px; position: relative; }
         .card img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8); transition: 0.5s; }
         .card:hover img { filter: brightness(1.1); }
+
+        /* 9:16 Video Container (Works for Iframe & HTML5 Video) */
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-top: 177.77%; /* 9:16 Portrait Ratio */
+            background: #000;
+        }
+        .video-container iframe, .video-container video {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border: none; object-fit: cover;
+        }
 
         .card-info { 
             position: absolute; bottom: 0; width: 100%; padding: 25px;
@@ -83,15 +92,12 @@
         .btn-sm { flex: 1; padding: 12px; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; text-transform: uppercase; font-size: 0.7rem; font-weight: 700; transition: 0.3s; }
         .btn-sm:hover { background: var(--accent); border-color: var(--accent); }
 
-        /* --- Media Overlay --- */
         #detail-view { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: none; overflow-y: auto; padding: 100px 6%; }
         .close-btn { position: fixed; top: 30px; right: 40px; font-size: 3rem; color: var(--accent); cursor: pointer; }
 
-        /* --- Premium Contact Form --- */
         .contact-wrap { max-width: 800px; margin: 0 auto; background: #080808; padding: 60px; border-top: 4px solid var(--accent); }
         input, textarea { width: 100%; padding: 18px; margin-bottom: 15px; background: #111; border: 1px solid #222; color: white; outline: none; font-size: 1rem; }
-        input:focus { border-color: var(--accent); }
-
+        
         #status { text-align: center; font-style: italic; color: var(--gold); margin-bottom: 20px; }
 
         @media (max-width: 768px) { .nav-links { display: none; } #home h1 { font-size: 4rem; } }
@@ -152,10 +158,39 @@
     </section>
 
     <script>
-        // ඉතා වැදගත්: ඔයාගේ Google Sheet CSV Link එක මෙතනට දාන්න
+        // ඔයා දීපු Google Sheet Link එක
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSlC5rHr5IXgKcaBRry2zxfrhpBjmLKjBhLqMzhKwY8UNUtD17nHK96afzVk3cFeCQDzRXOtmHOzwAw/pub?gid=1177191944&single=true&output=csv'; 
 
         let allData = [];
+
+        // ඕනෑම video link එකක් (YouTube/Direct/Drive) හඳුනාගෙන වැඩ කරන විදිහට හදන Function එක
+        function getVideoElement(url) {
+            let finalUrl = url.trim();
+
+            // YouTube Formatting
+            if (finalUrl.includes('youtube.com/watch?v=')) {
+                finalUrl = finalUrl.replace('watch?v=', 'embed/');
+                return `<iframe src="${finalUrl}" allowfullscreen></iframe>`;
+            } else if (finalUrl.includes('youtu.be/')) {
+                finalUrl = finalUrl.replace('youtu.be/', 'youtube.com/embed/');
+                return `<iframe src="${finalUrl}" allowfullscreen></iframe>`;
+            } 
+            
+            // Direct Video Files (.mp4, .webm, etc)
+            const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov'];
+            if (videoExtensions.some(ext => finalUrl.toLowerCase().endsWith(ext)) || finalUrl.includes('drive.google.com')) {
+                // Google Drive fix (if not already a direct link)
+                if(finalUrl.includes('drive.google.com') && finalUrl.includes('/view')) {
+                    finalUrl = finalUrl.replace('/view', '/preview');
+                    return `<iframe src="${finalUrl}" allowfullscreen></iframe>`;
+                }
+                // Standard HTML5 Video Player
+                return `<video controls playsinline><source src="${finalUrl}" type="video/mp4">Your browser does not support the video tag.</video>`;
+            }
+
+            // Default fallback as Iframe (for Mega or other embeds)
+            return `<iframe src="${finalUrl}" allowfullscreen></iframe>`;
+        }
 
         async function fetchData() {
             try {
@@ -164,8 +199,15 @@
                 const rows = text.split('\n').slice(1);
                 
                 allData = rows.map(r => {
-                    const c = r.split(',');
-                    return { name: c[0]?.trim(), profile: c[1]?.trim(), type: c[2]?.trim().toLowerCase(), link: c[3]?.trim(), title: c[4]?.trim() };
+                    // CSV splitting logic that handles commas inside quotes (if any)
+                    const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    return { 
+                        name: c[0]?.replace(/"/g, '').trim(), 
+                        profile: c[1]?.replace(/"/g, '').trim(), 
+                        type: c[2]?.replace(/"/g, '').trim().toLowerCase(), 
+                        link: c[3]?.replace(/"/g, '').trim(), 
+                        title: c[4]?.replace(/"/g, '').trim() 
+                    };
                 }).filter(i => i.name && i.link);
 
                 document.getElementById('status').style.display = 'none';
@@ -202,12 +244,23 @@
         }
 
         function createMediaItem(i) {
-            return `
-                <div class="card" style="height:auto; padding-bottom: 10px;">
-                    ${i.type === 'video' ? `<iframe width="100%" height="220" src="${i.link}" frameborder="0" allowfullscreen></iframe>` : `<img src="${i.link}" style="height:300px">`}
-                    <div style="padding:15px; font-weight:700; font-size:0.75rem; letter-spacing:1px; color:#888;">${i.title}</div>
-                </div>
-            `;
+            if (i.type === 'video') {
+                return `
+                    <div class="card">
+                        <div class="video-container">
+                            ${getVideoElement(i.link)}
+                        </div>
+                        <div style="padding:15px; font-weight:700; font-size:0.75rem; letter-spacing:1px; color:#888;">${i.title}</div>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="card" style="height:auto; padding-bottom: 10px;">
+                        <img src="${i.link}" style="width:100%; height:auto; display:block;">
+                        <div style="padding:15px; font-weight:700; font-size:0.75rem; letter-spacing:1px; color:#888;">${i.title}</div>
+                    </div>
+                `;
+            }
         }
 
         function openOverlay(name, type) {
