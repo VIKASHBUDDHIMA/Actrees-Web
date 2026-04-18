@@ -78,16 +78,17 @@
             background: var(--surface); position: relative; border-radius: 15px; overflow: hidden; 
             border: 1px solid rgba(255,255,255,0.05); transition: 0.4s ease;
         }
+        
+        /* This class is only for items loaded via 'See More' */
         .reveal-card { opacity: 0; transform: translateY(40px); }
 
         .card-img-wrap { height: 350px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; }
         #actress-grid .card-img-wrap { height: 280px; }
         
-        /* Fixed Image Fit Logic */
         .card img { 
             width: 100%; 
             height: 100%; 
-            object-fit: contain; /* Shows full image without cropping or stretching */
+            object-fit: contain; 
             transition: 0.8s ease; 
         }
         
@@ -128,7 +129,6 @@
         @media (max-width: 768px) {
             .nav-links { display: none; }
             .menu-toggle { display: block; }
-            /* Hide Video See More button on mobile */
             #video-controls-desktop { display: none !important; }
             #video-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; scrollbar-width: none; }
             #video-grid .card { min-width: 85%; scroll-snap-align: center; flex-shrink: 0; }
@@ -257,12 +257,15 @@
         }
 
         function renderInitial() {
-            document.getElementById('actress-grid').innerHTML = names.slice(0, 8).map(n => createCard(n, 'actress')).join('');
-            document.getElementById('video-grid').innerHTML = (window.innerWidth <= 768 ? shuffledVideos : shuffledVideos.slice(0, 3)).map(i => createMediaItem(i)).join('');
-            document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i)).join('');
+            // Initial cards are rendered WITHOUT 'reveal-card' class so they are visible immediately
+            document.getElementById('actress-grid').innerHTML = names.slice(0, 8).map(n => createCard(n, false)).join('');
+            document.getElementById('video-grid').innerHTML = (window.innerWidth <= 768 ? shuffledVideos : shuffledVideos.slice(0, 3)).map(i => createMediaItem(i, false)).join('');
+            document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
+            ScrollTrigger.refresh();
         }
 
         function initScrollAnimations() {
+            // Animates titles and existing cards on scroll
             gsap.utils.toArray('.section-title, .section-desc, .card').forEach(el => {
                 gsap.fromTo(el, { opacity: 0, y: 50 }, {
                     scrollTrigger: { trigger: el, start: "top 90%" },
@@ -271,9 +274,10 @@
             });
         }
 
-        function createCard(name, type) {
+        function createCard(name, isNew = false) {
             const m = allData.find(i => i.name === name);
-            return `<div class="card reveal-card">
+            const revealClass = isNew ? 'reveal-card' : '';
+            return `<div class="card ${revealClass}">
                 <div class="card-img-wrap"><img src="${m.profile}" style="object-position: top;"></div>
                 <div class="card-info">
                     <h3>${name}</h3>
@@ -286,9 +290,9 @@
         }
 
         function createMediaItem(i, isNew = false) {
-            const nc = isNew ? 'reveal-card' : '';
-            if (i.type === 'video') return `<div class="card ${nc}"><div class="video-container">${getVideoElement(i.link)}</div></div>`;
-            return `<div class="card ${nc}"><div class="card-img-wrap"><img src="${i.link}"></div></div>`;
+            const revealClass = isNew ? 'reveal-card' : '';
+            if (i.type === 'video') return `<div class="card ${revealClass}"><div class="video-container">${getVideoElement(i.link)}</div></div>`;
+            return `<div class="card ${revealClass}"><div class="card-img-wrap"><img src="${i.link}"></div></div>`;
         }
 
         function openOverlay(name, type) {
@@ -307,7 +311,7 @@
 
         function loadMoreActresses() {
             const set = names.slice(aIndex, aIndex + 8);
-            document.getElementById('actress-grid').insertAdjacentHTML('beforeend', set.map(n => createCard(n, 'actress')).join(''));
+            document.getElementById('actress-grid').insertAdjacentHTML('beforeend', set.map(n => createCard(n, true)).join(''));
             gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.1, duration: 0.8 });
             aIndex += 8;
             if (aIndex >= names.length) document.getElementById('a-more').style.display = 'none';
@@ -335,9 +339,29 @@
             ScrollTrigger.refresh();
         }
 
-        function hideActresses() { aIndex = 8; renderInitial(); document.getElementById('a-more').style.display = 'block'; document.getElementById('a-hide').style.display = 'none'; ScrollTrigger.refresh(); }
-        function hideVideos() { vIndex = 3; renderInitial(); document.getElementById('v-more').style.display = 'block'; document.getElementById('v-hide').style.display = 'none'; ScrollTrigger.refresh(); }
-        function hidePhotos() { pIndex = 3; renderInitial(); document.getElementById('p-more').style.display = 'block'; document.getElementById('p-hide').style.display = 'none'; ScrollTrigger.refresh(); }
+        function hideActresses() { 
+            aIndex = 8; 
+            document.getElementById('actress-grid').innerHTML = names.slice(0, 8).map(n => createCard(n, false)).join('');
+            document.getElementById('a-more').style.display = 'block'; 
+            document.getElementById('a-hide').style.display = 'none'; 
+            ScrollTrigger.refresh(); 
+        }
+        
+        function hideVideos() { 
+            vIndex = 3; 
+            document.getElementById('video-grid').innerHTML = shuffledVideos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
+            document.getElementById('v-more').style.display = 'block'; 
+            document.getElementById('v-hide').style.display = 'none'; 
+            ScrollTrigger.refresh(); 
+        }
+        
+        function hidePhotos() { 
+            pIndex = 3; 
+            document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
+            document.getElementById('p-more').style.display = 'block'; 
+            document.getElementById('p-hide').style.display = 'none'; 
+            ScrollTrigger.refresh(); 
+        }
 
         function getVideoElement(u) {
             if (u.includes('youtube.com')) u = u.replace('watch?v=', 'embed/');
