@@ -22,6 +22,7 @@
         #loader {
             position: fixed; inset: 0; background: #000; z-index: 9999;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 20px;
         }
         .loader-logo { font-family: 'Syncopate', sans-serif; font-size: 2rem; letter-spacing: 10px; color: var(--accent); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; text-shadow: 0 0 20px var(--accent); } 50% { opacity: 0.3; } }
@@ -91,6 +92,14 @@
         .section-title span { color: var(--accent); }
         .section-desc { text-align: center; color: #777; font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 50px; text-transform: uppercase; }
 
+        /* SLIDE HINT */
+        .slide-hint {
+            display: none; text-align: center; color: var(--gold); font-size: 0.65rem;
+            letter-spacing: 2px; margin-bottom: 15px; text-transform: uppercase;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
+
         /* --- GRID & CARDS --- */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
         #actress-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
@@ -149,12 +158,20 @@
 
         /* --- MOBILE --- */
         @media (max-width: 768px) {
+            #loader .loader-logo { font-size: 1.5rem; letter-spacing: 5px; }
             #home { background-attachment: scroll; } 
             .nav-links { display: none; }
             .menu-toggle { display: block; }
+            
+            #actress-controls-desktop { display: none !important; }
+            #actress-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 20px; scrollbar-width: none; }
+            #actress-grid .card { min-width: 75%; scroll-snap-align: center; flex-shrink: 0; }
+            .slide-hint { display: block; }
+
             #video-controls-desktop { display: none !important; }
             #video-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 20px; scrollbar-width: none; }
             #video-grid .card { min-width: 85%; scroll-snap-align: center; flex-shrink: 0; }
+            
             section { padding: 60px 4%; }
             .section-title { font-size: 1.6rem; }
         }
@@ -212,10 +229,11 @@
     </section>
 
     <section id="actresses">
-        <h2 class="section-title">TOP <span>TALENTS</span></h2>
+        <h2 class="section-title">TOP <span>MODELS</span></h2>
         <p class="section-desc">Handpicked creators featuring their public highlights and social media trends.</p>
+        <div class="slide-hint" id="a-hint"><i class="ri-arrow-left-right-line"></i> Slide to explore</div>
         <div id="actress-grid" class="grid"></div>
-        <div class="controls">
+        <div class="controls" id="actress-controls-desktop">
             <button class="control-btn" id="a-more" onclick="loadMoreActresses()">See More</button>
             <button class="control-btn" id="a-hide" onclick="hideActresses()" style="display:none;">Hide</button>
         </div>
@@ -319,12 +337,23 @@
                 
                 renderInitial();
                 hideLoader();
+                setupHintRemover();
             } catch (e) { hideLoader(); }
+        }
+
+        function setupHintRemover() {
+            const aGrid = document.getElementById('actress-grid');
+            const aHint = document.getElementById('a-hint');
+            aGrid.addEventListener('scroll', () => {
+                aHint.style.transition = "0.5s";
+                aHint.style.opacity = "0";
+                setTimeout(() => aHint.style.display = "none", 500);
+            }, { once: true });
         }
 
         function renderInitial() {
             let cols = getCols();
-            aIndex = window.innerWidth <= 768 ? 4 : cols * 2; 
+            aIndex = window.innerWidth <= 768 ? names.length : cols * 2; 
             document.getElementById('actress-grid').innerHTML = names.slice(0, aIndex).map(n => createCard(n, false)).join('');
             document.getElementById('video-grid').innerHTML = (window.innerWidth <= 768 ? shuffledVideos : shuffledVideos.slice(0, 3)).map(i => createMediaItem(i, false)).join('');
             document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
@@ -374,7 +403,7 @@
 
         function loadMoreActresses() {
             let cols = getCols();
-            let loadAmount = window.innerWidth <= 768 ? 4 : (cols * 2);
+            let loadAmount = cols * 2;
             const set = names.slice(aIndex, aIndex + loadAmount);
             document.getElementById('actress-grid').insertAdjacentHTML('beforeend', set.map(n => createCard(n, true)).join(''));
             gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
@@ -386,7 +415,7 @@
 
         function hideActresses() { 
             let cols = getCols();
-            aIndex = window.innerWidth <= 768 ? 4 : cols * 2; 
+            aIndex = cols * 2; 
             document.getElementById('actress-grid').innerHTML = names.slice(0, aIndex).map(n => createCard(n, false)).join('');
             document.getElementById('a-more').style.display = 'block'; 
             document.getElementById('a-hide').style.display = 'none'; 
