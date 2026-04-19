@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS VIP | PREMIUM ARCHIVE</title>
+    <title>STAR STREAM | FAN GALLERY</title>
     
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Montserrat:wght@300;600;900&display=swap" rel="stylesheet">
@@ -25,6 +25,26 @@
         }
         .loader-logo { font-family: 'Syncopate', sans-serif; font-size: 2rem; letter-spacing: 10px; color: var(--accent); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; text-shadow: 0 0 20px var(--accent); } 50% { opacity: 0.3; } }
+
+        /* --- DISCLAIMER OVERLAY --- */
+        #disclaimer-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000;
+            display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px);
+        }
+        .disclaimer-box {
+            background: var(--surface); padding: 40px; border-radius: 20px;
+            max-width: 550px; width: 90%; border: 1px solid rgba(255,255,255,0.1);
+            text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .disclaimer-box i { font-size: 3rem; color: var(--accent); margin-bottom: 20px; display: block; }
+        .disclaimer-box h2 { font-family: 'Syncopate'; font-size: 1.2rem; color: #fff; margin-bottom: 20px; letter-spacing: 2px; }
+        .disclaimer-box p { font-size: 0.85rem; line-height: 1.6; color: #aaa; margin-bottom: 30px; }
+        .disclaimer-btn {
+            background: var(--accent); color: white; border: none; padding: 12px 40px;
+            border-radius: 50px; font-weight: 800; cursor: pointer; transition: 0.3s;
+            text-transform: uppercase; letter-spacing: 2px; font-size: 0.7rem;
+        }
+        .disclaimer-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,0,85,0.3); }
 
         /* --- NAVIGATION --- */
         nav { 
@@ -73,8 +93,6 @@
 
         /* --- GRID & CARDS --- */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        
-        /* Auto-fill adaptively handles columns based on screen width */
         #actress-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
         
         .card { 
@@ -129,17 +147,13 @@
         footer { padding: 40px 6%; background: #030303; border-top: 1px solid rgba(255,0,85,0.2); text-align: center; }
         .footer-copy { font-size: 0.65rem; color: #444; margin-top: 15px; letter-spacing: 2px; }
 
-        /* --- MOBILE BUG FIXES --- */
+        /* --- MOBILE --- */
         @media (max-width: 768px) {
             #home { background-attachment: scroll; } 
             .nav-links { display: none; }
             .menu-toggle { display: block; }
-            
             #video-controls-desktop { display: none !important; }
-            #video-grid { 
-                display: flex; overflow-x: auto; scroll-snap-type: x mandatory; 
-                gap: 15px; padding-bottom: 20px; scrollbar-width: none; 
-            }
+            #video-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 20px; scrollbar-width: none; }
             #video-grid .card { min-width: 85%; scroll-snap-align: center; flex-shrink: 0; }
             section { padding: 60px 4%; }
             .section-title { font-size: 1.6rem; }
@@ -148,29 +162,42 @@
 </head>
 <body>
 
-    <div id="loader"><div class="loader-logo">NEXUS</div></div>
+    <div id="loader"><div class="loader-logo">STAR STREAM</div></div>
+
+    <div id="disclaimer-overlay">
+        <div class="disclaimer-box">
+            <i class="ri-information-line"></i>
+            <h2>DISCLAIMER & TERMS</h2>
+            <p>
+                This website is a community-driven fan archive for entertainment purposes only. We do not host, store, or own any media files on our servers; all content is indexed from third-party sources. 
+                <br><br>
+                <b>Important:</b> This is a non-profit project and we do not generate any revenue through this platform. Any advertisements encountered during video playback are property of the third-party free video players used and are not controlled or endorsed by us.
+            </p>
+            <button class="disclaimer-btn" onclick="closeDisclaimer()">I Understand & Proceed</button>
+        </div>
+    </div>
 
     <div id="media-overlay">
         <i class="ri-close-circle-line close-overlay" onclick="closeOverlay()"></i>
-        <h2 class="section-title" id="overlay-title" style="margin-bottom: 30px;">MODEL <span>ARCHIVE</span></h2>
+        <h2 class="section-title" id="overlay-title" style="margin-bottom: 30px;">FAN <span>GALLERY</span></h2>
         <div id="overlay-grid" class="grid"></div>
     </div>
 
     <div id="mobile-menu">
         <i class="ri-close-line close-menu" onclick="toggleMenu(false)"></i>
         <a href="#home" onclick="toggleMenu(false)">HOME</a>
-        <a href="#actresses" onclick="toggleMenu(false)">MODELS</a>
-        <a href="#videos" onclick="toggleMenu(false)">VIP CLIPS</a>
+        <a href="#actresses" onclick="toggleMenu(false)">TALENTS</a>
+        <a href="#videos" onclick="toggleMenu(false)">CLIPS</a>
         <a href="#photos" onclick="toggleMenu(false)">GALLERY</a>
         <a href="contact.html">JOIN US</a>
     </div>
 
     <nav>
-        <a href="#home" class="logo">NEXUS<span>VIP</span></a>
+        <a href="#home" class="logo">STAR<span>STREAM</span></a>
         <div class="nav-links">
             <a href="#home">Home</a>
-            <a href="#actresses">Models</a>
-            <a href="#videos">VIP Clips</a>
+            <a href="#actresses">Talents</a>
+            <a href="#videos">Clips</a>
             <a href="#photos">Galleries</a>
             <a href="contact.html">Join Us</a>
         </div>
@@ -178,15 +205,15 @@
     </nav>
 
     <section id="home">
-        <p><i class="ri-shield-flash-line"></i> PRIVATE ARCHIVE</p>
-        <h1>Pure <span>Desire.</span></h1>
-        <p style="text-transform: none; letter-spacing: 2px; color: #ccc;">Experience the ultimate private collection of exclusive models.</p>
-        <button class="vip-btn" onclick="document.getElementById('actresses').scrollIntoView()">UNLEASH NOW</button>
+        <p><i class="ri-community-line"></i> COMMUNITY ARCHIVE</p>
+        <h1>Creative <span>Vision.</span></h1>
+        <p style="text-transform: none; letter-spacing: 2px; color: #ccc;">Explore the curated collection of trending social media creators.</p>
+        <button class="vip-btn" onclick="document.getElementById('actresses').scrollIntoView()">DISCOVER NOW</button>
     </section>
 
     <section id="actresses">
-        <h2 class="section-title">TOP <span>MODELS</span></h2>
-        <p class="section-desc">Handpicked elite creators, featuring their most exclusive unseen content.</p>
+        <h2 class="section-title">TOP <span>TALENTS</span></h2>
+        <p class="section-desc">Handpicked creators featuring their public highlights and social media trends.</p>
         <div id="actress-grid" class="grid"></div>
         <div class="controls">
             <button class="control-btn" id="a-more" onclick="loadMoreActresses()">See More</button>
@@ -195,8 +222,8 @@
     </section>
 
     <section id="videos" style="background: #000;">
-        <h2 class="section-title">VIP <span>CLIPS</span></h2>
-        <p class="section-desc">Cinematic, high-definition private footage straight from the archive.</p>
+        <h2 class="section-title">FEATURED <span>CLIPS</span></h2>
+        <p class="section-desc">High-definition curated footage from across the web archive.</p>
         <div id="video-grid" class="grid"></div>
         <div class="controls" id="video-controls-desktop">
             <button class="control-btn" id="v-more" onclick="loadMoreVideos()">See More</button>
@@ -205,8 +232,8 @@
     </section>
 
     <section id="photos">
-        <h2 class="section-title">EXCLUSIVE <span>GALLERY</span></h2>
-        <p class="section-desc">Breathtaking photography captured behind closed doors.</p>
+        <h2 class="section-title">FAN <span>GALLERY</span></h2>
+        <p class="section-desc">Breathtaking captures and high-quality photography from featured creators.</p>
         <div id="photo-grid" class="grid"></div>
         <div class="controls">
             <button class="control-btn" id="p-more" onclick="loadMorePhotos()">See More</button>
@@ -215,14 +242,14 @@
     </section>
 
     <section id="cta">
-        <h2>JOIN THE <span>ELITE</span></h2>
-        <p>Unlock unlimited access and full-length private collections by becoming a premium member.</p>
-        <button class="vip-btn" onclick="window.location.href='contact.html'">GET FULL ACCESS</button>
+        <h2>JOIN THE <span>COMMUNITY</span></h2>
+        <p>Stay updated with the latest highlights and join our community of creators and fans.</p>
+        <button class="vip-btn" onclick="window.location.href='contact.html'">GET IN TOUCH</button>
     </section>
 
     <footer>
-        <a href="#" class="logo">NEXUS<span>VIP</span></a>
-        <p class="footer-copy">© 2026 NEXUS VIP ENTERTAINMENT. ALL RIGHTS RESERVED.</p>
+        <a href="#" class="logo">STAR<span>STREAM</span></a>
+        <p class="footer-copy">© 2026 STAR STREAM. FOR ENTERTAINMENT PURPOSES ONLY.</p>
     </footer>
 
     <script>
@@ -243,29 +270,34 @@
             clearTimeout(loaderTimeout);
             gsap.to("#loader", { opacity: 0, duration: 1, onComplete: () => {
                 document.getElementById("loader").style.display = "none";
+                const disc = document.getElementById("disclaimer-overlay");
+                disc.style.display = "flex";
+                gsap.from(disc, {opacity: 0, duration: 0.5});
+            }});
+        }
+
+        function closeDisclaimer() {
+            gsap.to("#disclaimer-overlay", { opacity: 0, duration: 0.5, onComplete: () => {
+                document.getElementById("disclaimer-overlay").style.display = "none";
                 window.scrollTo(0, 0);
                 initScrollAnimations();
             }});
         }
 
-        // --- DYNAMIC GRID COLUMN CALCULATION ---
         function getCols() {
-            if (window.innerWidth <= 768) return 1; // Mobile usually wraps to 1 item
+            if (window.innerWidth <= 768) return 1;
             const grid = document.getElementById('actress-grid');
             try {
                 const colsString = window.getComputedStyle(grid).getPropertyValue('grid-template-columns');
                 if (colsString === 'none') return 4;
                 const cols = colsString.trim().split(' ').length;
                 return (cols && !isNaN(cols) && cols > 0) ? cols : 4;
-            } catch (e) {
-                return 4;
-            }
+            } catch (e) { return 4; }
         }
 
         async function fetchData() {
             try {
                 const res = await fetch(CSV_URL);
-                if(!res.ok) throw new Error("Fetch failed");
                 const text = await res.text();
                 const rows = text.split('\n').slice(1);
                 let lastN = "", lastP = "";
@@ -278,10 +310,7 @@
                 }).filter(i => i.link);
 
                 const bgData = tempAllData.find(i => i.type === 'background');
-                if (bgData) {
-                    const homeEl = document.getElementById('home');
-                    homeEl.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url('${bgData.link}')`;
-                }
+                if (bgData) document.getElementById('home').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url('${bgData.link}')`;
 
                 allData = tempAllData.filter(i => i.type !== 'background');
                 names = [...new Set(allData.map(i => i.name))].sort(() => Math.random() - 0.5);
@@ -290,48 +319,34 @@
                 
                 renderInitial();
                 hideLoader();
-            } catch (e) { 
-                console.error("Data error:", e); 
-                hideLoader(); 
-            }
+            } catch (e) { hideLoader(); }
         }
 
         function renderInitial() {
             let cols = getCols();
-            // Initial load: 2 rows for PC (cols * 2), 4 items for Mobile
             aIndex = window.innerWidth <= 768 ? 4 : cols * 2; 
-
             document.getElementById('actress-grid').innerHTML = names.slice(0, aIndex).map(n => createCard(n, false)).join('');
             document.getElementById('video-grid').innerHTML = (window.innerWidth <= 768 ? shuffledVideos : shuffledVideos.slice(0, 3)).map(i => createMediaItem(i, false)).join('');
             document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
-            ScrollTrigger.refresh();
         }
 
         function initScrollAnimations() {
             gsap.utils.toArray('.section-title, .section-desc').forEach(el => {
-                gsap.fromTo(el, { opacity: 0, y: 30 }, {
-                    scrollTrigger: { trigger: el, start: "top 90%" },
-                    opacity: 1, y: 0, duration: 0.8
-                });
+                gsap.fromTo(el, { opacity: 0, y: 30 }, { scrollTrigger: { trigger: el, start: "top 90%" }, opacity: 1, y: 0, duration: 0.8 });
             });
-
             gsap.utils.toArray('.card').forEach(el => {
-                gsap.fromTo(el, { opacity: 0, y: 40 }, {
-                    scrollTrigger: { trigger: el, start: "top 95%" },
-                    opacity: 1, y: 0, duration: 0.8, ease: "power2.out"
-                });
+                gsap.fromTo(el, { opacity: 0, y: 40 }, { scrollTrigger: { trigger: el, start: "top 95%" }, opacity: 1, y: 0, duration: 0.8, ease: "power2.out" });
             });
         }
 
         function createCard(name, isNew = false) {
             const m = allData.find(i => i.name === name);
-            const revealClass = isNew ? 'reveal-card' : '';
-            return `<div class="card ${revealClass}">
+            return `<div class="card ${isNew ? 'reveal-card' : ''}">
                 <div class="card-img-wrap"><img src="${m.profile}" style="object-position: top;" loading="lazy"></div>
                 <div class="card-info">
                     <h3>${name}</h3>
                     <div class="btn-row">
-                        <button class="btn-sm" onclick="openOverlay('${name}', 'video')">VIDEO</button>
+                        <button class="btn-sm" onclick="openOverlay('${name}', 'video')">CLIPS</button>
                         <button class="btn-sm" onclick="openOverlay('${name}', 'photo')">PHOTOS</button>
                     </div>
                 </div>
@@ -339,9 +354,8 @@
         }
 
         function createMediaItem(i, isNew = false) {
-            const revealClass = isNew ? 'reveal-card' : '';
-            if (i.type === 'video') return `<div class="card ${revealClass}"><div class="video-container">${getVideoElement(i.link)}</div></div>`;
-            return `<div class="card ${revealClass}"><div class="card-img-wrap"><img src="${i.link}" loading="lazy"></div></div>`;
+            if (i.type === 'video') return `<div class="card ${isNew ? 'reveal-card' : ''}"><div class="video-container">${getVideoElement(i.link)}</div></div>`;
+            return `<div class="card ${isNew ? 'reveal-card' : ''}"><div class="card-img-wrap"><img src="${i.link}" loading="lazy"></div></div>`;
         }
 
         function openOverlay(name, type) {
@@ -360,26 +374,12 @@
 
         function loadMoreActresses() {
             let cols = getCols();
-            let loadAmount;
-
-            if (window.innerWidth <= 768) {
-                loadAmount = 4; // Add 4 at a time on mobile
-            } else {
-                // Ensure we complete the row perfectly and add 2 full new rows
-                let remainder = aIndex % cols;
-                let neededToCompleteRow = remainder === 0 ? 0 : (cols - remainder);
-                loadAmount = neededToCompleteRow + (cols * 2);
-            }
-
+            let loadAmount = window.innerWidth <= 768 ? 4 : (cols * 2);
             const set = names.slice(aIndex, aIndex + loadAmount);
-            const html = set.map(n => createCard(n, true)).join('');
-            document.getElementById('actress-grid').insertAdjacentHTML('beforeend', html);
+            document.getElementById('actress-grid').insertAdjacentHTML('beforeend', set.map(n => createCard(n, true)).join(''));
             gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
-            
             aIndex += loadAmount;
-            if (aIndex >= names.length) {
-                document.getElementById('a-more').style.display = 'none';
-            }
+            if (aIndex >= names.length) document.getElementById('a-more').style.display = 'none';
             document.getElementById('a-hide').style.display = 'block';
             setTimeout(() => ScrollTrigger.refresh(), 100);
         }
@@ -387,7 +387,6 @@
         function hideActresses() { 
             let cols = getCols();
             aIndex = window.innerWidth <= 768 ? 4 : cols * 2; 
-
             document.getElementById('actress-grid').innerHTML = names.slice(0, aIndex).map(n => createCard(n, false)).join('');
             document.getElementById('a-more').style.display = 'block'; 
             document.getElementById('a-hide').style.display = 'none'; 
@@ -436,12 +435,7 @@
             return `<iframe src="${u}" allowfullscreen loading="lazy"></iframe>`;
         }
 
-        window.addEventListener('resize', () => {
-            let vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-            ScrollTrigger.refresh();
-        });
-
+        window.addEventListener('resize', () => { ScrollTrigger.refresh(); });
         fetchData();
     </script>
 </body>
