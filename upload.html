@@ -3,64 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UPLOAD | STAR STREAM</title>
+    <title>SUBMIT CONTENT | STAR STREAM</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Montserrat:wght@400;900&display=swap" rel="stylesheet">
     <style>
-        body { background: #030303; color: white; font-family: 'Montserrat', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .upload-box { background: #0a0a0c; padding: 40px; border-radius: 20px; width: 90%; max-width: 500px; border: 1px solid #ff0055; text-align: center; }
-        h2 { font-family: 'Syncopate'; color: #ff0055; margin-bottom: 20px; }
-        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: none; }
-        input, select { background: #1a1a1c; color: white; border: 1px solid #333; }
-        button { background: #ff0055; color: white; font-weight: 900; cursor: pointer; transition: 0.3s; }
-        button:hover { transform: scale(1.05); background: #d00045; }
+        :root { --accent: #ff0055; --bg: #030303; --surface: #0a0a0c; }
+        body { background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; margin: 0; }
+        
+        /* Navigation (Same as Main Site) */
+        nav { position: fixed; width: 100%; padding: 20px 6%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); }
+        .logo { font-family: 'Syncopate', sans-serif; font-size: 1.4rem; color: #fff; text-decoration: none; }
+        .logo span { color: var(--accent); }
+
+        .container { padding-top: 120px; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding-bottom: 50px; }
+        .upload-card { background: var(--surface); padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; border: 1px solid rgba(255,0,85,0.3); }
+        h2 { font-family: 'Syncopate'; font-size: 1.2rem; color: var(--accent); text-align: center; margin-bottom: 30px; }
+
+        label { display: block; font-size: 0.7rem; letter-spacing: 2px; margin: 15px 0 5px; color: #888; }
+        input, select { width: 100%; padding: 12px; background: #1a1a1c; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; }
+        
+        .btn { width: 100%; padding: 15px; background: var(--accent); border: none; color: white; font-weight: 900; margin-top: 25px; border-radius: 50px; cursor: pointer; transition: 0.3s; }
+        .btn:disabled { background: #444; }
+        #status { text-align: center; font-size: 0.8rem; margin-top: 15px; color: var(--accent); }
     </style>
 </head>
 <body>
-    <div class="upload-box">
-        <h2>SUBMIT <span>CONTENT</span></h2>
-        <input type="text" id="name" placeholder="Actress Name" required>
-        <input type="text" id="profile" placeholder="Profile Image URL" required>
-        <select id="type">
-            <option value="video">Video Clip</option>
-            <option value="photo">Photo</option>
-        </select>
-        <input type="file" id="fileInput" accept="image/*,video/*" required>
-        <button onclick="handleUpload()" id="upBtn">UPLOAD NOW</button>
-        <p id="msg"></p>
+
+    <nav>
+        <a href="index.html" class="logo">STAR<span>STREAM</span></a>
+    </nav>
+
+    <div class="container">
+        <div class="upload-card">
+            <h2>CONTRIBUTE <span>MEDIA</span></h2>
+            
+            <label>CHOOSE ACTRESS</label>
+            <select id="nameDropdown" onchange="toggleNewName()">
+                <option value="">-- Select Existing --</option>
+                <option value="NEW">Add New Actress +</option>
+            </select>
+
+            <div id="newNameGroup" style="display:none;">
+                <label>NEW ACTRESS NAME</label>
+                <input type="text" id="newName" placeholder="Enter full name">
+                <label>PROFILE PHOTO URL</label>
+                <input type="text" id="profile" placeholder="https://...">
+            </div>
+
+            <label>CONTENT TYPE</label>
+            <select id="type">
+                <option value="video">Video Clip</option>
+                <option value="photo">Photo Gallery</option>
+            </select>
+
+            <label>SELECT FILE</label>
+            <input type="file" id="fileInput" accept="image/*,video/*">
+
+            <button class="btn" onclick="startUpload()" id="upBtn">SUBMIT FOR REVIEW</button>
+            <div id="status"></div>
+        </div>
     </div>
 
     <script>
-        const SCRIPT_URL = "YOUR_SCRIPT_URL_HERE"; 
+        const SCRIPT_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL";
 
-        function handleUpload() {
-            const file = document.getElementById('fileInput').files[0];
+        // ගූගල් ෂීට් එකේ ඇති නම් ලබා ගැනීම
+        window.onload = () => {
+            fetch(SCRIPT_URL + "?action=getNames") // සටහන: මෙය සරල කර ඇත
+            google.script.run.withSuccessHandler(populateNames).getExistingNames();
+        };
+
+        function populateNames(names) {
+            const select = document.getElementById('nameDropdown');
+            names.forEach(n => {
+                let opt = document.createElement('option');
+                opt.value = n; opt.innerText = n;
+                select.appendChild(opt);
+            });
+        }
+
+        function toggleNewName() {
+            const val = document.getElementById('nameDropdown').value;
+            document.getElementById('newNameGroup').style.display = (val === 'NEW') ? 'block' : 'none';
+        }
+
+        function startUpload() {
             const btn = document.getElementById('upBtn');
-            if(!file) return alert("Please select a file!");
+            const file = document.getElementById('fileInput').files[0];
+            const name = document.getElementById('nameDropdown').value === 'NEW' ? document.getElementById('newName').value : document.getElementById('nameDropdown').value;
+            
+            if(!name || !file) return alert("Please fill all fields!");
 
-            btn.innerText = "UPLOADING...";
-            btn.disabled = true;
+            btn.disabled = true; btn.innerText = "PROCESSING...";
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                const base64 = e.target.result.split(',')[1];
                 const data = {
-                    fileBase64: base64,
+                    fileBase64: e.target.result.split(',')[1],
                     fileType: file.type,
                     fileName: file.name,
-                    name: document.getElementById('name').value,
-                    profile: document.getElementById('profile').value,
+                    name: name,
+                    profile: document.getElementById('profile').value || "",
                     type: document.getElementById('type').value
                 };
 
-                fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: JSON.stringify(data)
-                }).then(() => {
-                    document.getElementById('msg').innerText = "සාර්ථකව යොමු කළා!";
-                    btn.innerText = "UPLOAD NOW";
-                    btn.disabled = false;
-                });
+                google.script.run.withSuccessHandler(res => {
+                    document.getElementById('status').innerText = res;
+                    btn.disabled = false; btn.innerText = "SUBMIT FOR REVIEW";
+                }).uploadFile(data);
             };
             reader.readAsDataURL(file);
         }
