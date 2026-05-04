@@ -8,78 +8,33 @@
     <style>
         :root { --accent: #ff0055; --bg: #050505; --surface: #111113; --text: #ffffff; }
         * { box-sizing: border-box; transition: all 0.3s ease; }
-        body { background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
-
-        /* Navigation Bar */
-        nav { 
-            width: 100%; 
-            padding: 15px 8%; 
-            background: rgba(0,0,0,0.95); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 1px solid #222;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        .logo { font-family: 'Syncopate'; font-size: 1.2rem; color: var(--accent); text-decoration: none; letter-spacing: 2px; }
-        .nav-links { display: flex; gap: 20px; }
-        .nav-links a { color: white; text-decoration: none; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
-        .nav-links a:hover { color: var(--accent); }
-
-        .container { max-width: 500px; margin: 40px auto; padding: 20px; width: 92%; }
-        .card { background: var(--surface); padding: 30px; border-radius: 24px; border: 1px solid #222; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-        h2 { font-family: 'Syncopate'; font-size: 0.9rem; color: var(--accent); text-align: center; margin-bottom: 30px; letter-spacing: 1px; }
-
-        .form-group { margin-bottom: 22px; }
-        label { display: block; font-size: 0.7rem; color: #888; margin-bottom: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        
-        select, input[type="text"] { 
-            width: 100%; padding: 14px; background: #1a1a1e; border: 1px solid #333; 
-            color: white; border-radius: 12px; outline: none; font-family: 'Montserrat';
-        }
-        select:focus, input:focus { border-color: var(--accent); }
-
-        /* File Upload Styling */
-        .file-upload { 
-            border: 2px dashed #333; border-radius: 12px; padding: 25px; 
-            text-align: center; cursor: pointer; background: #1a1a1e; position: relative; 
-        }
-        .file-upload:hover { border-color: var(--accent); background: #202025; }
-        .file-upload span { font-size: 0.8rem; color: #aaa; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        body { background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
+        nav { width: 100%; padding: 15px 5%; background: rgba(0,0,0,0.9); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+        .logo { font-family: 'Syncopate'; color: var(--accent); text-decoration: none; font-size: 1.2rem; }
+        .container { max-width: 500px; margin: 40px auto; padding: 20px; }
+        .card { background: var(--surface); padding: 30px; border-radius: 20px; border: 1px solid #222; }
+        h2 { font-family: 'Syncopate'; font-size: 1rem; color: var(--accent); text-align: center; margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.75rem; color: #888; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; }
+        select, input[type="text"] { width: 100%; padding: 14px; background: #1a1a1e; border: 1px solid #333; color: white; border-radius: 10px; outline: none; }
+        .file-upload { border: 2px dashed #333; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; background: #1a1a1e; position: relative; }
+        .file-upload span { font-size: 0.8rem; color: #aaa; }
         .file-upload input { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; }
-
-        /* Progress Bar */
-        #progressContainer { display: none; margin: 25px 0; background: #222; height: 8px; border-radius: 10px; overflow: hidden; }
-        #progressBar { width: 0%; height: 100%; background: linear-gradient(90deg, #ff0055, #ff5500); transition: width 0.4s ease; }
-
-        .btn { 
-            width: 100%; padding: 18px; background: var(--accent); border: none; 
-            color: white; font-size: 0.9rem; font-weight: 700; border-radius: 15px; 
-            cursor: pointer; margin-top: 10px; box-shadow: 0 10px 20px rgba(255, 0, 85, 0.2);
-        }
-        .btn:disabled { background: #333; cursor: not-allowed; box-shadow: none; }
-        .btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
-
-        #statusMsg { text-align: center; margin-top: 20px; font-size: 0.85rem; font-weight: 600; min-height: 1.2rem; }
+        #progressContainer { display: none; margin: 20px 0; background: #222; height: 8px; border-radius: 4px; overflow: hidden; }
+        #progressBar { width: 0%; height: 100%; background: var(--accent); }
+        .btn { width: 100%; padding: 15px; background: var(--accent); border: none; color: white; font-weight: 700; border-radius: 10px; cursor: pointer; margin-top: 10px; }
+        .btn:disabled { background: #444; cursor: not-allowed; }
+        #statusMsg { text-align: center; margin-top: 15px; font-size: 0.85rem; font-weight: 600; }
     </style>
 </head>
 <body>
 
-<nav>
-    <a href="index.html" class="logo">STAR STREAM</a>
-    <div class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="browse.html">Browse</a>
-    </div>
-</nav>
+<nav><a href="#" class="logo">STAR STREAM</a></nav>
 
 <div class="container">
     <div class="card">
         <h2>CONTENT SUBMISSION</h2>
 
-        <!-- Actress Selection -->
         <div class="form-group">
             <label>Choose Actress</label>
             <select id="actressSelect" onchange="toggleNewActress()">
@@ -88,14 +43,13 @@
             </select>
         </div>
 
-        <!-- New Actress Fields -->
-        <div id="newActressForm" style="display: none; padding: 15px; background: #0a0a0a; border-radius: 15px; margin-bottom: 25px; border: 1px solid #222;">
+        <div id="newActressForm" style="display: none; padding: 15px; background: #0a0a0a; border-radius: 10px; margin-bottom: 20px;">
             <div class="form-group">
                 <label>Actress Name</label>
-                <input type="text" id="newName" placeholder="Ex: Sandipani">
+                <input type="text" id="newName" placeholder="Enter Name">
             </div>
             <div class="form-group">
-                <label>Profile Image (Square preferred)</label>
+                <label>Profile Image (Square)</label>
                 <div class="file-upload">
                     <span id="profileStatus">Select Profile Image</span>
                     <input type="file" id="profileInput" accept="image/*" onchange="updateFileName(this, 'profileStatus')">
@@ -103,7 +57,6 @@
             </div>
         </div>
 
-        <!-- Content Details -->
         <div class="form-group">
             <label>Content Type</label>
             <select id="contentType">
@@ -115,7 +68,7 @@
         <div class="form-group">
             <label>Upload Media (Photo/Video)</label>
             <div class="file-upload">
-                <span id="contentStatus">Click to select media</span>
+                <span id="contentStatus">Choose File to Upload</span>
                 <input type="file" id="contentInput" accept="image/*,video/*" onchange="updateFileName(this, 'contentStatus')">
             </div>
         </div>
@@ -128,8 +81,8 @@
 </div>
 
 <script>
-    // විකාශ්, මේ URL එක ඔයාගේ අලුත්ම Web App URL එකට මාරු කරන්න
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzi1HkTsCCbJMat-UyVilWA7by-De2N6SJtB6r_VwWo7fkdEKN2JThZrvZcpH3kpvGQ/exec"; 
+    // 🔴 වැදගත්: ඔයාගේ අලුත්ම Web App URL එක මෙතැනට දාන්න
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwt0fmO3f0Ikkq8l1V-tSM85KrewR8zPgOvve8caVeg_Xo5-fp4pZsghJHAr2YOMFnV/exec"; 
 
     function toggleNewActress() {
         const select = document.getElementById('actressSelect');
@@ -146,17 +99,12 @@
     async function fileToBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload = () => resolve({ 
-                base64: reader.result.split(',')[1], 
-                type: file.type, 
-                name: file.name 
-            });
+            reader.onload = () => resolve({ base64: reader.result.split(',')[1], type: file.type, name: file.name });
             reader.onerror = reject;
             reader.readAsDataURL(file);
         });
     }
 
-    // Actress නම් ටික Apps Script එකෙන් ගෙන්නා ගැනීම
     window.onload = async () => {
         try {
             const res = await fetch(SCRIPT_URL + "?action=getNames");
@@ -176,50 +124,52 @@
     async function startUpload() {
         const btn = document.getElementById('uploadBtn');
         const contentFile = document.getElementById('contentInput').files[0];
+        const actressSelect = document.getElementById('actressSelect').value;
+        const newName = document.getElementById('newName').value.trim();
+        const profileFile = document.getElementById('profileInput').files[0];
+        
         const msg = document.getElementById('statusMsg');
         const bar = document.getElementById('progressBar');
         const barCont = document.getElementById('progressContainer');
 
-        let select = document.getElementById('actressSelect').value;
-        let name = (select === 'NEW') ? document.getElementById('newName').value.trim() : select;
-
-        // Validation Check
-        if (!name) return alert("Please select or enter an Actress name!");
-        if (!contentFile) return alert("Please select a photo or video to upload!");
-        if (select === 'NEW' && !document.getElementById('profileInput').files[0]) {
-            return alert("Please upload a Profile Image for the new actress!");
+        let finalName = "";
+        if (actressSelect === 'NEW') {
+            if (!newName) return alert("Please enter the Actress name!");
+            if (!profileFile) return alert("Profile image is required for a new Actress!");
+            finalName = newName;
+        } else {
+            if (!actressSelect) return alert("Please select an Actress!");
+            finalName = actressSelect;
         }
 
+        if (!contentFile) return alert("Please select a file to upload!");
+
         btn.disabled = true;
-        msg.innerText = "Preparing files...";
-        msg.style.color = "#aaa";
+        msg.innerText = "Processing...";
+        msg.style.color = "white";
         barCont.style.display = 'block';
         bar.style.width = '20%';
 
         try {
             const payload = { 
-                name: name, 
+                name: finalName, 
                 type: document.getElementById('contentType').value, 
                 fileName: contentFile.name, 
                 fileType: contentFile.type 
             };
 
-            // Main Content Convert
             const mediaData = await fileToBase64(contentFile);
             payload.fileBase64 = mediaData.base64;
             bar.style.width = '50%';
-            msg.innerText = "Uploading media to Drive...";
+            msg.innerText = "Uploading to Drive...";
 
-            // Profile Image Convert (If New)
-            if (select === 'NEW') {
-                const profileFile = document.getElementById('profileInput').files[0];
+            if (actressSelect === 'NEW') {
                 const pData = await fileToBase64(profileFile);
                 payload.profileBase64 = pData.base64;
                 payload.profileType = pData.type;
             }
 
             bar.style.width = '80%';
-            msg.innerText = "Finalizing submission...";
 
             const response = await fetch(SCRIPT_URL, {
                 method: 'POST',
@@ -230,9 +180,9 @@
             
             if(result.includes("Success")) {
                 bar.style.width = '100%';
-                msg.innerText = "SUCCESS! REDIRECTING...";
+                msg.innerText = "SUCCESSFULLY UPLOADED!";
                 msg.style.color = "#00ff88";
-                setTimeout(() => { window.location.href = "index.html"; }, 2000);
+                setTimeout(() => { window.location.reload(); }, 2500); // Reloads the page after success
             } else {
                 throw new Error(result);
             }
@@ -240,7 +190,6 @@
             msg.innerText = "FAILED: " + error.message;
             msg.style.color = "#ff3333";
             btn.disabled = false;
-            bar.style.background = "#ff3333";
         }
     }
 </script>
