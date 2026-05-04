@@ -102,39 +102,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfxImMahZ1XMk5Zi6K_USKcdUPLbAOsch17wKGMj94bQghk7o4Z5gtmjQ7zcR-03sH/exec";
-
-    function toggleNewActress() {
-        const select = document.getElementById('actressSelect');
-        document.getElementById('newActressForm').style.display = (select.value === 'NEW') ? 'block' : 'none';
-    }
-
-    function updateFileName(inputId, statusId) {
-        const file = document.getElementById(inputId).files[0];
-        document.getElementById(statusId).innerText = file ? file.name : "Select File";
-    }
-
-    async function fileToBase64(file) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve({ base64: reader.result.split(',')[1], type: file.type, name: file.name });
-            reader.readAsDataURL(file);
-        });
-    }
-
-    // නම් ටික Load කරගැනීමට අලුත් ක්‍රමය
-    window.onload = async function() {
-        try {
-            const res = await fetch(SCRIPT_URL + "?action=getNames");
-            const names = await res.json();
-            const dropdown = document.getElementById('actressSelect');
-            names.forEach(n => {
-                let opt = document.createElement('option');
-                opt.value = n; opt.innerText = n;
-                dropdown.appendChild(opt);
-            });
-        } catch(e) { console.log("Name loading failed"); }
-    };
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyHNpPtvc6UJwT170KvO3EWQYtPVmKXSS_nuDMb_Bk_VFQWavSAQo_vf2_40uVKiDN3/exec";
 
     async function startUpload() {
         const btn = document.getElementById('uploadBtn');
@@ -149,9 +117,9 @@
         if (!name || !contentInput) return alert("Please fill all details!");
 
         btn.disabled = true;
-        msg.innerText = "Uploading... Please wait.";
+        msg.innerText = "Processing...";
         barCont.style.display = 'block';
-        bar.style.width = '50%';
+        bar.style.width = '30%';
 
         const payload = { name, type: document.getElementById('contentType').value, fileName: contentInput.name, fileType: contentInput.type };
         const mediaData = await fileToBase64(contentInput);
@@ -161,27 +129,45 @@
             const pFile = document.getElementById('profileInput').files[0];
             if (pFile) {
                 const pData = await fileToBase64(pFile);
-                payload.profileBase64 = pData.base64; payload.profileType = pData.type;
+                payload.profileBase64 = pData.base64; 
+                payload.profileType = pData.type;
             }
         }
+        bar.style.width = '60%';
 
-        try {
-            const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-            const result = await response.text();
-            
-            if(result === "Success") {
+        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
+        .then(res => res.text())
+        .then(res => {
+            if(res === "Success") {
                 bar.style.width = '100%';
                 msg.innerText = "SUBMITTED FOR REVIEW!";
-                msg.className = "success";
-            } else {
-                throw new Error(result);
-            }
-        } catch (error) {
-            msg.innerText = "Error: " + error.message;
-            msg.className = "error";
+                msg.style.color = "#00ff88";
+            } else { throw new Error(res); }
+        })
+        .catch(err => {
+            msg.innerText = "Error: " + err;
             btn.disabled = false;
-        }
+        });
     }
+
+    async function fileToBase64(file) {
+        return new Promise(r => {
+            const reader = new FileReader();
+            reader.onload = () => r({ base64: reader.result.split(',')[1], type: file.type, name: file.name });
+            reader.readAsDataURL(file);
+        });
+    }
+
+    window.onload = async () => {
+        const res = await fetch(SCRIPT_URL + "?action=getNames");
+        const names = await res.json();
+        const dropdown = document.getElementById('actressSelect');
+        names.forEach(n => {
+            let opt = document.createElement('option');
+            opt.value = opt.innerText = n;
+            dropdown.appendChild(opt);
+        });
+    };
 </script>
 </body>
 </html>
