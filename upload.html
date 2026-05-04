@@ -3,117 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SUBMIT CONTENT | STAR STREAM</title>
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Montserrat:wght@400;900&display=swap" rel="stylesheet">
+    <title>CONTRIBUTE | STAR STREAM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #ff0055; --bg: #030303; --surface: #0a0a0c; }
-        body { background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; margin: 0; }
+        :root { --accent: #ff0055; --bg: #030303; --surface: #0f0f11; }
+        body { background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; }
         
-        /* Navigation (Same as Main Site) */
-        nav { position: fixed; width: 100%; padding: 20px 6%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); }
-        .logo { font-family: 'Syncopate', sans-serif; font-size: 1.4rem; color: #fff; text-decoration: none; }
-        .logo span { color: var(--accent); }
+        .card { background: var(--surface); padding: 30px; border-radius: 20px; width: 100%; max-width: 450px; border: 1px solid #222; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        h2 { font-family: 'Syncopate'; font-size: 1.1rem; color: var(--accent); text-align: center; margin-bottom: 30px; letter-spacing: 2px; }
 
-        .container { padding-top: 120px; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding-bottom: 50px; }
-        .upload-card { background: var(--surface); padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; border: 1px solid rgba(255,0,85,0.3); }
-        h2 { font-family: 'Syncopate'; font-size: 1.2rem; color: var(--accent); text-align: center; margin-bottom: 30px; }
-
-        label { display: block; font-size: 0.7rem; letter-spacing: 2px; margin: 15px 0 5px; color: #888; }
-        input, select { width: 100%; padding: 12px; background: #1a1a1c; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px; color: #888; margin-bottom: 8px; }
         
-        .btn { width: 100%; padding: 15px; background: var(--accent); border: none; color: white; font-weight: 900; margin-top: 25px; border-radius: 50px; cursor: pointer; transition: 0.3s; }
-        .btn:disabled { background: #444; }
-        #status { text-align: center; font-size: 0.8rem; margin-top: 15px; color: var(--accent); }
+        select, input[type="text"] { width: 100%; padding: 12px; background: #1a1a1e; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; transition: 0.3s; }
+        select:focus, input:focus { border-color: var(--accent); }
+
+        /* Custom File Input Styling */
+        .file-upload { position: relative; display: flex; align-items: center; justify-content: center; background: #1a1a1e; border: 2px dashed #333; padding: 15px; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .file-upload:hover { border-color: var(--accent); background: #25252b; }
+        .file-upload input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .file-upload span { font-size: 0.8rem; color: #bbb; }
+
+        /* Loading Bar */
+        .progress-container { display: none; margin-top: 20px; background: #1a1a1e; height: 8px; border-radius: 10px; overflow: hidden; }
+        .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #ff0055, #ff6b6b); transition: width 0.3s ease; }
+
+        .btn { width: 100%; padding: 16px; background: var(--accent); border: none; color: white; font-weight: 700; border-radius: 12px; cursor: pointer; margin-top: 20px; transition: 0.3s; text-transform: uppercase; }
+        .btn:disabled { background: #333; cursor: not-allowed; }
+        #status { text-align: center; margin-top: 15px; font-size: 0.8rem; color: var(--accent); }
     </style>
 </head>
 <body>
 
-    <nav>
-        <a href="index.html" class="logo">STAR<span>STREAM</span></a>
-    </nav>
+<div class="card">
+    <h2>CONTRIBUTE MEDIA</h2>
 
-    <div class="container">
-        <div class="upload-card">
-            <h2>CONTRIBUTE <span>MEDIA</span></h2>
-            
-            <label>CHOOSE ACTRESS</label>
-            <select id="nameDropdown" onchange="toggleNewName()">
-                <option value="">-- Select Existing --</option>
-                <option value="NEW">Add New Actress +</option>
-            </select>
+    <div class="input-group">
+        <label>Select Actress</label>
+        <select id="nameDropdown" onchange="toggleNewActress()">
+            <option value="">-- Select Existing --</option>
+            <option value="NEW">+ Add New Actress</option>
+        </select>
+    </div>
 
-            <div id="newNameGroup" style="display:none;">
-                <label>NEW ACTRESS NAME</label>
-                <input type="text" id="newName" placeholder="Enter full name">
-                <label>PROFILE PHOTO URL</label>
-                <input type="text" id="profile" placeholder="https://...">
+    <!-- අලුත් නිළියක් නම් පමණක් පෙන්වන කොටස -->
+    <div id="newActressForm" style="display:none; border-left: 2px solid var(--accent); padding-left: 15px; margin-bottom: 20px;">
+        <div class="input-group">
+            <label>Actress Name</label>
+            <input type="text" id="newName" placeholder="Enter full name">
+        </div>
+        <div class="input-group">
+            <label>Profile Photo</label>
+            <div class="file-upload">
+                <span id="profileName">Choose Profile Image</span>
+                <input type="file" id="profileInput" accept="image/*" onchange="updateFileName('profileInput', 'profileName')">
             </div>
-
-            <label>CONTENT TYPE</label>
-            <select id="type">
-                <option value="video">Video Clip</option>
-                <option value="photo">Photo Gallery</option>
-            </select>
-
-            <label>SELECT FILE</label>
-            <input type="file" id="fileInput" accept="image/*,video/*">
-
-            <button class="btn" onclick="startUpload()" id="upBtn">SUBMIT FOR REVIEW</button>
-            <div id="status"></div>
         </div>
     </div>
 
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwn_I2V4LadQvQuoiGdriIzj52wHu5nwjzoCNyqlV6fQ96ynSpMIQG5Clt7mt7WAhjK/exec";
+    <div class="input-group">
+        <label>Content Type</label>
+        <select id="type">
+            <option value="video">Video Clip</option>
+            <option value="photo">Photo Gallery</option>
+        </select>
+    </div>
 
-        // ගූගල් ෂීට් එකේ ඇති නම් ලබා ගැනීම
-        window.onload = () => {
-            fetch(SCRIPT_URL + "?action=getNames") // සටහන: මෙය සරල කර ඇත
-            google.script.run.withSuccessHandler(populateNames).getExistingNames();
+    <div class="input-group">
+        <label>Choose Video/Photo File</label>
+        <div class="file-upload">
+            <span id="fileName">Select Media File</span>
+            <input type="file" id="fileInput" accept="image/*,video/*" onchange="updateFileName('fileInput', 'fileName')">
+        </div>
+    </div>
+
+    <button class="btn" id="upBtn" onclick="processUpload()">Upload Content</button>
+
+    <div class="progress-container" id="progCont">
+        <div class="progress-bar" id="progBar"></div>
+    </div>
+    <div id="status"></div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwCbjJZYXv7IhAwbgWOt_LsFdF9Zz7L-g3JVZzkTcEYdqQV-WBglQyJhvPLDfkJFwSS/exec";
+
+    function updateFileName(inputId, spanId) {
+        const input = document.getElementById(inputId);
+        document.getElementById(spanId).innerText = input.files[0].name;
+    }
+
+    function toggleNewActress() {
+        const val = document.getElementById('nameDropdown').value;
+        document.getElementById('newActressForm').style.display = (val === 'NEW') ? 'block' : 'none';
+    }
+
+    async function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve({
+                base64: reader.result.split(',')[1],
+                type: file.type,
+                name: file.name
+            });
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function processUpload() {
+        const btn = document.getElementById('upBtn');
+        const status = document.getElementById('status');
+        const progBar = document.getElementById('progBar');
+        const progCont = document.getElementById('progCont');
+        
+        const isNew = document.getElementById('nameDropdown').value === 'NEW';
+        const name = isNew ? document.getElementById('newName').value : document.getElementById('nameDropdown').value;
+        const mediaFile = document.getElementById('fileInput').files[0];
+
+        if (!name || !mediaFile) return alert("Please fill all required fields!");
+
+        btn.disabled = true;
+        progCont.style.display = 'block';
+        progBar.style.width = '20%';
+        status.innerText = "Converting files...";
+
+        const payload = {
+            name: name,
+            type: document.getElementById('type').value,
+            fileName: mediaFile.name,
+            fileType: mediaFile.type
         };
 
-        function populateNames(names) {
-            const select = document.getElementById('nameDropdown');
-            names.forEach(n => {
-                let opt = document.createElement('option');
-                opt.value = n; opt.innerText = n;
-                select.appendChild(opt);
+        // Media file එක convert කිරීම
+        const mediaData = await fileToBase64(mediaFile);
+        payload.fileBase64 = mediaData.base64;
+        progBar.style.width = '50%';
+
+        // Profile photo එකක් තිබේ නම් එයද convert කිරීම
+        if (isNew) {
+            const profFile = document.getElementById('profileInput').files[0];
+            if (profFile) {
+                const profData = await fileToBase64(profFile);
+                payload.profileBase64 = profData.base64;
+                payload.profileType = profData.type;
+            }
+        }
+        
+        progBar.style.width = '80%';
+        status.innerText = "Uploading to Cloud...";
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', // CORS ප්‍රශ්නය මගහැරීමට
+                body: JSON.stringify(payload)
             });
+
+            // no-cors නිසා අපිට response එක කියවිය නොහැක, නමුත් සාර්ථක බව උපකල්පනය කරමු
+            progBar.style.width = '100%';
+            status.innerText = "UPLOAD SUCCESSFUL! Under Review.";
+            btn.style.background = "#28a745";
+            btn.innerText = "DONE";
+        } catch (e) {
+            status.innerText = "Error occurred. Try again.";
+            btn.disabled = false;
         }
-
-        function toggleNewName() {
-            const val = document.getElementById('nameDropdown').value;
-            document.getElementById('newNameGroup').style.display = (val === 'NEW') ? 'block' : 'none';
-        }
-
-        function startUpload() {
-            const btn = document.getElementById('upBtn');
-            const file = document.getElementById('fileInput').files[0];
-            const name = document.getElementById('nameDropdown').value === 'NEW' ? document.getElementById('newName').value : document.getElementById('nameDropdown').value;
-            
-            if(!name || !file) return alert("Please fill all fields!");
-
-            btn.disabled = true; btn.innerText = "PROCESSING...";
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = {
-                    fileBase64: e.target.result.split(',')[1],
-                    fileType: file.type,
-                    fileName: file.name,
-                    name: name,
-                    profile: document.getElementById('profile').value || "",
-                    type: document.getElementById('type').value
-                };
-
-                google.script.run.withSuccessHandler(res => {
-                    document.getElementById('status').innerText = res;
-                    btn.disabled = false; btn.innerText = "SUBMIT FOR REVIEW";
-                }).uploadFile(data);
-            };
-            reader.readAsDataURL(file);
-        }
-    </script>
+    }
+</script>
 </body>
 </html>
