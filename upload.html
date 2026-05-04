@@ -10,7 +10,6 @@
         * { box-sizing: border-box; transition: all 0.3s ease; }
         body { background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
         
-        /* Navigation Bar */
         nav { 
             width: 100%; padding: 15px 8%; background: rgba(0,0,0,0.9); 
             display: flex; justify-content: space-between; align-items: center; 
@@ -36,7 +35,6 @@
             color: white; border-radius: 10px; outline: none; font-family: inherit;
         }
         
-        /* File Upload Box Fix */
         .file-upload { 
             border: 2px dashed #333; border-radius: 10px; padding: 20px; 
             text-align: center; cursor: pointer; background: #1a1a1e; 
@@ -44,7 +42,7 @@
         }
         .file-upload span { 
             font-size: 0.8rem; color: #aaa; display: block;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; /* මෙතනින් තමයි නම එළියට පනින එක නවත්තන්නේ */
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             padding: 0 10px;
         }
         .file-upload input { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; }
@@ -61,7 +59,6 @@
         
         #statusMsg { text-align: center; margin-top: 15px; font-size: 0.85rem; font-weight: 600; }
 
-        /* Success Message Styling */
         #successView { display: none; text-align: center; padding: 20px; }
         #successView h3 { font-family: 'Syncopate'; color: #00ff88; margin-bottom: 10px; }
         #successView p { color: #888; font-size: 0.9rem; margin-bottom: 20px; }
@@ -73,7 +70,8 @@
     <a href="index.html" class="logo">STAR STREAM</a>
     <div class="nav-links">
         <a href="index.html">HOME</a>
-        <a href="index.html#browse">BROWSE</a> </div>
+        <a href="index.html#browse">BROWSE</a>
+    </div>
 </nav>
 
 <div class="container">
@@ -98,7 +96,7 @@
                     <label>Profile Image (Square)</label>
                     <div class="file-upload">
                         <span id="profileStatus">Select Profile Image</span>
-                        <input type="file" id="profileInput" accept="image/*" onchange="updateFileName(this, 'profileStatus')">
+                        <input type="file" id="profileInput" accept="image/*" onchange="updateProfileName(this)">
                     </div>
                 </div>
             </div>
@@ -112,10 +110,11 @@
             </div>
 
             <div class="form-group">
-                <label>Upload Media (Photo/Video)</label>
+                <label>Upload Media (Select Multiple Files)</label>
                 <div class="file-upload">
-                    <span id="contentStatus">Choose File to Upload</span>
-                    <input type="file" id="contentInput" accept="image/*,video/*" onchange="updateFileName(this, 'contentStatus')">
+                    <span id="contentStatus">Choose Files</span>
+                    <!-- multiple දමා ඇත -->
+                    <input type="file" id="contentInput" accept="image/*,video/*" multiple onchange="checkFiles(this)">
                 </div>
             </div>
 
@@ -128,8 +127,9 @@
         <div id="successView">
             <div style="font-size: 4rem; margin-bottom: 15px;">✅</div>
             <h3>THANK YOU!</h3>
-            <p>Your content has been submitted successfully and is currently under review.</p>
-            <button class="btn" onclick="window.location.href='index.html'">BACK TO HOME</button>
+            <p>Your files have been submitted successfully.</p>
+            <button class="btn" onclick="window.location.reload()">UPLOAD MORE</button>
+            <button class="btn" onclick="window.location.href='index.html'" style="background: #333; margin-top: 10px;">BACK TO HOME</button>
         </div>
     </div>
 </div>
@@ -143,10 +143,20 @@
         document.getElementById('newActressForm').style.display = (select.value === 'NEW') ? 'block' : 'none';
     }
 
-    function updateFileName(input, statusId) {
+    function updateProfileName(input) {
         if (input.files && input.files[0]) {
-            document.getElementById(statusId).innerText = input.files[0].name;
-            document.getElementById(statusId).style.color = "#00ff88";
+            document.getElementById('profileStatus').innerText = input.files[0].name;
+            document.getElementById('profileStatus').style.color = "#00ff88";
+        }
+    }
+
+    function checkFiles(input) {
+        if (input.files && input.files.length > 0) {
+            document.getElementById('contentStatus').innerText = input.files.length + " files selected";
+            document.getElementById('contentStatus').style.color = "#00ff88";
+        } else {
+            document.getElementById('contentStatus').innerText = "Choose Files";
+            document.getElementById('contentStatus').style.color = "#aaa";
         }
     }
 
@@ -177,7 +187,7 @@
 
     async function startUpload() {
         const btn = document.getElementById('uploadBtn');
-        const contentFile = document.getElementById('contentInput').files[0];
+        const files = document.getElementById('contentInput').files;
         const actressSelect = document.getElementById('actressSelect').value;
         const newName = document.getElementById('newName').value.trim();
         const profileFile = document.getElementById('profileInput').files[0];
@@ -192,54 +202,61 @@
         } else if (!actressSelect) {
             return alert("Please select an Actress!");
         }
-        if (!contentFile) return alert("Please select a file to upload!");
+
+        if (files.length === 0) return alert("Please select at least one file to upload!");
 
         btn.disabled = true;
-        msg.innerText = "Processing Files...";
-        msg.style.color = "white";
         barCont.style.display = 'block';
-        bar.style.width = '30%';
 
-        try {
-            const payload = { 
-                name: (actressSelect === 'NEW') ? newName : actressSelect, 
-                type: document.getElementById('contentType').value, 
-                fileName: contentFile.name, 
-                fileType: contentFile.type 
-            };
-
-            const mediaData = await fileToBase64(contentFile);
-            payload.fileBase64 = mediaData.base64;
-            
-            if (actressSelect === 'NEW') {
-                const pData = await fileToBase64(profileFile);
-                payload.profileBase64 = pData.base64;
-                payload.profileType = pData.type;
-            }
-
-            bar.style.width = '70%';
-            msg.innerText = "Uploading to Cloud Drive...";
-
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
-
-            const result = await response.text();
-            
-            if(result.includes("Success")) {
-                bar.style.width = '100%';
-                // පෝරමය අයින් කරලා Thank you message එක පෙන්වනවා
-                document.getElementById('formView').style.display = 'none';
-                document.getElementById('successView').style.display = 'block';
-            } else {
-                throw new Error(result);
-            }
-        } catch (error) {
-            msg.innerText = "UPLOAD FAILED: " + error.message;
-            msg.style.color = "#ff3333";
-            btn.disabled = false;
+        let profileData = null;
+        if (actressSelect === 'NEW' && profileFile) {
+            msg.innerText = "Processing profile image...";
+            profileData = await fileToBase64(profileFile);
         }
+
+        // එකින් එක අප්ලෝඩ් කිරීමේ Loop එක
+        for (let i = 0; i < files.length; i++) {
+            let currentFile = files[i];
+            msg.innerText = `Uploading file ${i + 1} of ${files.length}...`;
+            msg.style.color = "white";
+            
+            let progress = ((i) / files.length) * 100;
+            bar.style.width = progress + '%';
+
+            try {
+                const mediaData = await fileToBase64(currentFile);
+                const payload = { 
+                    name: (actressSelect === 'NEW') ? newName : actressSelect, 
+                    type: document.getElementById('contentType').value, 
+                    fileName: currentFile.name, 
+                    fileType: currentFile.type,
+                    fileBase64: mediaData.base64
+                };
+
+                // Profile image එක යවන්නේ පළවෙනි file එකත් එක්ක විතරයි (Load එක අඩු කරන්න)
+                if (i === 0 && profileData) {
+                    payload.profileBase64 = profileData.base64;
+                    payload.profileType = profileData.type;
+                }
+
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.text();
+                if(!result.includes("Success")) {
+                    console.error("Failed to upload file " + (i+1) + ": " + result);
+                }
+            } catch (error) {
+                console.error("Error uploading file " + (i+1) + ": " + error.message);
+            }
+        }
+
+        // සියල්ල අවසන් වූ පසු
+        bar.style.width = '100%';
+        document.getElementById('formView').style.display = 'none';
+        document.getElementById('successView').style.display = 'block';
     }
 </script>
 </body>
