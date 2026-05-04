@@ -9,79 +9,133 @@
         :root { --accent: #ff0055; --bg: #050505; --surface: #111113; --text: #ffffff; }
         * { box-sizing: border-box; transition: all 0.3s ease; }
         body { background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
-        nav { width: 100%; padding: 15px 5%; background: rgba(0,0,0,0.9); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; }
+        
+        /* Navigation Bar */
+        nav { 
+            width: 100%; padding: 15px 8%; background: rgba(0,0,0,0.9); 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000;
+        }
         .logo { font-family: 'Syncopate'; color: var(--accent); text-decoration: none; font-size: 1.2rem; }
+        .nav-links { display: flex; gap: 20px; }
+        .nav-links a { 
+            color: white; text-decoration: none; font-size: 0.8rem; font-weight: 700; 
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .nav-links a:hover { color: var(--accent); }
+
         .container { max-width: 500px; margin: 40px auto; padding: 20px; }
-        .card { background: var(--surface); padding: 30px; border-radius: 20px; border: 1px solid #222; }
-        h2 { font-family: 'Syncopate'; font-size: 1rem; color: var(--accent); text-align: center; margin-bottom: 20px; }
+        .card { background: var(--surface); padding: 30px; border-radius: 20px; border: 1px solid #222; position: relative; }
+        h2 { font-family: 'Syncopate'; font-size: 1rem; color: var(--accent); text-align: center; margin-bottom: 25px; }
+        
         .form-group { margin-bottom: 20px; }
         label { display: block; font-size: 0.75rem; color: #888; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; }
-        select, input[type="text"] { width: 100%; padding: 14px; background: #1a1a1e; border: 1px solid #333; color: white; border-radius: 10px; outline: none; }
-        .file-upload { border: 2px dashed #333; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; background: #1a1a1e; position: relative; }
-        .file-upload span { font-size: 0.8rem; color: #aaa; }
+        
+        select, input[type="text"] { 
+            width: 100%; padding: 14px; background: #1a1a1e; border: 1px solid #333; 
+            color: white; border-radius: 10px; outline: none; font-family: inherit;
+        }
+        
+        /* File Upload Box Fix */
+        .file-upload { 
+            border: 2px dashed #333; border-radius: 10px; padding: 20px; 
+            text-align: center; cursor: pointer; background: #1a1a1e; 
+            position: relative; overflow: hidden;
+        }
+        .file-upload span { 
+            font-size: 0.8rem; color: #aaa; display: block;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; /* මෙතනින් තමයි නම එළියට පනින එක නවත්තන්නේ */
+            padding: 0 10px;
+        }
         .file-upload input { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; }
-        #progressContainer { display: none; margin: 20px 0; background: #222; height: 8px; border-radius: 4px; overflow: hidden; }
+
+        #progressContainer { display: none; margin: 20px 0; background: #222; height: 6px; border-radius: 3px; overflow: hidden; }
         #progressBar { width: 0%; height: 100%; background: var(--accent); }
-        .btn { width: 100%; padding: 15px; background: var(--accent); border: none; color: white; font-weight: 700; border-radius: 10px; cursor: pointer; margin-top: 10px; }
-        .btn:disabled { background: #444; cursor: not-allowed; }
+        
+        .btn { 
+            width: 100%; padding: 15px; background: var(--accent); border: none; 
+            color: white; font-weight: 700; border-radius: 10px; cursor: pointer; 
+            margin-top: 10px; font-family: 'Syncopate'; font-size: 0.8rem;
+        }
+        .btn:disabled { background: #444; opacity: 0.6; }
+        
         #statusMsg { text-align: center; margin-top: 15px; font-size: 0.85rem; font-weight: 600; }
+
+        /* Success Message Styling */
+        #successView { display: none; text-align: center; padding: 20px; }
+        #successView h3 { font-family: 'Syncopate'; color: #00ff88; margin-bottom: 10px; }
+        #successView p { color: #888; font-size: 0.9rem; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-<nav><a href="#" class="logo">STAR STREAM</a></nav>
+<nav>
+    <a href="index.html" class="logo">STAR STREAM</a>
+    <div class="nav-links">
+        <a href="index.html">HOME</a>
+        <a href="index.html#browse">BROWSE</a> </div>
+</nav>
 
 <div class="container">
-    <div class="card">
-        <h2>CONTENT SUBMISSION</h2>
+    <div class="card" id="uploadCard">
+        <div id="formView">
+            <h2>CONTENT SUBMISSION</h2>
 
-        <div class="form-group">
-            <label>Choose Actress</label>
-            <select id="actressSelect" onchange="toggleNewActress()">
-                <option value="">-- Loading Actresses... --</option>
-                <option value="NEW">+ Add New Actress</option>
-            </select>
-        </div>
-
-        <div id="newActressForm" style="display: none; padding: 15px; background: #0a0a0a; border-radius: 10px; margin-bottom: 20px;">
             <div class="form-group">
-                <label>Actress Name</label>
-                <input type="text" id="newName" placeholder="Enter Name">
+                <label>Choose Actress</label>
+                <select id="actressSelect" onchange="toggleNewActress()">
+                    <option value="">-- Loading Actresses... --</option>
+                    <option value="NEW">+ Add New Actress</option>
+                </select>
             </div>
-            <div class="form-group">
-                <label>Profile Image (Square)</label>
-                <div class="file-upload">
-                    <span id="profileStatus">Select Profile Image</span>
-                    <input type="file" id="profileInput" accept="image/*" onchange="updateFileName(this, 'profileStatus')">
+
+            <div id="newActressForm" style="display: none; padding: 15px; background: #0a0a0a; border-radius: 10px; margin-bottom: 20px; border: 1px solid #222;">
+                <div class="form-group">
+                    <label>Actress Name</label>
+                    <input type="text" id="newName" placeholder="Enter Name">
+                </div>
+                <div class="form-group">
+                    <label>Profile Image (Square)</label>
+                    <div class="file-upload">
+                        <span id="profileStatus">Select Profile Image</span>
+                        <input type="file" id="profileInput" accept="image/*" onchange="updateFileName(this, 'profileStatus')">
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label>Content Type</label>
-            <select id="contentType">
-                <option value="Photo">Photo</option>
-                <option value="Video">Video</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Upload Media (Photo/Video)</label>
-            <div class="file-upload">
-                <span id="contentStatus">Choose File to Upload</span>
-                <input type="file" id="contentInput" accept="image/*,video/*" onchange="updateFileName(this, 'contentStatus')">
+            <div class="form-group">
+                <label>Content Type</label>
+                <select id="contentType">
+                    <option value="Photo">Photo</option>
+                    <option value="Video">Video</option>
+                </select>
             </div>
+
+            <div class="form-group">
+                <label>Upload Media (Photo/Video)</label>
+                <div class="file-upload">
+                    <span id="contentStatus">Choose File to Upload</span>
+                    <input type="file" id="contentInput" accept="image/*,video/*" onchange="updateFileName(this, 'contentStatus')">
+                </div>
+            </div>
+
+            <button id="uploadBtn" class="btn" onclick="startUpload()">START UPLOAD</button>
+
+            <div id="progressContainer"><div id="progressBar"></div></div>
+            <div id="statusMsg"></div>
         </div>
 
-        <button id="uploadBtn" class="btn" onclick="startUpload()">START UPLOAD</button>
-
-        <div id="progressContainer"><div id="progressBar"></div></div>
-        <div id="statusMsg"></div>
+        <div id="successView">
+            <div style="font-size: 4rem; margin-bottom: 15px;">✅</div>
+            <h3>THANK YOU!</h3>
+            <p>Your content has been submitted successfully and is currently under review.</p>
+            <button class="btn" onclick="window.location.href='index.html'">BACK TO HOME</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // 🔴 වැදගත්: ඔයාගේ අලුත්ම Web App URL එක මෙතැනට දාන්න
+    // 🔴 ඔයාගේ Web App URL එක මෙතැනට දාන්න
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwt0fmO3f0Ikkq8l1V-tSM85KrewR8zPgOvve8caVeg_Xo5-fp4pZsghJHAr2YOMFnV/exec"; 
 
     function toggleNewActress() {
@@ -132,27 +186,23 @@
         const bar = document.getElementById('progressBar');
         const barCont = document.getElementById('progressContainer');
 
-        let finalName = "";
         if (actressSelect === 'NEW') {
             if (!newName) return alert("Please enter the Actress name!");
-            if (!profileFile) return alert("Profile image is required for a new Actress!");
-            finalName = newName;
-        } else {
-            if (!actressSelect) return alert("Please select an Actress!");
-            finalName = actressSelect;
+            if (!profileFile) return alert("Profile image is required!");
+        } else if (!actressSelect) {
+            return alert("Please select an Actress!");
         }
-
         if (!contentFile) return alert("Please select a file to upload!");
 
         btn.disabled = true;
-        msg.innerText = "Processing...";
+        msg.innerText = "Processing Files...";
         msg.style.color = "white";
         barCont.style.display = 'block';
-        bar.style.width = '20%';
+        bar.style.width = '30%';
 
         try {
             const payload = { 
-                name: finalName, 
+                name: (actressSelect === 'NEW') ? newName : actressSelect, 
                 type: document.getElementById('contentType').value, 
                 fileName: contentFile.name, 
                 fileType: contentFile.type 
@@ -160,16 +210,15 @@
 
             const mediaData = await fileToBase64(contentFile);
             payload.fileBase64 = mediaData.base64;
-            bar.style.width = '50%';
-            msg.innerText = "Uploading to Drive...";
-
+            
             if (actressSelect === 'NEW') {
                 const pData = await fileToBase64(profileFile);
                 payload.profileBase64 = pData.base64;
                 payload.profileType = pData.type;
             }
 
-            bar.style.width = '80%';
+            bar.style.width = '70%';
+            msg.innerText = "Uploading to Cloud Drive...";
 
             const response = await fetch(SCRIPT_URL, {
                 method: 'POST',
@@ -180,14 +229,14 @@
             
             if(result.includes("Success")) {
                 bar.style.width = '100%';
-                msg.innerText = "SUCCESSFULLY UPLOADED!";
-                msg.style.color = "#00ff88";
-                setTimeout(() => { window.location.reload(); }, 2500); // Reloads the page after success
+                // පෝරමය අයින් කරලා Thank you message එක පෙන්වනවා
+                document.getElementById('formView').style.display = 'none';
+                document.getElementById('successView').style.display = 'block';
             } else {
                 throw new Error(result);
             }
         } catch (error) {
-            msg.innerText = "FAILED: " + error.message;
+            msg.innerText = "UPLOAD FAILED: " + error.message;
             msg.style.color = "#ff3333";
             btn.disabled = false;
         }
