@@ -10,55 +10,43 @@
         * { box-sizing: border-box; transition: all 0.3s ease; }
         body { background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
 
-        /* Navigation Bar */
-        nav { width: 100%; padding: 20px 5%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
+        nav { width: 100%; padding: 20px 5%; background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
         .logo { font-family: 'Syncopate'; font-size: 1.2rem; color: var(--accent); text-decoration: none; letter-spacing: 2px; }
         .nav-links a { color: #888; text-decoration: none; font-size: 0.8rem; margin-left: 20px; text-transform: uppercase; font-weight: 600; }
         .nav-links a:hover { color: var(--accent); }
 
         .container { max-width: 500px; margin: 40px auto; padding: 20px; width: 92%; }
         .card { background: var(--surface); padding: 30px; border-radius: 24px; border: 1px solid #222; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-        h2 { font-family: 'Syncopate'; font-size: 1rem; color: var(--accent); text-align: center; margin-bottom: 30px; line-height: 1.5; }
+        h2 { font-family: 'Syncopate'; font-size: 1rem; color: var(--accent); text-align: center; margin-bottom: 30px; }
 
         .form-group { margin-bottom: 20px; }
         label { display: block; font-size: 0.75rem; color: #777; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; }
         
         select, input[type="text"] { width: 100%; padding: 14px; background: #1a1a1e; border: 1px solid #333; color: white; border-radius: 12px; outline: none; }
-        select:focus, input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(255, 0, 85, 0.2); }
 
-        /* Custom File Upload Button */
-        .file-upload { border: 2px dashed #333; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; background: #1a1a1e; position: relative; }
-        .file-upload:hover { border-color: var(--accent); background: #1f1f25; }
+        /* File Upload Styling - Fixed Text Wrap */
+        .file-upload { border: 2px dashed #333; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; background: #1a1a1e; position: relative; overflow: hidden; }
+        .file-upload span { font-size: 0.8rem; color: #aaa; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
         .file-upload input { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; }
-        .file-upload span { font-size: 0.85rem; color: #aaa; }
 
-        /* Progress Bar */
         #progressContainer { display: none; margin: 25px 0; background: #222; height: 10px; border-radius: 5px; overflow: hidden; }
-        #progressBar { width: 0%; height: 100%; background: linear-gradient(90deg, #ff0055, #ff5e00); border-radius: 5px; }
+        #progressBar { width: 0%; height: 100%; background: linear-gradient(90deg, #ff0055, #ff5e00); }
 
         .btn { width: 100%; padding: 16px; background: var(--accent); border: none; color: white; font-size: 0.9rem; font-weight: 700; border-radius: 14px; cursor: pointer; margin-top: 20px; box-shadow: 0 10px 20px rgba(255, 0, 85, 0.3); }
-        .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(255, 0, 85, 0.4); }
-        .btn:disabled { background: #444; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn:disabled { background: #444; }
 
         #statusMsg { text-align: center; margin-top: 15px; font-size: 0.85rem; font-weight: 600; }
         .success { color: #00ff88; }
         .error { color: #ff3333; }
-
-        /* Mobile Adjustments */
-        @media (max-width: 480px) {
-            .nav-links { display: none; }
-            .card { padding: 20px; }
-            h2 { font-size: 0.9rem; }
-        }
     </style>
 </head>
 <body>
 
 <nav>
-    <a href="#" class="logo">STAR STREAM</a>
+    <a href="/" class="logo">STAR STREAM</a> <!-- Home එකට යන්න / දමා ඇත -->
     <div class="nav-links">
-        <a href="#">Home</a>
-        <a href="#">Browse</a>
+        <a href="/">HOME</a>
+        <a href="/browse">BROWSE</a>
     </div>
 </nav>
 
@@ -114,7 +102,6 @@
 </div>
 
 <script>
-    // පියවර 4 හිදී ලැබුණු Web App URL එක මෙතැනට දාන්න
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyHAzSs6gdiAAkSmA2TUiCtUGQoG1OfkfR6KqlNCjjnzXOQgMxR7TFS160rtM_nZzRI/exec";
 
     function toggleNewActress() {
@@ -130,92 +117,71 @@
     async function fileToBase64(file) {
         return new Promise((resolve) => {
             const reader = new FileReader();
-            reader.onload = () => resolve({
-                base64: reader.result.split(',')[1],
-                type: file.type,
-                name: file.name
-            });
+            reader.onload = () => resolve({ base64: reader.result.split(',')[1], type: file.type, name: file.name });
             reader.readAsDataURL(file);
         });
     }
 
-    async function startUpload() {
-        const btn = document.getElementById('uploadBtn');
-        const select = document.getElementById('actressSelect');
-        const contentInput = document.getElementById('contentInput').files[0];
-        const msg = document.getElementById('statusMsg');
-        const bar = document.getElementById('progressBar');
-        const barCont = document.getElementById('progressContainer');
-
-        let name = (select.value === 'NEW') ? document.getElementById('newName').value : select.value;
-
-        if (!name || !contentInput) {
-            alert("කරුණාකර සියලු විස්තර පුරවා ගොනුවක් තෝරන්න.");
-            return;
-        }
-
-        btn.disabled = true;
-        msg.innerText = "Preparing files...";
-        msg.className = "";
-        barCont.style.display = 'block';
-        bar.style.width = '20%';
-
-        const payload = {
-            name: name,
-            type: document.getElementById('contentType').value,
-            fileName: contentInput.name,
-            fileType: contentInput.type
-        };
-
-        // මීඩියා ගොනුව Base64 කිරීම
-        const mediaData = await fileToBase64(contentInput);
-        payload.fileBase64 = mediaData.base64;
-        bar.style.width = '50%';
-
-        // අලුත් කෙනෙක් නම් Profile Photo එකත් ඇතුළත් කිරීම
-        if (select.value === 'NEW') {
-            const profileFile = document.getElementById('profileInput').files[0];
-            if (profileFile) {
-                const profileData = await fileToBase64(profileFile);
-                payload.profileBase64 = profileData.base64;
-                payload.profileType = profileData.type;
-            }
-        }
-
-        bar.style.width = '80%';
-        msg.innerText = "Sending to Server...";
-
+    // නම් ටික Load කරගැනීමට අලුත් ක්‍රමය
+    window.onload = async function() {
         try {
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify(payload)
-            });
-            
-            bar.style.width = '100%';
-            msg.innerText = "UPLOAD SUCCESSFUL!";
-            msg.className = "success";
-            btn.innerText = "DONE";
-            setTimeout(() => location.reload(), 3000);
-        } catch (error) {
-            msg.innerText = "ERROR: Connection Failed";
-            msg.className = "error";
-            btn.disabled = false;
-        }
-    }
-
-    // Sheet එකේ දැනට ඉන්න අයගේ නම් Dropdown එකට ගැනීම
-    window.onload = function() {
-        google.script.run.withSuccessHandler(function(names) {
+            const res = await fetch(SCRIPT_URL + "?action=getNames");
+            const names = await res.json();
             const dropdown = document.getElementById('actressSelect');
             names.forEach(n => {
                 let opt = document.createElement('option');
                 opt.value = n; opt.innerText = n;
                 dropdown.appendChild(opt);
             });
-        }).getExistingNames();
+        } catch(e) { console.log("Name loading failed"); }
     };
-</script>
 
+    async function startUpload() {
+        const btn = document.getElementById('uploadBtn');
+        const contentInput = document.getElementById('contentInput').files[0];
+        const msg = document.getElementById('statusMsg');
+        const bar = document.getElementById('progressBar');
+        const barCont = document.getElementById('progressContainer');
+
+        let select = document.getElementById('actressSelect').value;
+        let name = (select === 'NEW') ? document.getElementById('newName').value : select;
+
+        if (!name || !contentInput) return alert("Please fill all details!");
+
+        btn.disabled = true;
+        msg.innerText = "Uploading... Please wait.";
+        barCont.style.display = 'block';
+        bar.style.width = '50%';
+
+        const payload = { name, type: document.getElementById('contentType').value, fileName: contentInput.name, fileType: contentInput.type };
+        const mediaData = await fileToBase64(contentInput);
+        payload.fileBase64 = mediaData.base64;
+
+        if (select === 'NEW') {
+            const pFile = document.getElementById('profileInput').files[0];
+            if (pFile) {
+                const pData = await fileToBase64(pFile);
+                payload.profileBase64 = pData.base64; payload.profileType = pData.type;
+            }
+        }
+
+        try {
+            const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+            const result = await response.text();
+            
+            if(result === "Success") {
+                bar.style.width = '100%';
+                msg.innerText = "SUBMITTED FOR REVIEW!";
+                msg.className = "success";
+            } else {
+                throw new Error(result);
+            }
+        } catch (error) {
+            msg.innerText = "Error: " + error.message;
+            msg.className = "error";
+            btn.disabled = false;
+        }
+    }
+</script>
 </body>
 </html>
