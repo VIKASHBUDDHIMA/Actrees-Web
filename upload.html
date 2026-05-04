@@ -3,173 +3,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CONTRIBUTE | STAR STREAM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <title>Uploader | STAR STREAM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #ff0055; --bg: #030303; --surface: #0f0f11; }
-        body { background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        :root { --accent: #ff0055; --bg: #050505; --surface: #111113; --text: #ffffff; }
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+        body { background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
+
+        /* Navigation Bar */
+        nav { width: 100%; padding: 20px 5%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
+        .logo { font-family: 'Syncopate'; font-size: 1.2rem; color: var(--accent); text-decoration: none; letter-spacing: 2px; }
+        .nav-links a { color: #888; text-decoration: none; font-size: 0.8rem; margin-left: 20px; text-transform: uppercase; font-weight: 600; }
+        .nav-links a:hover { color: var(--accent); }
+
+        .container { max-width: 500px; margin: 40px auto; padding: 20px; width: 92%; }
+        .card { background: var(--surface); padding: 30px; border-radius: 24px; border: 1px solid #222; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        h2 { font-family: 'Syncopate'; font-size: 1rem; color: var(--accent); text-align: center; margin-bottom: 30px; line-height: 1.5; }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.75rem; color: #777; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; }
         
-        .card { background: var(--surface); padding: 30px; border-radius: 20px; width: 100%; max-width: 450px; border: 1px solid #222; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-        h2 { font-family: 'Syncopate'; font-size: 1.1rem; color: var(--accent); text-align: center; margin-bottom: 30px; letter-spacing: 2px; }
+        select, input[type="text"] { width: 100%; padding: 14px; background: #1a1a1e; border: 1px solid #333; color: white; border-radius: 12px; outline: none; }
+        select:focus, input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(255, 0, 85, 0.2); }
 
-        .input-group { margin-bottom: 20px; }
-        label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px; color: #888; margin-bottom: 8px; }
-        
-        select, input[type="text"] { width: 100%; padding: 12px; background: #1a1a1e; border: 1px solid #333; color: white; border-radius: 10px; box-sizing: border-box; outline: none; transition: 0.3s; }
-        select:focus, input:focus { border-color: var(--accent); }
+        /* Custom File Upload Button */
+        .file-upload { border: 2px dashed #333; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; background: #1a1a1e; position: relative; }
+        .file-upload:hover { border-color: var(--accent); background: #1f1f25; }
+        .file-upload input { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; }
+        .file-upload span { font-size: 0.85rem; color: #aaa; }
 
-        /* Custom File Input Styling */
-        .file-upload { position: relative; display: flex; align-items: center; justify-content: center; background: #1a1a1e; border: 2px dashed #333; padding: 15px; border-radius: 10px; cursor: pointer; transition: 0.3s; }
-        .file-upload:hover { border-color: var(--accent); background: #25252b; }
-        .file-upload input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-        .file-upload span { font-size: 0.8rem; color: #bbb; }
+        /* Progress Bar */
+        #progressContainer { display: none; margin: 25px 0; background: #222; height: 10px; border-radius: 5px; overflow: hidden; }
+        #progressBar { width: 0%; height: 100%; background: linear-gradient(90deg, #ff0055, #ff5e00); border-radius: 5px; }
 
-        /* Loading Bar */
-        .progress-container { display: none; margin-top: 20px; background: #1a1a1e; height: 8px; border-radius: 10px; overflow: hidden; }
-        .progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #ff0055, #ff6b6b); transition: width 0.3s ease; }
+        .btn { width: 100%; padding: 16px; background: var(--accent); border: none; color: white; font-size: 0.9rem; font-weight: 700; border-radius: 14px; cursor: pointer; margin-top: 20px; box-shadow: 0 10px 20px rgba(255, 0, 85, 0.3); }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(255, 0, 85, 0.4); }
+        .btn:disabled { background: #444; cursor: not-allowed; transform: none; box-shadow: none; }
 
-        .btn { width: 100%; padding: 16px; background: var(--accent); border: none; color: white; font-weight: 700; border-radius: 12px; cursor: pointer; margin-top: 20px; transition: 0.3s; text-transform: uppercase; }
-        .btn:disabled { background: #333; cursor: not-allowed; }
-        #status { text-align: center; margin-top: 15px; font-size: 0.8rem; color: var(--accent); }
+        #statusMsg { text-align: center; margin-top: 15px; font-size: 0.85rem; font-weight: 600; }
+        .success { color: #00ff88; }
+        .error { color: #ff3333; }
+
+        /* Mobile Adjustments */
+        @media (max-width: 480px) {
+            .nav-links { display: none; }
+            .card { padding: 20px; }
+            h2 { font-size: 0.9rem; }
+        }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>CONTRIBUTE MEDIA</h2>
-
-    <div class="input-group">
-        <label>Select Actress</label>
-        <select id="nameDropdown" onchange="toggleNewActress()">
-            <option value="">-- Select Existing --</option>
-            <option value="NEW">+ Add New Actress</option>
-        </select>
+<nav>
+    <a href="#" class="logo">STAR STREAM</a>
+    <div class="nav-links">
+        <a href="#">Home</a>
+        <a href="#">Browse</a>
     </div>
+</nav>
 
-    <!-- අලුත් නිළියක් නම් පමණක් පෙන්වන කොටස -->
-    <div id="newActressForm" style="display:none; border-left: 2px solid var(--accent); padding-left: 15px; margin-bottom: 20px;">
-        <div class="input-group">
-            <label>Actress Name</label>
-            <input type="text" id="newName" placeholder="Enter full name">
+<div class="container">
+    <div class="card">
+        <h2>CONTENT SUBMISSION</h2>
+
+        <div class="form-group">
+            <label>Choose Actress</label>
+            <select id="actressSelect" onchange="toggleNewActress()">
+                <option value="">-- Select One --</option>
+                <option value="NEW">+ Add New Actress</option>
+            </select>
         </div>
-        <div class="input-group">
-            <label>Profile Photo</label>
-            <div class="file-upload">
-                <span id="profileName">Choose Profile Image</span>
-                <input type="file" id="profileInput" accept="image/*" onchange="updateFileName('profileInput', 'profileName')">
+
+        <div id="newActressForm" style="display: none; padding: 15px; background: #0a0a0a; border-radius: 12px; margin-bottom: 20px; border-left: 3px solid var(--accent);">
+            <div class="form-group">
+                <label>Actress Name</label>
+                <input type="text" id="newName" placeholder="Enter Full Name">
+            </div>
+            <div class="form-group">
+                <label>Profile Image</label>
+                <div class="file-upload">
+                    <span id="profileStatus">Select Profile Image</span>
+                    <input type="file" id="profileInput" accept="image/*" onchange="updateFileName('profileInput', 'profileStatus')">
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="input-group">
-        <label>Content Type</label>
-        <select id="type">
-            <option value="video">Video Clip</option>
-            <option value="photo">Photo Gallery</option>
-        </select>
-    </div>
-
-    <div class="input-group">
-        <label>Choose Video/Photo File</label>
-        <div class="file-upload">
-            <span id="fileName">Select Media File</span>
-            <input type="file" id="fileInput" accept="image/*,video/*" onchange="updateFileName('fileInput', 'fileName')">
+        <div class="form-group">
+            <label>Content Type</label>
+            <select id="contentType">
+                <option value="Video">Video</option>
+                <option value="Photo">Photo</option>
+            </select>
         </div>
-    </div>
 
-    <button class="btn" id="upBtn" onclick="processUpload()">Upload Content</button>
+        <div class="form-group">
+            <label>Upload File (Video/Photo)</label>
+            <div class="file-upload">
+                <span id="contentStatus">Choose File to Upload</span>
+                <input type="file" id="contentInput" accept="image/*,video/*" onchange="updateFileName('contentInput', 'contentStatus')">
+            </div>
+        </div>
 
-    <div class="progress-container" id="progCont">
-        <div class="progress-bar" id="progBar"></div>
+        <button id="uploadBtn" class="btn" onclick="startUpload()">START UPLOAD</button>
+
+        <div id="progressContainer">
+            <div id="progressBar"></div>
+        </div>
+        <div id="statusMsg"></div>
     </div>
-    <div id="status"></div>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzgfDkl0WGAS1hc77nm9Dyg61OhcfY-wZzk2a4lvk4OP-OTvDFZax7HTFbOSzBmyq_g/exec";
-
-    function updateFileName(inputId, spanId) {
-        const input = document.getElementById(inputId);
-        document.getElementById(spanId).innerText = input.files[0].name;
-    }
+    // පියවර 4 හිදී ලැබුණු Web App URL එක මෙතැනට දාන්න
+    const SCRIPT_URL = "ඔබේ_අලුත්ම_DEPLOYMENT_URL_එක_මෙතනට";
 
     function toggleNewActress() {
-        const val = document.getElementById('nameDropdown').value;
-        document.getElementById('newActressForm').style.display = (val === 'NEW') ? 'block' : 'none';
+        const select = document.getElementById('actressSelect');
+        document.getElementById('newActressForm').style.display = (select.value === 'NEW') ? 'block' : 'none';
+    }
+
+    function updateFileName(inputId, statusId) {
+        const file = document.getElementById(inputId).files[0];
+        document.getElementById(statusId).innerText = file ? file.name : "Select File";
     }
 
     async function fileToBase64(file) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = () => resolve({
                 base64: reader.result.split(',')[1],
                 type: file.type,
                 name: file.name
             });
-            reader.onerror = reject;
             reader.readAsDataURL(file);
         });
     }
 
-    async function processUpload() {
-        const btn = document.getElementById('upBtn');
-        const status = document.getElementById('status');
-        const progBar = document.getElementById('progBar');
-        const progCont = document.getElementById('progCont');
-        
-        const isNew = document.getElementById('nameDropdown').value === 'NEW';
-        const name = isNew ? document.getElementById('newName').value : document.getElementById('nameDropdown').value;
-        const mediaFile = document.getElementById('fileInput').files[0];
+    async function startUpload() {
+        const btn = document.getElementById('uploadBtn');
+        const select = document.getElementById('actressSelect');
+        const contentInput = document.getElementById('contentInput').files[0];
+        const msg = document.getElementById('statusMsg');
+        const bar = document.getElementById('progressBar');
+        const barCont = document.getElementById('progressContainer');
 
-        if (!name || !mediaFile) return alert("Please fill all required fields!");
+        let name = (select.value === 'NEW') ? document.getElementById('newName').value : select.value;
+
+        if (!name || !contentInput) {
+            alert("කරුණාකර සියලු විස්තර පුරවා ගොනුවක් තෝරන්න.");
+            return;
+        }
 
         btn.disabled = true;
-        progCont.style.display = 'block';
-        progBar.style.width = '20%';
-        status.innerText = "Converting files...";
+        msg.innerText = "Preparing files...";
+        msg.className = "";
+        barCont.style.display = 'block';
+        bar.style.width = '20%';
 
         const payload = {
             name: name,
-            type: document.getElementById('type').value,
-            fileName: mediaFile.name,
-            fileType: mediaFile.type
+            type: document.getElementById('contentType').value,
+            fileName: contentInput.name,
+            fileType: contentInput.type
         };
 
-        // Media file එක convert කිරීම
-        const mediaData = await fileToBase64(mediaFile);
+        // මීඩියා ගොනුව Base64 කිරීම
+        const mediaData = await fileToBase64(contentInput);
         payload.fileBase64 = mediaData.base64;
-        progBar.style.width = '50%';
+        bar.style.width = '50%';
 
-        // Profile photo එකක් තිබේ නම් එයද convert කිරීම
-        if (isNew) {
-            const profFile = document.getElementById('profileInput').files[0];
-            if (profFile) {
-                const profData = await fileToBase64(profFile);
-                payload.profileBase64 = profData.base64;
-                payload.profileType = profData.type;
+        // අලුත් කෙනෙක් නම් Profile Photo එකත් ඇතුළත් කිරීම
+        if (select.value === 'NEW') {
+            const profileFile = document.getElementById('profileInput').files[0];
+            if (profileFile) {
+                const profileData = await fileToBase64(profileFile);
+                payload.profileBase64 = profileData.base64;
+                payload.profileType = profileData.type;
             }
         }
-        
-        progBar.style.width = '80%';
-        status.innerText = "Uploading to Cloud...";
+
+        bar.style.width = '80%';
+        msg.innerText = "Sending to Server...";
 
         try {
             await fetch(SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors', // CORS ප්‍රශ්නය මගහැරීමට
+                mode: 'no-cors',
                 body: JSON.stringify(payload)
             });
-
-            // no-cors නිසා අපිට response එක කියවිය නොහැක, නමුත් සාර්ථක බව උපකල්පනය කරමු
-            progBar.style.width = '100%';
-            status.innerText = "UPLOAD SUCCESSFUL! Under Review.";
-            btn.style.background = "#28a745";
+            
+            bar.style.width = '100%';
+            msg.innerText = "UPLOAD SUCCESSFUL!";
+            msg.className = "success";
             btn.innerText = "DONE";
-        } catch (e) {
-            status.innerText = "Error occurred. Try again.";
+            setTimeout(() => location.reload(), 3000);
+        } catch (error) {
+            msg.innerText = "ERROR: Connection Failed";
+            msg.className = "error";
             btn.disabled = false;
         }
     }
+
+    // Sheet එකේ දැනට ඉන්න අයගේ නම් Dropdown එකට ගැනීම
+    window.onload = function() {
+        google.script.run.withSuccessHandler(function(names) {
+            const dropdown = document.getElementById('actressSelect');
+            names.forEach(n => {
+                let opt = document.createElement('option');
+                opt.value = n; opt.innerText = n;
+                dropdown.appendChild(opt);
+            });
+        }).getExistingNames();
+    };
 </script>
+
 </body>
 </html>
