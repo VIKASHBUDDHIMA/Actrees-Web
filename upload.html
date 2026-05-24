@@ -16,227 +16,159 @@
             border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000;
         }
         .logo { font-family: 'Syncopate'; color: var(--accent); text-decoration: none; font-size: 1.2rem; }
-        .nav-links { display: flex; gap: 20px; }
-        .nav-links a { 
-            color: white; text-decoration: none; font-size: 0.8rem; font-weight: 700; 
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-        .nav-links a:hover { color: var(--accent); }
-
-        .container { max-width: 500px; margin: 40px auto; padding: 20px; }
-        .card { background: var(--surface); padding: 30px; border-radius: 20px; border: 1px solid #222; position: relative; }
-        h2 { font-family: 'Syncopate'; font-size: 1rem; color: var(--accent); text-align: center; margin-bottom: 25px; }
         
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-size: 0.75rem; color: #888; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; }
+        .container { max-width: 600px; margin: 50px auto; padding: 20px; }
+        .form-container { background: var(--surface); padding: 30px; border-radius: 12px; border: 1px solid #333; }
         
-        select, input[type="text"] { 
-            width: 100%; padding: 14px; background: #1a1a1e; border: 1px solid #333; 
-            color: white; border-radius: 10px; outline: none; font-family: inherit;
-        }
+        .upload-tabs { display: flex; gap: 10px; margin-bottom: 25px; }
+        .upload-tabs button { flex: 1; padding: 12px; background: #222; border: 1px solid #333; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .upload-tabs button.active { background: var(--accent); border-color: var(--accent); }
         
-        .file-upload { 
-            border: 2px dashed #333; border-radius: 10px; padding: 20px; 
-            text-align: center; cursor: pointer; background: #1a1a1e; 
-            position: relative; overflow: hidden;
+        select, input[type="text"], input[type="url"], input[type="file"] { 
+            width: 100%; padding: 12px; margin: 10px 0 20px; background: #0a0a0a; 
+            border: 1px solid #333; color: white; border-radius: 8px; 
         }
-        .file-upload span { 
-            font-size: 0.8rem; color: #aaa; display: block;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            padding: 0 10px;
-        }
-        .file-upload input { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; }
-
-        #progressContainer { display: none; margin: 20px 0; background: #222; height: 6px; border-radius: 3px; overflow: hidden; }
-        #progressBar { width: 0%; height: 100%; background: var(--accent); }
+        select:focus, input:focus { border-color: var(--accent); outline: none; }
         
-        .btn { 
-            width: 100%; padding: 15px; background: var(--accent); border: none; 
-            color: white; font-weight: 700; border-radius: 10px; cursor: pointer; 
-            margin-top: 10px; font-family: 'Syncopate'; font-size: 0.8rem;
+        .btn-upload { 
+            width: 100%; padding: 15px; background: var(--accent); color: white; 
+            border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; 
         }
-        .btn:disabled { background: #444; opacity: 0.6; }
+        .btn-upload:hover { opacity: 0.9; }
         
-        #statusMsg { text-align: center; margin-top: 15px; font-size: 0.85rem; font-weight: 600; }
-
-        #successView { display: none; text-align: center; padding: 20px; }
-        #successView h3 { font-family: 'Syncopate'; color: #00ff88; margin-bottom: 10px; }
-        #successView p { color: #888; font-size: 0.9rem; margin-bottom: 20px; }
+        .progress-box { display: none; margin-top: 20px; }
+        .progress-bar { width: 100%; height: 10px; background: #222; border-radius: 5px; overflow: hidden; }
+        .progress-fill { width: 0%; height: 100%; background: var(--accent); }
+        
+        #successView { display: none; text-align: center; padding: 40px 20px; }
+        #successView h2 { color: #00ff88; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-<nav>
-    <a href="index.html" class="logo">STAR STREAM</a>
-    <div class="nav-links">
-        <a href="index.html">HOME</a>
-        <a href="index.html#browse">BROWSE</a>
-    </div>
-</nav>
+    <nav>
+        <a href="index.html" class="logo">STAR STREAM</a>
+    </nav>
 
-<div class="container">
-    <div class="card" id="uploadCard">
-        <div id="formView">
-            <h2>CONTENT SUBMISSION</h2>
+    <div class="container">
+        <div class="form-container" id="formView">
+            <h2 style="margin-bottom: 20px; text-align: center;">UPLOAD MEDIA</h2>
+            
+            <label>Content Type</label>
+            <select id="contentType">
+                <option value="VIDEO">Video</option>
+                <option value="PHOTO">Photo</option>
+            </select>
 
-            <div class="form-group">
-                <label>Choose Actress</label>
-                <select id="actressSelect" onchange="toggleNewActress()">
-                    <option value="">-- Loading Actresses... --</option>
-                    <option value="NEW">+ Add New Actress</option>
-                </select>
+            <label>Name</label>
+            <input type="text" id="newName" placeholder="Enter Name">
+
+            <label>Profile Picture (Optional)</label>
+            <input type="file" id="profileFile" accept="image/*">
+
+            <div class="upload-tabs">
+                <button id="btnFileTab" class="active" onclick="switchMode('file')">Device Upload</button>
+                <button id="btnLinkTab" onclick="switchMode('link')">Social Link</button>
             </div>
 
-            <div id="newActressForm" style="display: none; padding: 15px; background: #0a0a0a; border-radius: 10px; margin-bottom: 20px; border: 1px solid #222;">
-                <div class="form-group">
-                    <label>Actress Name</label>
-                    <input type="text" id="newName" placeholder="Enter Name">
-                </div>
-                <div class="form-group">
-                    <label>Profile Image (Square)</label>
-                    <div class="file-upload">
-                        <span id="profileStatus">Select Profile Image</span>
-                        <input type="file" id="profileInput" accept="image/*" onchange="updateProfileName(this)">
-                    </div>
-                </div>
+            <div id="fileSection">
+                <label>Select File</label>
+                <input type="file" id="mediaFiles">
             </div>
 
-            <div class="form-group">
-                <label>Content Type</label>
-                <select id="contentType">
-                    <option value="Photo">Photo</option>
-                    <option value="Video">Video</option>
-                </select>
+            <div id="linkSection" style="display: none;">
+                <label>Paste Video Link (TikTok/YT/FB/Insta)</label>
+                <input type="url" id="linkInput" placeholder="https://www.tiktok.com/...">
+                <small style="color: #888;">Max size: 50MB. Video will be saved to Drive automatically.</small>
             </div>
 
-            <div class="form-group">
-                <label>Upload Media (Select Multiple Files)</label>
-                <div class="file-upload">
-                    <span id="contentStatus">Choose Files</span>
-                    <!-- multiple දමා ඇත -->
-                    <input type="file" id="contentInput" accept="image/*,video/*" multiple onchange="checkFiles(this)">
-                </div>
+            <button class="btn-upload" onclick="startUpload()">SUBMIT FOR REVIEW</button>
+            
+            <div class="progress-box" id="progressBox">
+                <p id="statusText">Uploading...</p>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
             </div>
-
-            <button id="uploadBtn" class="btn" onclick="startUpload()">START UPLOAD</button>
-
-            <div id="progressContainer"><div id="progressBar"></div></div>
-            <div id="statusMsg"></div>
         </div>
 
         <div id="successView">
-            <div style="font-size: 4rem; margin-bottom: 15px;">✅</div>
-            <h3>THANK YOU!</h3>
-            <p>Your files have been submitted successfully.</p>
-            <button class="btn" onclick="window.location.reload()">UPLOAD MORE</button>
-            <button class="btn" onclick="window.location.href='index.html'" style="background: #333; margin-top: 10px;">BACK TO HOME</button>
+            <h2>UPLOAD SUCCESSFUL!</h2>
+            <p>Your media has been sent for admin review.</p>
+            <button class="btn-upload" onclick="location.reload()" style="margin-top:20px; width: auto; padding: 10px 30px;">Upload More</button>
         </div>
     </div>
-</div>
 
-<script>
-    // 🔴 ඔයාගේ Web App URL එක මෙතැනට දාන්න
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwt0fmO3f0Ikkq8l1V-tSM85KrewR8zPgOvve8caVeg_Xo5-fp4pZsghJHAr2YOMFnV/exec"; 
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwBun0ZeAff_M6FgziDusBsMJxUavLkWTddm2OF-jICCp9R1iDgFxF88zdDgzg0CyAy/exec'; // ඔයාගේ Web App URL එක මෙතනට දාන්න මතක තියාගන්න!
+        let currentMode = 'file';
 
-    function toggleNewActress() {
-        const select = document.getElementById('actressSelect');
-        document.getElementById('newActressForm').style.display = (select.value === 'NEW') ? 'block' : 'none';
-    }
-
-    function updateProfileName(input) {
-        if (input.files && input.files[0]) {
-            document.getElementById('profileStatus').innerText = input.files[0].name;
-            document.getElementById('profileStatus').style.color = "#00ff88";
+        function switchMode(mode) {
+            currentMode = mode;
+            if(mode === 'link') {
+                document.getElementById('fileSection').style.display = 'none';
+                document.getElementById('linkSection').style.display = 'block';
+                document.getElementById('btnFileTab').classList.remove('active');
+                document.getElementById('btnLinkTab').classList.add('active');
+            } else {
+                document.getElementById('linkSection').style.display = 'none';
+                document.getElementById('fileSection').style.display = 'block';
+                document.getElementById('btnLinkTab').classList.remove('active');
+                document.getElementById('btnFileTab').classList.add('active');
+            }
         }
-    }
 
-    function checkFiles(input) {
-        if (input.files && input.files.length > 0) {
-            document.getElementById('contentStatus').innerText = input.files.length + " files selected";
-            document.getElementById('contentStatus').style.color = "#00ff88";
-        } else {
-            document.getElementById('contentStatus').innerText = "Choose Files";
-            document.getElementById('contentStatus').style.color = "#aaa";
-        }
-    }
-
-    async function fileToBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve({ base64: reader.result.split(',')[1], type: file.type, name: file.name });
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-    }
-
-    window.onload = async () => {
-        try {
-            const res = await fetch(SCRIPT_URL + "?action=getNames");
-            const names = await res.json();
-            const dropdown = document.getElementById('actressSelect');
-            dropdown.innerHTML = '<option value="">-- Select Actress --</option><option value="NEW">+ Add New Actress</option>';
-            names.forEach(n => {
-                let opt = document.createElement('option');
-                opt.value = opt.innerText = n;
-                dropdown.appendChild(opt);
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                if(!file) return resolve(null);
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve({ base64: reader.result.split(',')[1], type: file.type });
+                reader.onerror = error => reject(error);
             });
-        } catch(e) {
-            document.getElementById('actressSelect').innerHTML = '<option value="NEW">+ Add New Actress</option>';
-        }
-    };
-
-    async function startUpload() {
-        const btn = document.getElementById('uploadBtn');
-        const files = document.getElementById('contentInput').files;
-        const actressSelect = document.getElementById('actressSelect').value;
-        const newName = document.getElementById('newName').value.trim();
-        const profileFile = document.getElementById('profileInput').files[0];
-        
-        const msg = document.getElementById('statusMsg');
-        const bar = document.getElementById('progressBar');
-        const barCont = document.getElementById('progressContainer');
-
-        if (actressSelect === 'NEW') {
-            if (!newName) return alert("Please enter the Actress name!");
-            if (!profileFile) return alert("Profile image is required!");
-        } else if (!actressSelect) {
-            return alert("Please select an Actress!");
         }
 
-        if (files.length === 0) return alert("Please select at least one file to upload!");
-
-        btn.disabled = true;
-        barCont.style.display = 'block';
-
-        let profileData = null;
-        if (actressSelect === 'NEW' && profileFile) {
-            msg.innerText = "Processing profile image...";
-            profileData = await fileToBase64(profileFile);
-        }
-
-        // එකින් එක අප්ලෝඩ් කිරීමේ Loop එක
-        for (let i = 0; i < files.length; i++) {
-            let currentFile = files[i];
-            msg.innerText = `Uploading file ${i + 1} of ${files.length}...`;
-            msg.style.color = "white";
+        async function startUpload() {
+            const name = document.getElementById('newName').value;
+            const type = document.getElementById('contentType').value;
+            const profileFile = document.getElementById('profileFile').files[0];
             
-            let progress = ((i) / files.length) * 100;
-            bar.style.width = progress + '%';
+            if (!name) return alert('Please enter a name!');
+
+            document.getElementById('progressBox').style.display = 'block';
+            const statusText = document.getElementById('statusText');
+            const progressFill = document.getElementById('progressFill');
+            
+            progressFill.style.width = '20%';
+            statusText.innerText = 'Preparing data...';
 
             try {
-                const mediaData = await fileToBase64(currentFile);
-                const payload = { 
-                    name: (actressSelect === 'NEW') ? newName : actressSelect, 
-                    type: document.getElementById('contentType').value, 
-                    fileName: currentFile.name, 
-                    fileType: currentFile.type,
-                    fileBase64: mediaData.base64
+                let profileData = await fileToBase64(profileFile);
+                let payload = {
+                    name: name,
+                    type: type,
+                    profileBase64: profileData ? profileData.base64 : null,
+                    profileType: profileData ? profileData.type : null
                 };
 
-                // Profile image එක යවන්නේ පළවෙනි file එකත් එක්ක විතරයි (Load එක අඩු කරන්න)
-                if (i === 0 && profileData) {
-                    payload.profileBase64 = profileData.base64;
-                    payload.profileType = profileData.type;
+                if (currentMode === 'link') {
+                    const link = document.getElementById('linkInput').value;
+                    if(!link) throw new Error("Please paste a valid link!");
+                    
+                    payload.action = 'uploadLink';
+                    payload.url = link;
+                    statusText.innerText = 'Downloading from Social Media & Saving to Drive (This may take a minute)...';
+                    progressFill.style.width = '60%';
+
+                } else {
+                    const file = document.getElementById('mediaFiles').files[0];
+                    if(!file) throw new Error("Please select a file!");
+                    
+                    const fileData = await fileToBase64(file);
+                    payload.action = 'uploadFile';
+                    payload.fileName = file.name;
+                    payload.fileType = file.type;
+                    payload.fileBase64 = fileData.base64;
+                    statusText.innerText = 'Uploading file to Drive...';
+                    progressFill.style.width = '60%';
                 }
 
                 const response = await fetch(SCRIPT_URL, {
@@ -245,19 +177,20 @@
                 });
 
                 const result = await response.text();
-                if(!result.includes("Success")) {
-                    console.error("Failed to upload file " + (i+1) + ": " + result);
+                
+                if (result.includes("Success")) {
+                    progressFill.style.width = '100%';
+                    document.getElementById('formView').style.display = 'none';
+                    document.getElementById('successView').style.display = 'block';
+                } else {
+                    throw new Error(result);
                 }
+
             } catch (error) {
-                console.error("Error uploading file " + (i+1) + ": " + error.message);
+                alert("Error: " + error.message);
+                document.getElementById('progressBox').style.display = 'none';
             }
         }
-
-        // සියල්ල අවසන් වූ පසු
-        bar.style.width = '100%';
-        document.getElementById('formView').style.display = 'none';
-        document.getElementById('successView').style.display = 'block';
-    }
-</script>
+    </script>
 </body>
 </html>
