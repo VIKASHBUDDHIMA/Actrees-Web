@@ -3,69 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Content</title>
+    <title>Upload Content | STAR STREAM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { background: #050505; color: #fff; font-family: sans-serif; padding: 20px; }
-        .container { max-width: 500px; margin: auto; background: #111; padding: 20px; border-radius: 10px; border: 1px solid #333; }
-        input, select, button { width: 100%; padding: 12px; margin: 10px 0; background: #222; color: #fff; border: 1px solid #444; border-radius: 5px; }
-        button { background: #ff0055; cursor: pointer; border: none; font-weight: bold; }
-        #status { text-align: center; margin-top: 10px; color: #ff0055; }
+        :root { --accent: #ff0055; --bg: #050505; --surface: #111113; --text: #ffffff; }
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+        body { background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
+        
+        nav { 
+            width: 100%; padding: 15px 8%; background: rgba(0,0,0,0.9); 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000;
+        }
+        .logo { font-family: 'Syncopate'; color: var(--accent); text-decoration: none; font-size: 1.2rem; }
+        .nav-links { display: flex; gap: 20px; }
+        .nav-links a { 
+            color: white; text-decoration: none; font-size: 0.8rem; font-weight: 700; 
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .nav-links a:hover { color: var(--accent); }
+
+        .container { max-width: 500px; margin: 40px auto; padding: 20px; }
+        .card { background: var(--surface); padding: 30px; border-radius: 20px; border: 1px solid #222; position: relative; }
+        h2 { font-family: 'Syncopate'; font-size: 1rem; color: var(--accent); text-align: center; margin-bottom: 25px; }
+        
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.75rem; color: #888; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; }
+        
+        select, input[type="text"], input[type="url"] { 
+            width: 100%; padding: 14px; background: #1a1a1e; border: 1px solid #333; 
+            color: white; border-radius: 10px; outline: none; font-family: inherit;
+        }
+        
+        .file-upload { 
+            border: 2px dashed #333; border-radius: 10px; padding: 20px; 
+            text-align: center; cursor: pointer; background: #1a1a1e; 
+            position: relative; overflow: hidden;
+        }
+        .file-upload span { 
+            font-size: 0.8rem; color: #aaa; display: block;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+            padding: 0 10px;
+        }
+        .file-upload input { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; }
+
+        #progressContainer { display: none; margin: 20px 0; background: #222; height: 6px; border-radius: 3px; overflow: hidden; }
+        #progressBar { width: 0%; height: 100%; background: var(--accent); }
+        
+        .btn { 
+            width: 100%; padding: 15px; background: var(--accent); border: none; 
+            color: white; font-weight: 700; border-radius: 10px; cursor: pointer; 
+            margin-top: 10px; font-family: 'Syncopate'; font-size: 0.8rem;
+        }
+        .btn:disabled { background: #444; opacity: 0.6; }
+        
+        #statusMsg { text-align: center; margin-top: 15px; font-size: 0.85rem; font-weight: 600; }
+
+        #successView { display: none; text-align: center; padding: 20px; }
+        #successView h3 { font-family: 'Syncopate'; color: #00ff88; margin-bottom: 10px; }
+        #successView p { color: #888; font-size: 0.9rem; margin-bottom: 20px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Upload Media</h2>
-        <input type="text" id="name" placeholder="Name">
-        <select id="type"><option value="VIDEO">Video</option><option value="PHOTO">Photo</option></select>
-        <input type="file" id="mediaFile">
-        <input type="url" id="link" placeholder="Paste Video Link (TikTok/Insta/YT)">
-        <button onclick="upload()">SUBMIT</button>
-        <p id="status"></p>
+
+<nav>
+    <a href="index.html" class="logo">STAR STREAM</a>
+    <div class="nav-links">
+        <a href="index.html">HOME</a>
+        <a href="index.html#browse">BROWSE</a>
     </div>
+</nav>
 
-    <script>
-        // ඔයා ඉල්ලපු ලින්ක් එක මෙතන තියෙනවා
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxuzFQMSEkX7l1esduvRYBD_XslQDVQZ349RUhE8YSQQywUCXtwDCsTqSwtDOCXutht/exec';
+<div class="container">
+    <div class="card" id="uploadCard">
+        <div id="formView">
+            <h2>CONTENT SUBMISSION</h2>
+
+            <div class="form-group">
+                <label>Choose Actress</label>
+                <select id="actressSelect" onchange="toggleNewActress()">
+                    <option value="">-- Loading Actresses... --</option>
+                    <option value="NEW">+ Add New Actress</option>
+                </select>
+            </div>
+
+            <div id="newActressForm" style="display: none; padding: 15px; background: #0a0a0a; border-radius: 10px; margin-bottom: 20px; border: 1px solid #222;">
+                <div class="form-group">
+                    <label>Actress Name</label>
+                    <input type="text" id="newName" placeholder="Enter Name">
+                </div>
+                <div class="form-group">
+                    <label>Profile Image (Square)</label>
+                    <div class="file-upload">
+                        <span id="profileStatus">Select Profile Image</span>
+                        <input type="file" id="profileInput" accept="image/*" onchange="updateProfileName(this)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Content Source</label>
+                <select id="contentSource" onchange="toggleContentSource()">
+                    <option value="FILE">Local File (Upload Images/Videos)</option>
+                    <option value="TIKTOK">TikTok Link (Auto Download to Drive)</option>
+                </select>
+            </div>
+
+            <div id="fileUploadGroup">
+                <div class="form-group">
+                    <label>Content Type</label>
+                    <select id="contentType">
+                        <option value="Photo">Photo</option>
+                        <option value="Video">Video</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Upload Media (Up to 10 files)</label>
+                    <div class="file-upload">
+                        <span id="contentStatus">Choose Files (Max 10)</span>
+                        <input type="file" id="contentInput" accept="image/*,video/*" multiple onchange="checkFiles(this)">
+                    </div>
+                </div>
+            </div>
+
+            <div id="tiktokLinkGroup" style="display: none;">
+                <div class="form-group">
+                    <label>TikTok Video URL</label>
+                    <input type="url" id="tiktokUrlInput" placeholder="https://vt.tiktok.com/...">
+                </div>
+            </div>
+
+            <button id="uploadBtn" class="btn" onclick="startUpload()">START UPLOAD</button>
+
+            <div id="progressContainer"><div id="progressBar"></div></div>
+            <div id="statusMsg"></div>
+        </div>
+
+        <div id="successView">
+            <div style="font-size: 4rem; margin-bottom: 15px;">✅</div>
+            <h3>THANK YOU!</h3>
+            <p>Your content has been submitted successfully and is currently under review.</p>
+            <button class="btn" onclick="window.location.href='index.html'">BACK TO HOME</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 🔴 ඔයාගේ අලුත් Web App URL එක මෙතැනට දාන්න 🔴
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQq4kWsFCIvW1Kln0vjfRR90cavrwSoNRJQTSe1qRud_V9LagWGprhW4nsn1jGXBbW/exec"; 
+
+    function toggleNewActress() {
+        const select = document.getElementById('actressSelect');
+        document.getElementById('newActressForm').style.display = (select.value === 'NEW') ? 'block' : 'none';
+    }
+
+    function toggleContentSource() {
+        const source = document.getElementById('contentSource').value;
+        if (source === 'TIKTOK') {
+            document.getElementById('fileUploadGroup').style.display = 'none';
+            document.getElementById('tiktokLinkGroup').style.display = 'block';
+        } else {
+            document.getElementById('fileUploadGroup').style.display = 'block';
+            document.getElementById('tiktokLinkGroup').style.display = 'none';
+        }
+    }
+
+    function updateProfileName(input) {
+        if (input.files && input.files[0]) {
+            document.getElementById('profileStatus').innerText = input.files[0].name;
+            document.getElementById('profileStatus').style.color = "#00ff88";
+        }
+    }
+
+    function checkFiles(input) {
+        if (input.files.length > 10) {
+            alert("You can only upload a maximum of 10 files at once.");
+            input.value = "";
+            document.getElementById('contentStatus').innerText = "Choose Files (Max 10)";
+        } else {
+            document.getElementById('contentStatus').innerText = input.files.length + " files selected";
+            document.getElementById('contentStatus').style.color = "#00ff88";
+        }
+    }
+
+    async function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve({ base64: reader.result.split(',')[1], type: file.type, name: file.name });
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    window.onload = async () => {
+        try {
+            const res = await fetch(SCRIPT_URL + "?action=getNames");
+            const names = await res.json();
+            const dropdown = document.getElementById('actressSelect');
+            dropdown.innerHTML = '<option value="">-- Select Actress --</option><option value="NEW">+ Add New Actress</option>';
+            names.forEach(n => {
+                let opt = document.createElement('option');
+                opt.value = opt.innerText = n;
+                dropdown.appendChild(opt);
+            });
+        } catch(e) {
+            document.getElementById('actressSelect').innerHTML = '<option value="NEW">+ Add New Actress</option>';
+        }
+    };
+
+    async function startUpload() {
+        const btn = document.getElementById('uploadBtn');
+        const source = document.getElementById('contentSource').value;
+        const actressSelect = document.getElementById('actressSelect').value;
+        const newName = document.getElementById('newName').value.trim();
+        const profileFile = document.getElementById('profileInput').files[0];
         
-        async function upload() {
-            const status = document.getElementById('status');
-            status.innerText = "Processing...";
-            const name = document.getElementById('name').value;
-            const type = document.getElementById('type').value;
-            const fileInput = document.getElementById('mediaFile');
-            const link = document.getElementById('link').value;
+        const msg = document.getElementById('statusMsg');
+        const bar = document.getElementById('progressBar');
+        const barCont = document.getElementById('progressContainer');
+
+        if (!actressSelect) return alert("Please select an Actress!");
+        if (actressSelect === 'NEW' && !newName) return alert("Please enter the Actress name!");
+        if (actressSelect === 'NEW' && !profileFile) return alert("Profile image is required!");
+
+        btn.disabled = true;
+        barCont.style.display = 'block';
+
+        let profileData = null;
+        if (actressSelect === 'NEW' && profileFile) {
+            profileData = await fileToBase64(profileFile);
+        }
+
+        // TIKTOK LOGIC
+        if (source === 'TIKTOK') {
+            const tiktokUrl = document.getElementById('tiktokUrlInput').value.trim();
+            if (!tiktokUrl) { btn.disabled = false; barCont.style.display = 'none'; return alert("Please enter a TikTok Link!"); }
             
-            if(!name) return status.innerText = "Please enter a name!";
+            msg.innerText = "Processing TikTok Link directly to Drive...";
+            msg.style.color = "white";
+            bar.style.width = '60%';
 
-            let payload = { name, type };
-
-            if (link) {
-                payload.action = "uploadLink";
-                payload.url = link;
-            } else if (fileInput.files[0]) {
-                const file = fileInput.files[0];
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                await new Promise(r => reader.onload = r);
-                payload.action = "uploadFile";
-                payload.fileName = file.name;
-                payload.fileType = file.type;
-                payload.fileBase64 = reader.result.split(',')[1];
-            } else {
-                return status.innerText = "Please select a file or paste a link!";
-            }
+            const payload = {
+                name: (actressSelect === 'NEW') ? newName : actressSelect,
+                type: 'Video',
+                tiktokUrl: tiktokUrl,
+                profileBase64: profileData ? profileData.base64 : null,
+                profileType: profileData ? profileData.type : null
+            };
 
             try {
-                const response = await fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify(payload) 
-                });
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
                 const result = await response.text();
-                status.innerText = result;
-            } catch(e) {
-                status.innerText = "Error: " + e.message;
+                if(result.includes("Success")) {
+                    bar.style.width = '100%';
+                    document.getElementById('formView').style.display = 'none';
+                    document.getElementById('successView').style.display = 'block';
+                } else {
+                    throw new Error(result);
+                }
+            } catch (error) {
+                msg.innerText = "UPLOAD FAILED: " + error.message;
+                msg.style.color = "#ff3333";
+                btn.disabled = false;
             }
+
+        // LOCAL FILE UPLOAD LOGIC
+        } else {
+            const files = document.getElementById('contentInput').files;
+            if (files.length === 0) { btn.disabled = false; barCont.style.display = 'none'; return alert("Please select at least one file!"); }
+
+            msg.style.color = "white";
+
+            for (let i = 0; i < files.length; i++) {
+                let currentFile = files[i];
+                msg.innerText = `Uploading file ${i + 1} of ${files.length}...`;
+                let progress = ((i + 1) / files.length) * 100;
+                bar.style.width = progress + '%';
+
+                const mediaData = await fileToBase64(currentFile);
+                const payload = {
+                    name: (actressSelect === 'NEW') ? newName : actressSelect,
+                    type: document.getElementById('contentType').value,
+                    fileName: currentFile.name,
+                    fileType: currentFile.type,
+                    fileBase64: mediaData.base64
+                };
+
+                // Load එක අඩු කරන්න Profile එක යවන්නේ පළවෙනි පින්තූරයත් එක්ක විතරයි
+                if (i === 0 && profileData) {
+                    payload.profileBase64 = profileData.base64;
+                    payload.profileType = profileData.type;
+                }
+
+                try {
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.text();
+                    if(!result.includes("Success")) {
+                        console.error("Failed to upload file " + (i+1) + ": " + result);
+                    }
+                } catch (error) {
+                    console.error("Error uploading file " + (i+1) + ": " + error.message);
+                }
+            }
+            
+            bar.style.width = '100%';
+            document.getElementById('formView').style.display = 'none';
+            document.getElementById('successView').style.display = 'block';
         }
-    </script>
+    }
+</script>
 </body>
 </html>
