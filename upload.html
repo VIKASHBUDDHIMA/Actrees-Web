@@ -99,7 +99,7 @@
 
     <script>
         // PUT YOUR NEW DEPLOYMENT URL HERE!
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5aQhRghVH6LXihuPKWV4GvXxL_QDdrGY8qkZ0sxo_ii6Nj60OxhFlvrLMB8yGkK9i/exec'; 
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxuzFQMSEkX7l1esduvRYBD_XslQDVQZ349RUhE8YSQQywUCXtwDCsTqSwtDOCXutht/exec'; 
         
         let currentMode = 'file';
 
@@ -146,7 +146,6 @@
                 let profileData = await fileToBase64(profileFile);
 
                 if (currentMode === 'link') {
-                    // LINK UPLOAD LOGIC
                     const link = document.getElementById('linkInput').value;
                     if(!link) throw new Error("Please paste a valid link!");
                     
@@ -159,7 +158,7 @@
                         profileType: profileData ? profileData.type : null
                     };
 
-                    statusText.innerText = 'Downloading from Social Media & Saving to Drive (This may take a minute)...';
+                    statusText.innerText = 'Processing Link & Saving to Drive (This may take a minute)...';
                     progressFill.style.width = '60%';
 
                     const response = await fetch(SCRIPT_URL, {
@@ -171,7 +170,6 @@
                     if (!result.includes("Success")) throw new Error(result);
 
                 } else {
-                    // MULTIPLE FILES UPLOAD LOGIC
                     const files = document.getElementById('mediaFiles').files;
                     if(files.length === 0) throw new Error("Please select at least one file!");
                     
@@ -191,7 +189,6 @@
                             fileBase64: fileData.base64
                         };
 
-                        // Send profile image only with the first file to reduce load
                         if (i === 0 && profileData) {
                             payload.profileBase64 = profileData.base64;
                             payload.profileType = profileData.type;
