@@ -3,216 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Content | STAR STREAM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <title>Upload Content</title>
     <style>
-        :root { --accent: #ff0055; --bg: #050505; --surface: #111113; --text: #ffffff; }
-        * { box-sizing: border-box; transition: all 0.3s ease; }
-        body { background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
-        
-        nav { 
-            width: 100%; padding: 15px 8%; background: rgba(0,0,0,0.9); 
-            display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000;
-        }
-        .logo { font-family: 'Syncopate'; color: var(--accent); text-decoration: none; font-size: 1.2rem; }
-        
-        .container { max-width: 600px; margin: 50px auto; padding: 20px; }
-        .form-container { background: var(--surface); padding: 30px; border-radius: 12px; border: 1px solid #333; }
-        
-        .upload-tabs { display: flex; gap: 10px; margin-bottom: 25px; }
-        .upload-tabs button { flex: 1; padding: 12px; background: #222; border: 1px solid #333; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .upload-tabs button.active { background: var(--accent); border-color: var(--accent); }
-        
-        select, input[type="text"], input[type="url"], input[type="file"] { 
-            width: 100%; padding: 12px; margin: 10px 0 20px; background: #0a0a0a; 
-            border: 1px solid #333; color: white; border-radius: 8px; 
-        }
-        select:focus, input:focus { border-color: var(--accent); outline: none; }
-        
-        .btn-upload { 
-            width: 100%; padding: 15px; background: var(--accent); color: white; 
-            border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; 
-        }
-        .btn-upload:hover { opacity: 0.9; }
-        
-        .progress-box { display: none; margin-top: 20px; }
-        .progress-bar { width: 100%; height: 10px; background: #222; border-radius: 5px; overflow: hidden; }
-        .progress-fill { width: 0%; height: 100%; background: var(--accent); }
-        
-        #successView { display: none; text-align: center; padding: 40px 20px; }
-        #successView h2 { color: #00ff88; margin-bottom: 15px; }
+        body { background: #050505; color: #fff; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: #111; padding: 20px; border-radius: 10px; border: 1px solid #333; }
+        input, select, button { width: 100%; padding: 12px; margin: 10px 0; background: #222; color: #fff; border: 1px solid #444; border-radius: 5px; }
+        button { background: #ff0055; cursor: pointer; border: none; font-weight: bold; }
+        #status { text-align: center; margin-top: 10px; color: #ff0055; }
     </style>
 </head>
 <body>
-
-    <nav>
-        <a href="index.html" class="logo">STAR STREAM</a>
-    </nav>
-
     <div class="container">
-        <div class="form-container" id="formView">
-            <h2 style="margin-bottom: 20px; text-align: center;">UPLOAD MEDIA</h2>
-            
-            <label>Content Type</label>
-            <select id="contentType">
-                <option value="VIDEO">Video</option>
-                <option value="PHOTO">Photo</option>
-            </select>
-
-            <label>Name</label>
-            <input type="text" id="newName" placeholder="Enter Name">
-
-            <label>Profile Picture (Optional)</label>
-            <input type="file" id="profileFile" accept="image/*">
-
-            <div class="upload-tabs">
-                <button id="btnFileTab" class="active" onclick="switchMode('file')">Device Upload</button>
-                <button id="btnLinkTab" onclick="switchMode('link')">Social Link</button>
-            </div>
-
-            <div id="fileSection">
-                <label>Select Files</label>
-                <input type="file" id="mediaFiles" multiple>
-            </div>
-
-            <div id="linkSection" style="display: none;">
-                <label>Paste Video Link (TikTok/YT/FB/Insta)</label>
-                <input type="url" id="linkInput" placeholder="https://www.tiktok.com/...">
-                <small style="color: #888;">Max size: 50MB. Video will be saved to Drive automatically.</small>
-            </div>
-
-            <button class="btn-upload" onclick="startUpload()">SUBMIT FOR REVIEW</button>
-            
-            <div class="progress-box" id="progressBox">
-                <p id="statusText">Processing...</p>
-                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-            </div>
-        </div>
-
-        <div id="successView">
-            <h2>UPLOAD SUCCESSFUL!</h2>
-            <p>Your media has been sent for admin review.</p>
-            <button class="btn-upload" onclick="location.reload()" style="margin-top:20px; width: auto; padding: 10px 30px;">Upload More</button>
-        </div>
+        <h2>Upload Media</h2>
+        <input type="text" id="name" placeholder="Name">
+        <select id="type"><option value="VIDEO">Video</option><option value="PHOTO">Photo</option></select>
+        <input type="file" id="mediaFile">
+        <input type="url" id="link" placeholder="Paste Video Link (TikTok/Insta/YT)">
+        <button onclick="upload()">SUBMIT</button>
+        <p id="status"></p>
     </div>
 
     <script>
-        // PUT YOUR NEW DEPLOYMENT URL HERE!
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxuzFQMSEkX7l1esduvRYBD_XslQDVQZ349RUhE8YSQQywUCXtwDCsTqSwtDOCXutht/exec'; 
+        // ඔයා ඉල්ලපු ලින්ක් එක මෙතන තියෙනවා
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxuzFQMSEkX7l1esduvRYBD_XslQDVQZ349RUhE8YSQQywUCXtwDCsTqSwtDOCXutht/exec';
         
-        let currentMode = 'file';
+        async function upload() {
+            const status = document.getElementById('status');
+            status.innerText = "Processing...";
+            const name = document.getElementById('name').value;
+            const type = document.getElementById('type').value;
+            const fileInput = document.getElementById('mediaFile');
+            const link = document.getElementById('link').value;
+            
+            if(!name) return status.innerText = "Please enter a name!";
 
-        function switchMode(mode) {
-            currentMode = mode;
-            if(mode === 'link') {
-                document.getElementById('fileSection').style.display = 'none';
-                document.getElementById('linkSection').style.display = 'block';
-                document.getElementById('btnFileTab').classList.remove('active');
-                document.getElementById('btnLinkTab').classList.add('active');
-            } else {
-                document.getElementById('linkSection').style.display = 'none';
-                document.getElementById('fileSection').style.display = 'block';
-                document.getElementById('btnLinkTab').classList.remove('active');
-                document.getElementById('btnFileTab').classList.add('active');
-            }
-        }
+            let payload = { name, type };
 
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                if(!file) return resolve(null);
+            if (link) {
+                payload.action = "uploadLink";
+                payload.url = link;
+            } else if (fileInput.files[0]) {
+                const file = fileInput.files[0];
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
-                reader.onload = () => resolve({ base64: reader.result.split(',')[1], type: file.type });
-                reader.onerror = error => reject(error);
-            });
-        }
-
-        async function startUpload() {
-            const name = document.getElementById('newName').value;
-            const type = document.getElementById('contentType').value;
-            const profileFile = document.getElementById('profileFile').files[0];
-            
-            if (!name) return alert('Please enter a name!');
-
-            document.getElementById('progressBox').style.display = 'block';
-            const statusText = document.getElementById('statusText');
-            const progressFill = document.getElementById('progressFill');
-            
-            progressFill.style.width = '10%';
-            statusText.innerText = 'Preparing data...';
+                await new Promise(r => reader.onload = r);
+                payload.action = "uploadFile";
+                payload.fileName = file.name;
+                payload.fileType = file.type;
+                payload.fileBase64 = reader.result.split(',')[1];
+            } else {
+                return status.innerText = "Please select a file or paste a link!";
+            }
 
             try {
-                let profileData = await fileToBase64(profileFile);
-
-                if (currentMode === 'link') {
-                    const link = document.getElementById('linkInput').value;
-                    if(!link) throw new Error("Please paste a valid link!");
-                    
-                    let payload = {
-                        name: name,
-                        type: type,
-                        action: 'uploadLink',
-                        url: link,
-                        profileBase64: profileData ? profileData.base64 : null,
-                        profileType: profileData ? profileData.type : null
-                    };
-
-                    statusText.innerText = 'Processing Link & Saving to Drive (This may take a minute)...';
-                    progressFill.style.width = '60%';
-
-                    const response = await fetch(SCRIPT_URL, {
-                        method: 'POST',
-                        body: JSON.stringify(payload)
-                    });
-
-                    const result = await response.text();
-                    if (!result.includes("Success")) throw new Error(result);
-
-                } else {
-                    const files = document.getElementById('mediaFiles').files;
-                    if(files.length === 0) throw new Error("Please select at least one file!");
-                    
-                    for (let i = 0; i < files.length; i++) {
-                        let currentFile = files[i];
-                        statusText.innerText = 'Uploading file ' + (i + 1) + ' of ' + files.length + '...';
-                        progressFill.style.width = ((i / files.length) * 100) + '%';
-                        
-                        let fileData = await fileToBase64(currentFile);
-                        
-                        let payload = {
-                            name: name,
-                            type: type,
-                            action: 'uploadFile',
-                            fileName: currentFile.name,
-                            fileType: currentFile.type,
-                            fileBase64: fileData.base64
-                        };
-
-                        if (i === 0 && profileData) {
-                            payload.profileBase64 = profileData.base64;
-                            payload.profileType = profileData.type;
-                        }
-
-                        const response = await fetch(SCRIPT_URL, {
-                            method: 'POST',
-                            body: JSON.stringify(payload)
-                        });
-
-                        const result = await response.text();
-                        if (!result.includes("Success")) {
-                            throw new Error("Failed to upload file " + (i + 1) + ": " + result);
-                        }
-                    }
-                }
-
-                progressFill.style.width = '100%';
-                document.getElementById('formView').style.display = 'none';
-                document.getElementById('successView').style.display = 'block';
-
-            } catch (error) {
-                alert("Error: " + error.message);
-                document.getElementById('progressBox').style.display = 'none';
+                const response = await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify(payload) 
+                });
+                const result = await response.text();
+                status.innerText = result;
+            } catch(e) {
+                status.innerText = "Error: " + e.message;
             }
         }
     </script>
