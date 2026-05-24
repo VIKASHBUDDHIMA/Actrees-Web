@@ -150,7 +150,7 @@
 
 <script>
     // 🔴 ඔයාගේ අලුත් Web App URL එක මෙතැනට දාන්න 🔴
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQq4kWsFCIvW1Kln0vjfRR90cavrwSoNRJQTSe1qRud_V9LagWGprhW4nsn1jGXBbW/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxKk5JtmHkciMF4tzUwgaVVb-iroeGsy9DF37uRC2pVUL9vqdy6D3Bk9tGTNqy5V4iP/exec"; 
 
     function toggleNewActress() {
         const select = document.getElementById('actressSelect');
@@ -234,7 +234,6 @@
             profileData = await fileToBase64(profileFile);
         }
 
-        // TIKTOK LOGIC
         if (source === 'TIKTOK') {
             const tiktokUrl = document.getElementById('tiktokUrlInput').value.trim();
             if (!tiktokUrl) { btn.disabled = false; barCont.style.display = 'none'; return alert("Please enter a TikTok Link!"); }
@@ -262,12 +261,12 @@
                     throw new Error(result);
                 }
             } catch (error) {
-                msg.innerText = "UPLOAD FAILED: " + error.message;
+                msg.innerText = error.message;
                 msg.style.color = "#ff3333";
                 btn.disabled = false;
+                bar.style.width = '0%';
             }
 
-        // LOCAL FILE UPLOAD LOGIC
         } else {
             const files = document.getElementById('contentInput').files;
             if (files.length === 0) { btn.disabled = false; barCont.style.display = 'none'; return alert("Please select at least one file!"); }
@@ -289,17 +288,13 @@
                     fileBase64: mediaData.base64
                 };
 
-                // Load එක අඩු කරන්න Profile එක යවන්නේ පළවෙනි පින්තූරයත් එක්ක විතරයි
                 if (i === 0 && profileData) {
                     payload.profileBase64 = profileData.base64;
                     payload.profileType = profileData.type;
                 }
 
                 try {
-                    const response = await fetch(SCRIPT_URL, {
-                        method: 'POST',
-                        body: JSON.stringify(payload)
-                    });
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
                     const result = await response.text();
                     if(!result.includes("Success")) {
                         console.error("Failed to upload file " + (i+1) + ": " + result);
