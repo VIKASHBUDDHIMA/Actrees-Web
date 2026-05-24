@@ -4,62 +4,184 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Content | STAR STREAM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #ff0055; --bg: #050505; --surface: #111113; --text: #ffffff; }
-        * { box-sizing: border-box; transition: all 0.3s ease; }
-        body { background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
+        :root { 
+            --accent: #ff0055; 
+            --gold: #d4af37; 
+            --bg: #030303; 
+            --text: #ffffff; 
+        }
+        
+        * { box-sizing: border-box; transition: all 0.3s ease; margin: 0; padding: 0; }
+        
+        body { 
+            background-color: var(--bg);
+            /* මෙතනට ඔයාගේ Main Website එකේ Background Image එකේ නම හෝ Link එක දෙන්න */
+            background-image: url('https://lh3.googleusercontent.com/u/0/d/1ZtAtEWChK4MnueRD_58XfwjLKa-zUaKN/view?usp=sharing'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text); 
+            font-family: 'Montserrat', sans-serif; 
+        }
+
+        /* Dark overlay over the background image */
+        .background-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 3, 3, 0.75);
+            z-index: -1;
+        }
         
         nav { 
-            width: 100%; padding: 15px 8%; background: rgba(0,0,0,0.9); 
+            width: 100%; padding: 20px 8%; 
+            background: rgba(0, 0, 0, 0.6); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid rgba(255, 0, 85, 0.2); 
+            position: sticky; top: 0; z-index: 1000;
         }
-        .logo { font-family: 'Syncopate'; color: var(--accent); text-decoration: none; font-size: 1.2rem; }
-        .nav-links { display: flex; gap: 20px; }
-        .nav-links a { color: var(--text); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
-        .nav-links a:hover { color: var(--accent); }
+        .logo { font-family: 'Syncopate'; color: var(--accent); text-decoration: none; font-size: 1.5rem; letter-spacing: 2px;}
+        .nav-links { display: flex; gap: 30px; }
+        .nav-links a { color: var(--text); text-decoration: none; font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; }
+        .nav-links a:hover { color: var(--accent); text-shadow: 0 0 10px rgba(255,0,85,0.5); }
 
-        .container { max-width: 600px; margin: 50px auto; padding: 30px; background: var(--surface); border-radius: 12px; border: 1px solid #333; }
-        h2 { color: var(--accent); text-align: center; margin-bottom: 30px; font-family: 'Syncopate'; }
-
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600; color: #ccc; }
-        select, input[type="text"], input[type="file"] { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: white; border-radius: 6px; outline: none; }
-        select:focus, input[type="text"]:focus { border-color: var(--accent); }
-
-        #newActressFields { display: none; margin-top: 15px; padding: 15px; background: #1a1a1a; border-radius: 6px; border-left: 3px solid var(--accent); }
+        .container { 
+            max-width: 650px; 
+            margin: 60px auto; 
+            padding: 40px; 
+            background: rgba(10, 10, 12, 0.65); 
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 16px; 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            border-top: 1px solid rgba(255, 0, 85, 0.4);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 20px rgba(255,0,85,0.1);
+        }
         
-        .btn { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 1rem; margin-top: 10px; }
-        .btn:hover { background: #d40047; }
-        .btn:disabled { background: #555; cursor: not-allowed; }
+        h2 { 
+            color: var(--text); 
+            text-align: center; 
+            margin-bottom: 35px; 
+            font-family: 'Syncopate'; 
+            letter-spacing: 2px;
+            font-size: 1.8rem;
+        }
+        h2 span { color: var(--accent); }
 
-        .progress-container { display: none; margin-top: 20px; }
-        .progress-bar-bg { width: 100%; background: #333; border-radius: 6px; height: 10px; overflow: hidden; margin-top: 10px; }
-        .progress-bar { width: 0%; height: 100%; background: var(--accent); transition: width 0.3s; }
-        .status-text { text-align: center; font-size: 0.9rem; color: #aaa; margin-top: 10px; }
+        .form-group { margin-bottom: 25px; }
+        label { display: block; margin-bottom: 10px; font-size: 0.85rem; font-weight: 600; color: #aaa; letter-spacing: 1px; }
+        
+        select, input[type="text"], input[type="file"] { 
+            width: 100%; 
+            padding: 14px 18px; 
+            background: rgba(0, 0, 0, 0.5); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            color: white; 
+            border-radius: 8px; 
+            outline: none; 
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+        }
+        select:focus, input[type="text"]:focus { 
+            border-color: var(--accent); 
+            box-shadow: 0 0 10px rgba(255,0,85,0.2);
+            background: rgba(0, 0, 0, 0.8);
+        }
 
-        #successView { display: none; text-align: center; }
-        #successView h3 { color: #00ff88; margin-bottom: 10px; }
+        input[type="file"]::file-selector-button {
+            background: #222;
+            color: white;
+            border: 1px solid #444;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 15px;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s;
+        }
+        input[type="file"]::file-selector-button:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        #newActressFields { 
+            display: none; 
+            margin-top: 15px; 
+            padding: 20px; 
+            background: rgba(255, 255, 255, 0.03); 
+            border-radius: 8px; 
+            border-left: 3px solid var(--accent); 
+        }
+        
+        .btn { 
+            width: 100%; 
+            padding: 16px; 
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            font-size: 1rem; 
+            margin-top: 20px; 
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .btn:hover { 
+            background: #e6004c; 
+            box-shadow: 0 0 20px rgba(255,0,85,0.4);
+            transform: translateY(-2px);
+        }
+        .btn:disabled { background: #444; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        .progress-container { display: none; margin-top: 25px; }
+        .progress-bar-bg { 
+            width: 100%; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 10px; 
+            height: 8px; 
+            overflow: hidden; 
+            margin-top: 15px; 
+        }
+        .progress-bar { 
+            width: 0%; 
+            height: 100%; 
+            background: var(--accent); 
+            box-shadow: 0 0 10px var(--accent);
+            transition: width 0.4s ease; 
+        }
+        .status-text { text-align: center; font-size: 0.9rem; color: #ccc; margin-top: 10px; font-weight: 600; }
+
+        #successView { display: none; text-align: center; padding: 20px 0; }
+        #successView i { font-size: 4rem; color: #00ff88; margin-bottom: 15px; display: block; }
+        #successView h3 { color: #00ff88; margin-bottom: 15px; font-family: 'Syncopate'; font-size: 1.5rem; }
+        #successView p { color: #aaa; margin-bottom: 25px; line-height: 1.5; }
     </style>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 </head>
 <body>
+    <div class="background-overlay"></div>
+    
     <nav>
         <a href="#" class="logo">STAR STREAM</a>
         <div class="nav-links">
-            <a href="index.html">GALLERY</a>
+            <a href="index.html">GO TO GALLERY</a>
         </div>
     </nav>
 
     <div class="container">
         <div id="formView">
-            <h2>UPLOAD CONTENT</h2>
+            <h2>UPLOAD <span>CONTENT</span></h2>
 
             <div class="form-group">
                 <label>UPLOAD METHOD</label>
                 <select id="uploadMethod" onchange="toggleMethod()">
-                    <option value="file">FILE UPLOAD</option>
-                    <option value="tiktok">TIKTOK LINK</option>
+                    <option value="file">FILE UPLOAD (FROM DEVICE)</option>
+                    <option value="tiktok">TIKTOK LINK (AUTO DOWNLOAD)</option>
                 </select>
             </div>
 
@@ -74,15 +196,15 @@
             <div class="form-group">
                 <label>SELECT MODEL / ACTRESS</label>
                 <select id="actressSelect" onchange="toggleNewFields()">
-                    <option value="">Loading...</option>
-                    <option value="NEW">+ ADD NEW</option>
+                    <option value="">Loading Models...</option>
+                    <option value="NEW">+ ADD NEW MODEL</option>
                 </select>
             </div>
 
             <div id="newActressFields">
                 <div class="form-group">
-                    <label>NAME</label>
-                    <input type="text" id="newName" placeholder="Enter Name">
+                    <label>NEW MODEL NAME</label>
+                    <input type="text" id="newName" placeholder="Enter model name">
                 </div>
                 <div class="form-group">
                     <label>PROFILE PICTURE</label>
@@ -91,19 +213,19 @@
             </div>
 
             <div id="fileUploadSection" class="form-group">
-                <label>UPLOAD MEDIA FILES</label>
+                <label>SELECT MEDIA FILES</label>
                 <input type="file" id="contentFiles" multiple accept="image/*,video/*">
             </div>
 
             <div id="tiktokUploadSection" class="form-group" style="display: none;">
-                <label>TIKTOK VIDEO LINK</label>
-                <input type="text" id="tiktokLink" placeholder="Paste TikTok URL here">
+                <label>TIKTOK VIDEO URL</label>
+                <input type="text" id="tiktokLink" placeholder="https://www.tiktok.com/@user/video/123456789">
             </div>
 
-            <button class="btn" id="uploadBtn" onclick="upload()">UPLOAD TO DRIVE</button>
+            <button class="btn" id="uploadBtn" onclick="upload()">UPLOAD TO SERVER</button>
 
             <div class="progress-container" id="progressContainer">
-                <div class="status-text" id="statusText">Initializing...</div>
+                <div class="status-text" id="statusText">Initializing secure connection...</div>
                 <div class="progress-bar-bg">
                     <div class="progress-bar" id="progressBar"></div>
                 </div>
@@ -111,9 +233,10 @@
         </div>
 
         <div id="successView">
+            <i class="ri-checkbox-circle-fill"></i>
             <h3>UPLOAD SUCCESSFUL!</h3>
-            <p>Content has been sent for admin approval.</p>
-            <button class="btn" onclick="location.reload()" style="margin-top: 20px;">UPLOAD MORE</button>
+            <p>Your content has been securely sent to the server and is currently waiting for admin approval.</p>
+            <button class="btn" onclick="location.reload()">UPLOAD MORE CONTENT</button>
         </div>
     </div>
 
@@ -130,7 +253,7 @@
                 names.forEach(n => {
                     select.innerHTML += `<option value="${n}">${n}</option>`;
                 });
-                select.innerHTML += '<option value="NEW">+ ADD NEW</option>';
+                select.innerHTML += '<option value="NEW">+ ADD NEW MODEL</option>';
             } catch (e) {
                 console.log("Error loading names. Make sure SCRIPT_URL is correct.");
             }
@@ -243,7 +366,6 @@
                         fileBase64: base64Data
                     };
 
-                    // Send profile picture only once
                     if (profileData) {
                         payload.profileBase64 = profileData.base64;
                         payload.profileType = profileData.type;
@@ -254,7 +376,6 @@
                     if (!result.includes("Success")) throw new Error(result);
 
                 } else {
-                    // Normal File Upload Logic
                     for (let i = 0; i < files.length; i++) {
                         statusText.innerText = `Uploading File ${i + 1} of ${files.length}...`;
                         bar.style.width = `${((i) / files.length) * 100}%`;
@@ -283,7 +404,6 @@
                     }
                 }
 
-                // Upload Completion
                 bar.style.width = '100%';
                 document.getElementById('formView').style.display = 'none';
                 document.getElementById('successView').style.display = 'block';
