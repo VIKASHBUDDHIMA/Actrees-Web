@@ -72,8 +72,8 @@
             </div>
 
             <div id="fileSection">
-                <label>Select File</label>
-                <input type="file" id="mediaFiles">
+                <label>Select Files</label>
+                <input type="file" id="mediaFiles" multiple>
             </div>
 
             <div id="linkSection" style="display: none;">
@@ -85,7 +85,7 @@
             <button class="btn-upload" onclick="startUpload()">SUBMIT FOR REVIEW</button>
             
             <div class="progress-box" id="progressBox">
-                <p id="statusText">Uploading...</p>
+                <p id="statusText">Processing...</p>
                 <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
             </div>
         </div>
@@ -98,7 +98,9 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwBun0ZeAff_M6FgziDusBsMJxUavLkWTddm2OF-jICCp9R1iDgFxF88zdDgzg0CyAy/exec'; // ඔයාගේ Web App URL එක මෙතනට දාන්න මතක තියාගන්න!
+        // PUT YOUR NEW DEPLOYMENT URL HERE!
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5aQhRghVH6LXihuPKWV4GvXxL_QDdrGY8qkZ0sxo_ii6Nj60OxhFlvrLMB8yGkK9i/exec'; 
+        
         let currentMode = 'file';
 
         function switchMode(mode) {
@@ -137,54 +139,79 @@
             const statusText = document.getElementById('statusText');
             const progressFill = document.getElementById('progressFill');
             
-            progressFill.style.width = '20%';
+            progressFill.style.width = '10%';
             statusText.innerText = 'Preparing data...';
 
             try {
                 let profileData = await fileToBase64(profileFile);
-                let payload = {
-                    name: name,
-                    type: type,
-                    profileBase64: profileData ? profileData.base64 : null,
-                    profileType: profileData ? profileData.type : null
-                };
 
                 if (currentMode === 'link') {
+                    // LINK UPLOAD LOGIC
                     const link = document.getElementById('linkInput').value;
                     if(!link) throw new Error("Please paste a valid link!");
                     
-                    payload.action = 'uploadLink';
-                    payload.url = link;
+                    let payload = {
+                        name: name,
+                        type: type,
+                        action: 'uploadLink',
+                        url: link,
+                        profileBase64: profileData ? profileData.base64 : null,
+                        profileType: profileData ? profileData.type : null
+                    };
+
                     statusText.innerText = 'Downloading from Social Media & Saving to Drive (This may take a minute)...';
                     progressFill.style.width = '60%';
 
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.text();
+                    if (!result.includes("Success")) throw new Error(result);
+
                 } else {
-                    const file = document.getElementById('mediaFiles').files[0];
-                    if(!file) throw new Error("Please select a file!");
+                    // MULTIPLE FILES UPLOAD LOGIC
+                    const files = document.getElementById('mediaFiles').files;
+                    if(files.length === 0) throw new Error("Please select at least one file!");
                     
-                    const fileData = await fileToBase64(file);
-                    payload.action = 'uploadFile';
-                    payload.fileName = file.name;
-                    payload.fileType = file.type;
-                    payload.fileBase64 = fileData.base64;
-                    statusText.innerText = 'Uploading file to Drive...';
-                    progressFill.style.width = '60%';
+                    for (let i = 0; i < files.length; i++) {
+                        let currentFile = files[i];
+                        statusText.innerText = 'Uploading file ' + (i + 1) + ' of ' + files.length + '...';
+                        progressFill.style.width = ((i / files.length) * 100) + '%';
+                        
+                        let fileData = await fileToBase64(currentFile);
+                        
+                        let payload = {
+                            name: name,
+                            type: type,
+                            action: 'uploadFile',
+                            fileName: currentFile.name,
+                            fileType: currentFile.type,
+                            fileBase64: fileData.base64
+                        };
+
+                        // Send profile image only with the first file to reduce load
+                        if (i === 0 && profileData) {
+                            payload.profileBase64 = profileData.base64;
+                            payload.profileType = profileData.type;
+                        }
+
+                        const response = await fetch(SCRIPT_URL, {
+                            method: 'POST',
+                            body: JSON.stringify(payload)
+                        });
+
+                        const result = await response.text();
+                        if (!result.includes("Success")) {
+                            throw new Error("Failed to upload file " + (i + 1) + ": " + result);
+                        }
+                    }
                 }
 
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.text();
-                
-                if (result.includes("Success")) {
-                    progressFill.style.width = '100%';
-                    document.getElementById('formView').style.display = 'none';
-                    document.getElementById('successView').style.display = 'block';
-                } else {
-                    throw new Error(result);
-                }
+                progressFill.style.width = '100%';
+                document.getElementById('formView').style.display = 'none';
+                document.getElementById('successView').style.display = 'block';
 
             } catch (error) {
                 alert("Error: " + error.message);
