@@ -124,7 +124,8 @@
         
         .card:hover img { transform: scale(1.05); }
 
-        .video-container { position: relative; width: 100%; padding-top: 177%; background: #000; }
+        /* Updated video-container for better UI on mobile (Standard 16:9 ratio) */
+        .video-container { position: relative; width: 100%; padding-top: 56.25%; background: #000; border-radius: 10px; overflow: hidden; }
         .video-container iframe { position: absolute; top:0; left:0; width:100%; height:100%; border:none; }
 
         .card-info { 
@@ -153,10 +154,10 @@
         #cta h2 span { color: var(--accent); }
         #cta p { max-width: 500px; margin: 0 auto 30px; color: #888; font-size: 0.85rem; line-height: 1.6; }
 
-/* --- CUSTOM MODERN FOOTER CSS --- */
+    /* --- CUSTOM MODERN FOOTER CSS --- */
     .custom-footer {
-        background: #050505; /* Dark background matching your theme */
-        border-top: 1px solid rgba(255, 0, 85, 0.15); /* Subtle pink border top */
+        background: #050505; 
+        border-top: 1px solid rgba(255, 0, 85, 0.15); 
         padding: 80px 8% 30px;
         color: #fff;
         font-family: 'Montserrat', sans-serif;
@@ -172,7 +173,6 @@
         margin-bottom: 60px;
     }
 
-/* Left Side Styling */
     .footer-left {
         flex: 1;
         min-width: 320px;
@@ -194,12 +194,12 @@
     }
     
     .newsletter-title span {
-        color: var(--accent); /* Pink color */
+        color: var(--accent); 
     }
 
     .subscribe-btn {
         display: inline-block;
-        background: #a3c9c7; /* Matching the soft color from your image */
+        background: #a3c9c7; 
         color: #000;
         font-weight: 700;
         font-size: 1rem;
@@ -216,7 +216,6 @@
         transform: translateY(-2px);
     }
 
-/* Right Side Links Styling */
     .footer-right {
         display: flex;
         gap: 80px;
@@ -251,7 +250,6 @@
         color: var(--accent);
     }
 
-/* Bottom Bar & Socials */
     .footer-bottom-bar {
         display: flex;
         justify-content: space-between;
@@ -275,7 +273,7 @@
 
     .footer-socials a {
         color: #050505;
-        background: #fff; /* White circle background */
+        background: #fff; 
         width: 38px;
         height: 38px;
         display: flex;
@@ -305,6 +303,25 @@
         }
     }
 
+    @media (max-width: 768px) {
+        #loader .loader-logo { font-size: 1.5rem; letter-spacing: 5px; }
+        #home { background-attachment: scroll; } 
+        .nav-links { display: none; }
+        .menu-toggle { display: block; }
+        
+        #actress-controls-desktop { display: none !important; }
+        #actress-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 20px; scrollbar-width: none; }
+        #actress-grid .card { min-width: 75%; scroll-snap-align: center; flex-shrink: 0; }
+        .slide-hint { display: block; }
+
+        #video-controls-desktop { display: none !important; }
+        #video-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 20px; scrollbar-width: none; }
+        #video-grid .card { min-width: 85%; scroll-snap-align: center; flex-shrink: 0; }
+        
+        section { padding: 60px 4%; }
+        .section-title { font-size: 1.6rem; }
+    }
+
     @media (max-width: 600px) {
         .footer-bottom-bar {
             flex-direction: column;
@@ -314,26 +331,6 @@
             width: 100%;
         }
     }
-
-        /* --- MOBILE --- */
-        @media (max-width: 768px) {
-            #loader .loader-logo { font-size: 1.5rem; letter-spacing: 5px; }
-            #home { background-attachment: scroll; } 
-            .nav-links { display: none; }
-            .menu-toggle { display: block; }
-            
-            #actress-controls-desktop { display: none !important; }
-            #actress-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 20px; scrollbar-width: none; }
-            #actress-grid .card { min-width: 75%; scroll-snap-align: center; flex-shrink: 0; }
-            .slide-hint { display: block; }
-
-            #video-controls-desktop { display: none !important; }
-            #video-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 20px; scrollbar-width: none; }
-            #video-grid .card { min-width: 85%; scroll-snap-align: center; flex-shrink: 0; }
-            
-            section { padding: 60px 4%; }
-            .section-title { font-size: 1.6rem; }
-        }
     </style>
 </head>
 <body>
@@ -495,15 +492,23 @@
             clearTimeout(loaderTimeout);
             gsap.to("#loader", { opacity: 0, duration: 1, onComplete: () => {
                 document.getElementById("loader").style.display = "none";
-                const disc = document.getElementById("disclaimer-overlay");
-                disc.style.display = "flex";
-                gsap.from(disc, {opacity: 0, duration: 0.5});
+                
+                // Check if user has already accepted the disclaimer
+                if (!localStorage.getItem("disclaimerAccepted")) {
+                    const disc = document.getElementById("disclaimer-overlay");
+                    disc.style.display = "flex";
+                    gsap.from(disc, {opacity: 0, duration: 0.5});
+                } else {
+                    initScrollAnimations();
+                }
             }});
         }
 
         function closeDisclaimer() {
             gsap.to("#disclaimer-overlay", { opacity: 0, duration: 0.5, onComplete: () => {
                 document.getElementById("disclaimer-overlay").style.display = "none";
+                // Save acceptance to localStorage so it doesn't show again
+                localStorage.setItem("disclaimerAccepted", "true"); 
                 window.scrollTo(0, 0);
                 initScrollAnimations();
             }});
@@ -562,8 +567,27 @@
             let cols = getCols();
             aIndex = window.innerWidth <= 768 ? names.length : cols * 2; 
             document.getElementById('actress-grid').innerHTML = names.slice(0, aIndex).map(n => createCard(n, false)).join('');
-            document.getElementById('video-grid').innerHTML = (window.innerWidth <= 768 ? shuffledVideos : shuffledVideos.slice(0, 3)).map(i => createMediaItem(i, false)).join('');
+            
+            // Render Videos
+            let initialVideoCount = window.innerWidth <= 768 ? shuffledVideos.length : 3;
+            document.getElementById('video-grid').innerHTML = shuffledVideos.slice(0, initialVideoCount).map(i => createMediaItem(i, false)).join('');
+            
+            // Video See More Logic
+            if (shuffledVideos.length <= 3) {
+                if (document.getElementById('v-more')) document.getElementById('v-more').style.display = 'none';
+            } else {
+                if (document.getElementById('v-more')) document.getElementById('v-more').style.display = 'inline-block';
+            }
+
+            // Render Photos
             document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
+            
+            // Photo See More Logic
+            if (shuffledPhotos.length <= 3) {
+                if (document.getElementById('p-more')) document.getElementById('p-more').style.display = 'none';
+            } else {
+                if (document.getElementById('p-more')) document.getElementById('p-more').style.display = 'inline-block';
+            }
         }
 
         function initScrollAnimations() {
@@ -624,7 +648,7 @@
             let cols = getCols();
             aIndex = cols * 2; 
             document.getElementById('actress-grid').innerHTML = names.slice(0, aIndex).map(n => createCard(n, false)).join('');
-            document.getElementById('a-more').style.display = 'block'; 
+            document.getElementById('a-more').style.display = 'inline-block'; 
             document.getElementById('a-hide').style.display = 'none'; 
             ScrollTrigger.refresh(); 
         }
@@ -635,7 +659,7 @@
             gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
             vIndex += 3;
             if (vIndex >= shuffledVideos.length) document.getElementById('v-more').style.display = 'none';
-            document.getElementById('v-hide').style.display = 'block';
+            document.getElementById('v-hide').style.display = 'inline-block';
             setTimeout(() => ScrollTrigger.refresh(), 100);
         }
 
@@ -645,14 +669,14 @@
             gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
             pIndex += 3;
             if (pIndex >= shuffledPhotos.length) document.getElementById('p-more').style.display = 'none';
-            document.getElementById('p-hide').style.display = 'block';
+            document.getElementById('p-hide').style.display = 'inline-block';
             setTimeout(() => ScrollTrigger.refresh(), 100);
         }
 
         function hideVideos() { 
             vIndex = 3; 
             document.getElementById('video-grid').innerHTML = shuffledVideos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
-            document.getElementById('v-more').style.display = 'block'; 
+            document.getElementById('v-more').style.display = 'inline-block'; 
             document.getElementById('v-hide').style.display = 'none'; 
             ScrollTrigger.refresh(); 
         }
@@ -660,7 +684,7 @@
         function hidePhotos() { 
             pIndex = 3; 
             document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
-            document.getElementById('p-more').style.display = 'block'; 
+            document.getElementById('p-more').style.display = 'inline-block'; 
             document.getElementById('p-hide').style.display = 'none'; 
             ScrollTrigger.refresh(); 
         }
