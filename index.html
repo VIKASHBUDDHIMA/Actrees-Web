@@ -465,7 +465,7 @@
         function createCard(name, isNew = false) {
             const m = allData.find(i => i.name === name);
             return `<div class="card ${isNew ? 'reveal-card' : ''}">
-                <div class="card-img-wrap"><img src="${m.profile}" style="object-position: top;" loading="lazy"></div>
+                <div class="card-img-wrap"><img src="${getImageUrl(m.profile)}" style="object-position: top;" loading="lazy"></div>
                 <div class="card-info">
                     <h3>${name}</h3>
                     <div class="btn-row">
@@ -478,7 +478,7 @@
 
         function createMediaItem(i, isNew = false) {
             if (i.type === 'video') return `<div class="card ${isNew ? 'reveal-card' : ''}"><div class="video-container">${getVideoElement(i.link)}</div></div>`;
-            return `<div class="card ${isNew ? 'reveal-card' : ''}"><div class="card-img-wrap"><img src="${i.link}" loading="lazy"></div></div>`;
+            return `<div class="card ${isNew ? 'reveal-card' : ''}"><div class="card-img-wrap"><img src="${getImageUrl(i.link)}" loading="lazy"></div></div>`;
         }
 
         function openOverlay(name, type) {
@@ -550,6 +550,17 @@
             document.getElementById('p-more').style.display = 'block'; 
             document.getElementById('p-hide').style.display = 'none'; 
             ScrollTrigger.refresh(); 
+        }
+
+        function getImageUrl(u) {
+            if (u && (u.includes('drive.google.com') || u.includes('docs.google.com'))) {
+                let fileId = u.match(/[-\w]{25,}/);
+                if (fileId) {
+                    // මේක තමයි Drive image එකක් direct load වෙන්න දෙන ලින්ක් එක
+                    return `https://lh3.googleusercontent.com/d/${fileId[0]}=s0`;
+                }
+            }
+            return u; // Youtube හෝ වෙනත් ලින්ක් නම් එහෙමම යනවා
         }
 
         // ==========================================
