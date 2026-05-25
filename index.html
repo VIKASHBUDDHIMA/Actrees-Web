@@ -74,11 +74,20 @@
             background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop') center/cover;
             background-attachment: fixed;
             position: relative;
-            padding-bottom: 120px;
         }
         #home h1 { font-family: 'Syncopate', sans-serif; font-size: clamp(2.5rem, 10vw, 6rem); text-transform: uppercase; line-height: 1; margin-bottom: 20px; }
         #home h1 span { color: var(--accent); -webkit-text-stroke: 1px var(--accent); -webkit-text-fill-color: transparent; }
-        #home p { font-size: 0.9rem; letter-spacing: 8px; color: var(--gold); margin-bottom: 40px; }
+        #home p { font-size: 0.9rem; letter-spacing: 8px; color: var(--gold); margin-bottom: 30px; }
+
+        /* --- STATS COUNTER UI --- */
+        .stats-container {
+            display: flex; gap: 40px; justify-content: center; margin-bottom: 40px;
+            background: rgba(0, 0, 0, 0.4); padding: 15px 40px; border-radius: 15px; 
+            border: 1px solid rgba(255, 0, 85, 0.15); backdrop-filter: blur(8px);
+        }
+        .stat-box { text-align: center; }
+        .stat-box span { font-size: 1.8rem; font-weight: 900; color: var(--accent); font-family: 'Syncopate', sans-serif; display: block; }
+        .stat-box p { font-size: 0.65rem; color: #bbb; letter-spacing: 3px; margin-top: 5px; margin-bottom: 0 !important; font-weight: 700; text-transform: uppercase; }
 
         .vip-btn { 
             padding: 18px 45px; background: var(--accent); color: white; border: none; 
@@ -86,54 +95,6 @@
             box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); transition: 0.4s ease;
         }
         .vip-btn:hover { transform: scale(1.08); }
-
-        /* --- MODERN COUNTER STATS CSS --- */
-        .home-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            width: 100%;
-            max-width: 850px;
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 0 20px;
-            z-index: 10;
-        }
-        .stat-card {
-            background: rgba(10, 10, 12, 0.5);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            padding: 15px 20px;
-            border-radius: 14px;
-            text-align: center;
-            transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .stat-card:hover {
-            border-color: var(--accent);
-            box-shadow: 0 10px 25px rgba(255, 0, 85, 0.15);
-            transform: translateY(-2px);
-        }
-        .stat-num {
-            font-family: 'Syncopate', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 4px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-        }
-        .stat-card:nth-child(1) .stat-num { color: var(--accent); }
-        .stat-card:nth-child(2) .stat-num { color: var(--gold); }
-        .stat-card:nth-child(3) .stat-num { color: #00e5ff; }
-        .stat-label {
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #888;
-            font-weight: 700;
-        }
 
         /* --- SECTIONS --- */
         section { padding: 80px 6%; }
@@ -167,13 +128,13 @@
         .card img { 
             width: 100%; 
             height: 100%; 
-            object-fit: contain; 
+            object-fit: cover; 
+            object-position: top;
             transition: 0.8s ease; 
         }
         
         .card:hover img { transform: scale(1.05); }
 
-        /* VIDEO CONTAINER CSS UPDATE - Only for clean video tags now */
         .video-container { position: relative; width: 100%; padding-top: 177%; background: #000; overflow: hidden; }
         .video-container iframe, .video-container video { position: absolute; top:0; left:0; width:100%; height:100%; border:none; outline: none; }
 
@@ -203,7 +164,6 @@
         #cta h2 span { color: var(--accent); }
         #cta p { max-width: 500px; margin: 0 auto 30px; color: #888; font-size: 0.85rem; line-height: 1.6; }
 
-        /* --- CUSTOM MODERN FOOTER CSS --- */
         .custom-footer {
             background: #050505; 
             border-top: 1px solid rgba(255, 0, 85, 0.15); 
@@ -233,20 +193,15 @@
         .footer-socials a:hover { background: var(--accent); color: #fff; transform: translateY(-3px); }
         
         @media (max-width: 900px) { .footer-container { flex-direction: column; } .footer-right { gap: 40px; width: 100%; justify-content: flex-start; } }
-        @media (max-width: 600px) { .footer-bottom-bar { flex-direction: column; text-align: center; } .footer-col { width: 100%; } }
-
-        /* --- MOBILE RESPONSIVE ADJUSTMENTS --- */
         @media (max-width: 768px) {
             #loader .loader-logo { font-size: 1.5rem; letter-spacing: 5px; }
-            #home { background-attachment: scroll; height: auto; min-height: 100vh; padding-top: 120px; padding-bottom: 220px; } 
+            #home { background-attachment: scroll; } 
             .nav-links { display: none; }
             .menu-toggle { display: block; }
             
-            /* Stats Counter Mobile Responsive Layout */
-            .home-stats { position: relative; bottom: auto; left: auto; transform: none; grid-template-columns: 1fr; gap: 12px; margin-top: 50px; padding: 0 10px; }
-            .stat-card { padding: 12px 15px; border-radius: 10px; }
-            .stat-num { font-size: 1.4rem; }
-
+            .stats-container { gap: 20px; padding: 15px 20px; }
+            .stat-box span { font-size: 1.4rem; }
+            
             #actress-controls-desktop { display: none !important; }
             #actress-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 20px; scrollbar-width: none; }
             #actress-grid .card { min-width: 75%; scroll-snap-align: center; flex-shrink: 0; }
@@ -259,6 +214,7 @@
             section { padding: 60px 4%; }
             .section-title { font-size: 1.6rem; }
         }
+        @media (max-width: 600px) { .footer-bottom-bar { flex-direction: column; text-align: center; } .footer-col { width: 100%; } }
     </style>
 </head>
 <body>
@@ -280,16 +236,16 @@
 
     <div id="media-overlay">
         <i class="ri-close-circle-line close-overlay" onclick="closeOverlay()"></i>
-        <h2 class="section-title" id="overlay-title" style="margin-bottom: 30px;">FAN <span>GALLERY</span></h2>
+        <h2 class="section-title" id="overlay-title" style="margin-bottom: 30px;">PHOTO <span>GALLERY</span></h2>
         <div id="overlay-grid" class="grid"></div>
     </div>
 
     <div id="mobile-menu">
         <i class="ri-close-line close-menu" onclick="toggleMenu(false)"></i>
         <a href="#home" onclick="toggleMenu(false)">HOME</a>
-        <a href="#actresses" onclick="toggleMenu(false)">TALENTS</a>
-        <a href="#videos" onclick="toggleMenu(false)">CLIPS</a>
-        <a href="#photos" onclick="toggleMenu(false)">GALLERY</a>
+        <a href="#actresses" onclick="toggleMenu(false)">MODELS</a>
+        <a href="#videos" onclick="toggleMenu(false)">VIDEOS</a>
+        <a href="#photos" onclick="toggleMenu(false)">PHOTOS</a>
         <a href="contact.html">JOIN US</a>
     </div>
 
@@ -297,9 +253,9 @@
         <a href="#home" class="logo">STAR<span>STREAM</span></a>
         <div class="nav-links">
             <a href="#home">Home</a>
-            <a href="#actresses">Talents</a>
-            <a href="#videos">Clips</a>
-            <a href="#photos">Galleries</a>
+            <a href="#actresses">Models</a>
+            <a href="#videos">Videos</a>
+            <a href="#photos">Photos</a>
             <a href="contact.html">Join Us</a>
         </div>
         <i class="ri-menu-4-line menu-toggle" onclick="toggleMenu(true)"></i>
@@ -308,27 +264,28 @@
     <section id="home">
         <p><i class="ri-community-line"></i> COMMUNITY ARCHIVE</p>
         <h1>Creative <span>Vision.</span></h1>
-        <p style="text-transform: none; letter-spacing: 2px; color: #ccc;">Explore the curated collection of trending social media creators.</p>
-        <button class="vip-btn" onclick="document.getElementById('actresses').scrollIntoView()" style="margin-bottom: 20px;">DISCOVER NOW</button>
-
-        <div class="home-stats">
-            <div class="stat-card">
-                <div class="stat-num" id="stat-models">0</div>
-                <div class="stat-label">Verified Models</div>
+        
+        <div class="stats-container">
+            <div class="stat-box">
+                <span id="count-models">0</span>
+                <p>Models</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-num" id="stat-videos">0</div>
-                <div class="stat-label">Video Clips</div>
+            <div class="stat-box">
+                <span id="count-videos">0</span>
+                <p>Videos</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-num" id="stat-photos">0</div>
-                <div class="stat-label">HQ Photos</div>
+            <div class="stat-box">
+                <span id="count-photos">0</span>
+                <p>Photos</p>
             </div>
         </div>
+
+        <p style="text-transform: none; letter-spacing: 2px; color: #ccc;">Explore the curated collection of trending social media creators.</p>
+        <button class="vip-btn" onclick="document.getElementById('actresses').scrollIntoView()">DISCOVER NOW</button>
     </section>
 
     <section id="actresses">
-        <h2 class="section-title">TOP <span>MODELS</span></h2>
+        <h2 class="section-title">HOT <span>MODELS</span></h2>
         <p class="section-desc">Handpicked creators featuring their public highlights and social media trends.</p>
         <div class="slide-hint" id="a-hint"><i class="ri-arrow-left-right-line"></i> Slide to explore</div>
         <div id="actress-grid" class="grid"></div>
@@ -339,7 +296,7 @@
     </section>
 
     <section id="videos" style="background: #000;">
-        <h2 class="section-title">FEATURED <span>CLIPS</span></h2>
+        <h2 class="section-title">VIDEO <span>GALLERY</span></h2>
         <p class="section-desc">High-definition curated footage from across the web archive.</p>
         <div id="video-grid" class="grid"></div>
         <div class="controls" id="video-controls-desktop">
@@ -349,7 +306,7 @@
     </section>
 
     <section id="photos">
-        <h2 class="section-title">FAN <span>GALLERY</span></h2>
+        <h2 class="section-title">PHOTO <span>GALLERY</span></h2>
         <p class="section-desc">Breathtaking captures and high-quality photography from featured creators.</p>
         <div id="photo-grid" class="grid"></div>
         <div class="controls">
@@ -380,9 +337,9 @@
                     <h4>Explore</h4>
                     <ul>
                         <li><a href="#home">Home</a></li>
-                        <li><a href="#actresses">Talents</a></li>
-                        <li><a href="#videos">Clips</a></li>
-                        <li><a href="#photos">Galleries</a></li>
+                        <li><a href="#actresses">Models</a></li>
+                        <li><a href="#videos">Videos</a></li>
+                        <li><a href="#photos">Photos</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -418,12 +375,7 @@
     </footer>
 
     <script>
-        // ==========================================
-        // මෙතැනට ඔයා හදපු Cloudflare Worker ලින්ක් එක දාන්න 
-        // (අගට / කෑල්ලක් එන්න බැහැ, හරියටම මම දීලා තියෙන විදිහට දාන්න)
         const MY_WORKER_URL = "https://starstream-proxy.rathuuweb.workers.dev";
-        // ==========================================
-
 
         gsap.registerPlugin(ScrollTrigger);
         
@@ -442,10 +394,16 @@
             clearTimeout(loaderTimeout);
             gsap.to("#loader", { opacity: 0, duration: 1, onComplete: () => {
                 document.getElementById("loader").style.display = "none";
-                if (!localStorage.getItem('disclaimerAccepted')) {
+                
+                // Session Storage Check (Shows Disclaimer only once per session)
+                if (!sessionStorage.getItem('sessionStarted')) {
                     const disc = document.getElementById("disclaimer-overlay");
                     disc.style.display = "flex";
                     gsap.from(disc, {opacity: 0, duration: 0.5});
+                    
+                    // Auto scroll to home when newly loaded
+                    window.scrollTo(0, 0);
+                    if(window.location.hash !== '#home') history.replaceState(null, null, '#home');
                 } else {
                     initScrollAnimations();
                 }
@@ -453,12 +411,30 @@
         }
 
         function closeDisclaimer() {
-            localStorage.setItem('disclaimerAccepted', 'true');
+            sessionStorage.setItem('sessionStarted', 'true');
             gsap.to("#disclaimer-overlay", { opacity: 0, duration: 0.5, onComplete: () => {
                 document.getElementById("disclaimer-overlay").style.display = "none";
                 window.scrollTo(0, 0);
                 initScrollAnimations();
             }});
+        }
+
+        // Stats Counter Animation
+        function animateValue(id, start, end, duration) {
+            let obj = document.getElementById(id);
+            if (!obj) return;
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    obj.innerHTML = end;
+                }
+            };
+            window.requestAnimationFrame(step);
         }
 
         function getCols() {
@@ -495,25 +471,17 @@
                 shuffledPhotos = allData.filter(i => i.type === 'photo').sort(() => Math.random() - 0.5);
                 
                 renderInitial();
-                animateCounters();
                 hideLoader();
                 setupHintRemover();
+
+                // Start Counting Animation
+                setTimeout(() => {
+                    animateValue('count-models', 0, names.length, 2000);
+                    animateValue('count-videos', 0, shuffledVideos.length, 2000);
+                    animateValue('count-photos', 0, shuffledPhotos.length, 2000);
+                }, 500);
+
             } catch (e) { hideLoader(); }
-        }
-
-        // DYNAMIC SMOOTH GSAP COUNT-UP FOR THE THREE BLOCKS
-        function animateCounters() {
-            document.getElementById('stat-models').innerText = names.length;
-            document.getElementById('stat-videos').innerText = shuffledVideos.length;
-            document.getElementById('stat-photos').innerText = shuffledPhotos.length;
-
-            gsap.from(".stat-num", {
-                innerText: 0,
-                duration: 2.5,
-                snap: { innerText: 1 },
-                ease: "power3.out",
-                stagger: 0.2
-            });
         }
 
         function setupHintRemover() {
@@ -550,11 +518,11 @@
         function createCard(name, isNew = false) {
             const m = allData.find(i => i.name === name);
             return `<div class="card ${isNew ? 'reveal-card' : ''}">
-                <div class="card-img-wrap"><img src="${getImageUrl(m.profile)}" style="object-position: top;" loading="lazy"></div>
+                <div class="card-img-wrap"><img src="${getImageUrl(m.profile)}" loading="lazy"></div>
                 <div class="card-info">
                     <h3>${name}</h3>
                     <div class="btn-row">
-                        <button class="btn-sm" onclick="openOverlay('${name}', 'video')">CLIPS</button>
+                        <button class="btn-sm" onclick="openOverlay('${name}', 'video')">VIDEOS</button>
                         <button class="btn-sm" onclick="openOverlay('${name}', 'photo')">PHOTOS</button>
                     </div>
                 </div>
@@ -578,6 +546,9 @@
         function closeOverlay() {
             document.getElementById('media-overlay').style.display = 'none';
             document.body.style.overflow = 'auto';
+            // Stop any playing videos when overlay is closed
+            document.querySelectorAll('#media-overlay video').forEach(v => v.pause());
+            document.querySelectorAll('#media-overlay iframe').forEach(iframe => iframe.src = iframe.src);
         }
 
         function loadMoreActresses() {
@@ -641,7 +612,7 @@
             if (u && (u.includes('drive.google.com') || u.includes('docs.google.com'))) {
                 let fileId = u.match(/[-\w]{25,}/);
                 if (fileId) {
-                    return `https://lh3.googleusercontent.com/d/$${fileId[0]}=s0`;
+                    return `https://docs.google.com/uc?export=view&id=${fileId[0]}`;
                 }
             }
             return u; 
@@ -659,8 +630,8 @@
                     let fileId = fileIdMatch[0];
                     let proxyUrl = `${MY_WORKER_URL}/?id=${fileId}`;
                     return `
-                        <video width="100%" height="100%" controls playsinline preload="metadata" style="object-fit: contain; background: #000;">
-                            <source src="${proxyUrl}" type="video/mp4">
+                        <video width="100%" height="100%" controls playsinline loop preload="metadata" style="object-fit: contain; background: #000;">
+                            <source src="${proxyUrl}#t=0.001" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                     `;
@@ -668,8 +639,8 @@
             }
 
             return `
-                <video width="100%" height="100%" controls playsinline preload="metadata" style="object-fit: contain; background: #000;">
-                    <source src="${u}" type="video/mp4">
+                <video width="100%" height="100%" controls playsinline loop preload="metadata" style="object-fit: contain; background: #000;">
+                    <source src="${u}#t=0.001" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             `;
