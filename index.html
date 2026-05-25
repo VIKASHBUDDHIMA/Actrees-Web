@@ -613,10 +613,11 @@
             if (u && (u.includes('drive.google.com') || u.includes('docs.google.com'))) {
                 let fileId = u.match(/[-\w]{25,}/);
                 if (fileId) {
-                    return `https://lh3.googleusercontent.com/d/$${fileId[0]}=s0`;
+                    // මේක තමයි Drive image එකක් direct load වෙන්න දෙන ලින්ක් එක
+                    return `https://lh3.googleusercontent.com/d/${fileId[0]}=s0`;
                 }
             }
-            return u; 
+            return u; // Youtube හෝ වෙනත් ලින්ක් නම් එහෙමම යනවා
         }
 
         function getVideoElement(u) {
