@@ -74,20 +74,11 @@
             background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop') center/cover;
             background-attachment: fixed;
             position: relative;
+            padding-bottom: 120px; /* Added padding to give space for the bottom stats */
         }
         #home h1 { font-family: 'Syncopate', sans-serif; font-size: clamp(2.5rem, 10vw, 6rem); text-transform: uppercase; line-height: 1; margin-bottom: 20px; }
         #home h1 span { color: var(--accent); -webkit-text-stroke: 1px var(--accent); -webkit-text-fill-color: transparent; }
         #home p { font-size: 0.9rem; letter-spacing: 8px; color: var(--gold); margin-bottom: 30px; }
-
-        /* --- STATS COUNTER UI --- */
-        .stats-container {
-            display: flex; gap: 40px; justify-content: center; margin-bottom: 40px;
-            background: rgba(0, 0, 0, 0.4); padding: 15px 40px; border-radius: 15px; 
-            border: 1px solid rgba(255, 0, 85, 0.15); backdrop-filter: blur(8px);
-        }
-        .stat-box { text-align: center; }
-        .stat-box span { font-size: 1.8rem; font-weight: 900; color: var(--accent); font-family: 'Syncopate', sans-serif; display: block; }
-        .stat-box p { font-size: 0.65rem; color: #bbb; letter-spacing: 3px; margin-top: 5px; margin-bottom: 0 !important; font-weight: 700; text-transform: uppercase; }
 
         .vip-btn { 
             padding: 18px 45px; background: var(--accent); color: white; border: none; 
@@ -95,6 +86,54 @@
             box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); transition: 0.4s ease;
         }
         .vip-btn:hover { transform: scale(1.08); }
+
+        /* --- MODERN STATS COUNTER UI (Separated Boxes & Bottom Aligned) --- */
+        .home-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 850px;
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0 20px;
+            z-index: 10;
+        }
+        .stat-card {
+            background: rgba(10, 10, 12, 0.5);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 20px;
+            border-radius: 14px;
+            text-align: center;
+            transition: 0.4s ease;
+        }
+        .stat-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 10px 25px rgba(255, 0, 85, 0.15);
+            transform: translateY(-5px);
+        }
+        .stat-num {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        .stat-card:nth-child(1) .stat-num { color: var(--accent); }
+        .stat-card:nth-child(2) .stat-num { color: var(--gold); }
+        .stat-card:nth-child(3) .stat-num { color: #00e5ff; }
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #888;
+            font-weight: 700;
+        }
 
         /* --- SECTIONS --- */
         section { padding: 80px 6%; }
@@ -196,12 +235,14 @@
         @media (max-width: 900px) { .footer-container { flex-direction: column; } .footer-right { gap: 40px; width: 100%; justify-content: flex-start; } }
         @media (max-width: 768px) {
             #loader .loader-logo { font-size: 1.5rem; letter-spacing: 5px; }
-            #home { background-attachment: scroll; } 
+            #home { background-attachment: scroll; height: auto; min-height: 100vh; padding-top: 100px; padding-bottom: 20px; } 
             .nav-links { display: none; }
             .menu-toggle { display: block; }
             
-            .stats-container { gap: 20px; padding: 15px 20px; }
-            .stat-box span { font-size: 1.4rem; }
+            /* Mobile tweaks for the new modern stats design */
+            .home-stats { position: relative; bottom: auto; left: auto; transform: none; grid-template-columns: 1fr; gap: 15px; margin-top: 50px; padding: 0 10px; }
+            .stat-card { padding: 15px; border-radius: 10px; }
+            .stat-num { font-size: 1.6rem; }
             
             #actress-controls-desktop { display: none !important; }
             #actress-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 20px; scrollbar-width: none; }
@@ -266,23 +307,23 @@
         <p><i class="ri-community-line"></i> COMMUNITY ARCHIVE</p>
         <h1>Creative <span>Vision.</span></h1>
         
-        <div class="stats-container">
-            <div class="stat-box">
-                <span id="count-models">0</span>
-                <p>Models</p>
+        <p style="text-transform: none; letter-spacing: 2px; color: #ccc;">Explore the curated collection of trending social media creators.</p>
+        <button class="vip-btn" onclick="document.getElementById('actresses').scrollIntoView()" style="margin-bottom: 20px;">DISCOVER NOW</button>
+        
+        <div class="home-stats">
+            <div class="stat-card">
+                <div class="stat-num" id="count-models">0</div>
+                <div class="stat-label">Models</div>
             </div>
-            <div class="stat-box">
-                <span id="count-videos">0</span>
-                <p>Videos</p>
+            <div class="stat-card">
+                <div class="stat-num" id="count-videos">0</div>
+                <div class="stat-label">Videos</div>
             </div>
-            <div class="stat-box">
-                <span id="count-photos">0</span>
-                <p>Photos</p>
+            <div class="stat-card">
+                <div class="stat-num" id="count-photos">0</div>
+                <div class="stat-label">Photos</div>
             </div>
         </div>
-
-        <p style="text-transform: none; letter-spacing: 2px; color: #ccc;">Explore the curated collection of trending social media creators.</p>
-        <button class="vip-btn" onclick="document.getElementById('actresses').scrollIntoView()">DISCOVER NOW</button>
     </section>
 
     <section id="actresses">
@@ -609,6 +650,7 @@
             ScrollTrigger.refresh(); 
         }
 
+        // Image URL error is strictly KEPT as per user instructions
         function getImageUrl(u) {
             if (u && (u.includes('drive.google.com') || u.includes('docs.google.com'))) {
                 let fileId = u.match(/[-\w]{25,}/);
@@ -633,7 +675,7 @@
                     let proxyUrl = `${MY_WORKER_URL}/?id=${fileId}`;
                     return `
                         <video width="100%" height="100%" controls playsinline loop preload="metadata" style="object-fit: contain; background: #000;">
-                            <source src="${proxyUrl}" type="video/mp4">
+                            <source src="${proxyUrl}#t=0.001" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                     `;
@@ -642,7 +684,7 @@
 
             return `
                 <video width="100%" height="100%" controls playsinline loop preload="metadata" style="object-fit: contain; background: #000;">
-                    <source src="${u}" type="video/mp4">
+                    <source src="${u}#t=0.001" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             `;
