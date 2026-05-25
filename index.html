@@ -74,7 +74,7 @@
             background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop') center/cover;
             background-attachment: fixed;
             position: relative;
-            padding-bottom: 120px; /* Added padding to give space for the bottom stats */
+            padding-bottom: 120px; 
         }
         #home h1 { font-family: 'Syncopate', sans-serif; font-size: clamp(2.5rem, 10vw, 6rem); text-transform: uppercase; line-height: 1; margin-bottom: 20px; }
         #home h1 span { color: var(--accent); -webkit-text-stroke: 1px var(--accent); -webkit-text-fill-color: transparent; }
@@ -87,7 +87,7 @@
         }
         .vip-btn:hover { transform: scale(1.08); }
 
-        /* --- MODERN STATS COUNTER UI (Separated Boxes & Bottom Aligned) --- */
+        /* --- MODERN STATS COUNTER UI --- */
         .home-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -116,15 +116,15 @@
             box-shadow: 0 10px 25px rgba(255, 0, 85, 0.15);
             transform: translateY(-5px);
         }
+        /* මෙතන ඔයා ඉල්ලපු විදිහට ඔක්කොම කොටු වල ඉලක්කම් රෝස පාට කළා */
         .stat-num {
             font-family: 'Syncopate', sans-serif;
             font-size: 2rem;
             font-weight: 700;
-            color: #fff;
+            color: var(--accent); 
             margin-bottom: 5px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            text-shadow: 0 0 10px rgba(255, 0, 85, 0.2);
         }
-        .stat-num { color: var(--accent); }
         .stat-label {
             font-size: 0.7rem;
             text-transform: uppercase;
@@ -162,7 +162,6 @@
         .card-img-wrap { height: 350px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; }
         #actress-grid .card-img-wrap { height: 260px; }
         
-        /* Updated image fit logic for better mobile display */
         .card img { 
             width: 100%; 
             height: 100%; 
@@ -237,7 +236,6 @@
             .nav-links { display: none; }
             .menu-toggle { display: block; }
             
-            /* Mobile tweaks for the new modern stats design */
             .home-stats { position: relative; bottom: auto; left: auto; transform: none; grid-template-columns: 1fr; gap: 15px; margin-top: 50px; padding: 0 10px; }
             .stat-card { padding: 15px; border-radius: 10px; }
             .stat-num { font-size: 1.6rem; }
@@ -426,6 +424,29 @@
         let allData = [], shuffledVideos = [], shuffledPhotos = [], names = [];
         let aIndex = 0, vIndex = 3, pIndex = 3;
 
+        // --- AUTO PAUSE VIDEOS OBSERVER (අලුතින් එකතු කළ කොටස) ---
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // Video එක Screen එකෙන් 90% ක්ම අයින් වුණාම Auto-Pause වෙනවා
+                if (!entry.isIntersecting) {
+                    if (entry.target.tagName === 'VIDEO' && !entry.target.paused) {
+                        entry.target.pause();
+                    } else if (entry.target.tagName === 'IFRAME') {
+                        // YouTube වගේ iframe නම් ඒකේ ලින්ක් එක රීසෙට් කරලා ප්ලේ වීම නවත්වනවා
+                        let currentSrc = entry.target.src;
+                        entry.target.src = currentSrc;
+                    }
+                }
+            });
+        }, { threshold: 0.1 }); // 10% කට වඩා අඩුවෙන් පේනවා නම් pause කරන්න
+
+        function attachVideoObserver() {
+            document.querySelectorAll('video, iframe').forEach(media => {
+                videoObserver.observe(media);
+            });
+        }
+        // -----------------------------------------------------------
+
         function toggleMenu(s) { document.getElementById("mobile-menu").style.display = s ? "flex" : "none"; }
 
         const loaderTimeout = setTimeout(() => { hideLoader(); }, 6000);
@@ -435,13 +456,11 @@
             gsap.to("#loader", { opacity: 0, duration: 1, onComplete: () => {
                 document.getElementById("loader").style.display = "none";
                 
-                // Session Storage Check (Shows Disclaimer only once per session)
                 if (!sessionStorage.getItem('sessionStarted')) {
                     const disc = document.getElementById("disclaimer-overlay");
                     disc.style.display = "flex";
                     gsap.from(disc, {opacity: 0, duration: 0.5});
                     
-                    // Auto scroll to home when newly loaded
                     window.scrollTo(0, 0);
                     if(window.location.hash !== '#home') history.replaceState(null, null, '#home');
                 } else {
@@ -459,7 +478,6 @@
             }});
         }
 
-        // Stats Counter Animation
         function animateValue(id, start, end, duration) {
             let obj = document.getElementById(id);
             if (!obj) return;
@@ -514,7 +532,6 @@
                 hideLoader();
                 setupHintRemover();
 
-                // Start Counting Animation
                 setTimeout(() => {
                     animateValue('count-models', 0, names.length, 2000);
                     animateValue('count-videos', 0, shuffledVideos.length, 2000);
@@ -544,6 +561,8 @@
             if (names.length <= aIndex) document.getElementById('a-more').style.display = 'none';
             if (shuffledVideos.length <= (window.innerWidth <= 768 ? shuffledVideos.length : 3)) document.getElementById('v-more').style.display = 'none';
             if (shuffledPhotos.length <= 3) document.getElementById('p-more').style.display = 'none';
+
+            attachVideoObserver(); // Auto-pause සක්‍රිය කිරීම
         }
 
         function initScrollAnimations() {
@@ -581,12 +600,13 @@
             document.getElementById('media-overlay').style.display = 'block';
             document.body.style.overflow = 'hidden';
             gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
+            
+            attachVideoObserver(); // Auto-pause සක්‍රිය කිරීම
         }
 
         function closeOverlay() {
             document.getElementById('media-overlay').style.display = 'none';
             document.body.style.overflow = 'auto';
-            // Stop any playing videos when overlay is closed
             document.querySelectorAll('#media-overlay video').forEach(v => v.pause());
             document.querySelectorAll('#media-overlay iframe').forEach(iframe => iframe.src = iframe.src);
         }
@@ -620,6 +640,8 @@
             if (vIndex >= shuffledVideos.length) document.getElementById('v-more').style.display = 'none';
             document.getElementById('v-hide').style.display = 'block';
             setTimeout(() => ScrollTrigger.refresh(), 100);
+            
+            attachVideoObserver(); // Auto-pause සක්‍රිය කිරීම
         }
 
         function loadMorePhotos() {
@@ -648,16 +670,14 @@
             ScrollTrigger.refresh(); 
         }
 
-        // Image URL error is strictly KEPT as per user instructions
         function getImageUrl(u) {
             if (u && (u.includes('drive.google.com') || u.includes('docs.google.com'))) {
                 let fileId = u.match(/[-\w]{25,}/);
                 if (fileId) {
-                    // මේක තමයි Drive image එකක් direct load වෙන්න දෙන ලින්ක් එක
                     return `https://lh3.googleusercontent.com/d/${fileId[0]}=s0`;
                 }
             }
-            return u; // Youtube හෝ වෙනත් ලින්ක් නම් එහෙමම යනවා
+            return u; 
         }
 
         function getVideoElement(u) {
