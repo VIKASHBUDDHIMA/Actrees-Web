@@ -171,12 +171,52 @@
         
         .card:hover img { transform: scale(1.05); }
 
+        /* --- MODERN CUSTOM VIDEO PLAYER UI --- */
         .video-container { position: relative; width: 100%; padding-top: 177%; background: #000; overflow: hidden; }
-        .video-container iframe, .video-container video { position: absolute; top:0; left:0; width:100%; height:100%; border:none; outline: none; }
+        
+        .modern-video-player {
+            position: absolute; top:0; left:0; width: 100%; height: 100%;
+            background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center;
+        }
+        .modern-video-player video, .modern-video-player iframe {
+            width: 100%; height: 100%; object-fit: contain; cursor: pointer; border: none; outline: none;
+        }
+        
+        .play-overlay {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 4.5rem; color: rgba(255,255,255,0.85); pointer-events: none;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-shadow: 0 10px 30px rgba(255,0,85,0.7); z-index: 5;
+        }
+        .modern-video-player.is-playing .play-overlay {
+            opacity: 0; transform: translate(-50%, -50%) scale(1.8);
+        }
+
+        .player-controls {
+            position: absolute; bottom: 25px; right: 15px; display: flex; flex-direction: column; gap: 12px; z-index: 10;
+        }
+        .player-controls button {
+            background: rgba(10, 10, 12, 0.5); border: 1px solid rgba(255,255,255,0.15);
+            color: white; width: 42px; height: 42px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: 0.3s;
+        }
+        .player-controls button:hover {
+            background: var(--accent); border-color: var(--accent); box-shadow: 0 0 20px rgba(255,0,85,0.6); transform: scale(1.1);
+        }
+
+        .progress-bar-container {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.15); z-index: 10; cursor: pointer;
+        }
+        .progress-fill {
+            height: 100%; background: var(--accent); width: 0%; box-shadow: 0 0 15px var(--accent); transition: width 0.1s linear;
+        }
+        /* ----------------------------------- */
 
         .card-info { 
             position: absolute; bottom: 0; width: 100%; padding: 15px; 
             background: linear-gradient(to top, rgba(0,0,0,0.95) 40%, transparent); text-align: center; 
+            z-index: 15;
         }
         .card-info h3 { font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
@@ -424,53 +464,125 @@
         let aIndex = 0, vIndex = 3, pIndex = 3;
 
         // --- GLOBAL MUTED STATE ---
-        let globalMuted = true; // මුලින්ම හැම වීඩියෝ එකක්ම mute වෙලා ප්ලේ වෙන්නේ
+        let globalMuted = true;
 
-        // --- AUTO PLAY & PAUSE OBSERVER ---
-        const videoObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const media = entry.target;
-                
-                if (media.tagName === 'VIDEO') {
-                    if (entry.isIntersecting) {
-                        // වීඩියෝ එක ස්ක්‍රීන් එකට ආවාම
-                        media.muted = globalMuted;
-                        let playPromise = media.play();
-                        
-                        // බ්‍රවුසර් එකෙන් Unmuted Auto-play බ්ලොක් කරොත්, ආපහු mute කරලා play කරනවා
-                        if (playPromise !== undefined) {
-                            playPromise.catch(error => {
-                                media.muted = true;
-                                media.play().catch(e => console.log("Play Blocked:", e));
-                            });
-                        }
-                    } else {
-                        // වීඩියෝ එක ස්ක්‍රීන් එකෙන් අයින් වුණාම
-                        media.pause();
-                    }
-                } else if (media.tagName === 'IFRAME') {
-                    // යූටියුබ් iframe වලට auto-play support කරන්නේ නැති නිසා ඒවා pause කරනවා විතරයි
-                    if (!entry.isIntersecting) {
-                        let currentSrc = media.src;
-                        media.src = currentSrc;
-                    }
+        // --- CUSTOM VIDEO PLAYER EVENTS ---
+        document.addEventListener('click', function(e) {
+            const player = e.target.closest('.modern-video-player');
+            if (!player) return;
+            
+            const video = player.querySelector('video');
+            if (!video) return;
+
+            if (e.target.closest('.mute-toggle')) {
+                globalMuted = !globalMuted;
+                updateAllMuteIcons();
+                return;
+            }
+            if (e.target.closest('.fullscreen-toggle')) {
+                if (video.requestFullscreen) video.requestFullscreen();
+                else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
+                return;
+            }
+            
+            // Toggle Play/Pause on click anywhere else on video
+            if (video.paused) video.play();
+            else video.pause();
+        });
+
+        document.addEventListener('play', function(e) {
+            if (e.target.tagName === 'VIDEO') {
+                const player = e.target.closest('.modern-video-player');
+                if (player) {
+                    player.classList.add('is-playing');
+                    updateAllMuteIcons(); 
                 }
-            });
-        }, { threshold: 0.6 }); // වීඩියෝ එකෙන් 60%ක් දැක්කම ප්ලේ වෙන්න ගන්නවා
+            }
+        }, true);
+        
+        document.addEventListener('pause', function(e) {
+            if (e.target.tagName === 'VIDEO') {
+                const player = e.target.closest('.modern-video-player');
+                if (player) player.classList.remove('is-playing');
+            }
+        }, true);
 
-        function attachVideoObserver() {
-            document.querySelectorAll('video, iframe').forEach(media => {
-                videoObserver.observe(media);
+        document.addEventListener('timeupdate', function(e) {
+            if (e.target.tagName === 'VIDEO') {
+                const player = e.target.closest('.modern-video-player');
+                if (player) {
+                    const progress = (e.target.currentTime / (e.target.duration || 1)) * 100;
+                    const bar = player.querySelector('.progress-fill');
+                    if (bar) bar.style.width = progress + '%';
+                }
+            }
+        }, true);
+
+        document.addEventListener('volumechange', function(e) {
+            if (e.target.tagName === 'VIDEO') {
+                const isMuted = e.target.muted || e.target.volume === 0;
+                if (globalMuted !== isMuted) {
+                    globalMuted = isMuted;
+                    updateAllMuteIcons();
+                }
+            }
+        }, true);
+
+        function updateAllMuteIcons() {
+            document.querySelectorAll('.modern-video-player').forEach(player => {
+                const video = player.querySelector('video');
+                const muteBtn = player.querySelector('.mute-toggle i');
+                if (video && muteBtn) {
+                    video.muted = globalMuted;
+                    muteBtn.className = globalMuted ? 'ri-volume-mute-fill' : 'ri-volume-up-fill';
+                }
             });
         }
 
-        // යූසර් වීඩියෝ එකක සද්දය වෙනස් කරද්දී State එක අප්ඩේට් කිරීම
-        function handleVolumeChange(videoElement) {
-            if (!videoElement.muted && videoElement.volume > 0) {
-                globalMuted = false; // යූසර් unmute කරා, මින්පසු සේරම සද්දෙන් ප්ලේ වෙනවා
-            } else if (videoElement.muted || videoElement.volume === 0) {
-                globalMuted = true;
-            }
+        // --- INTERSECTION OBSERVER (MOBILE AUTO-PLAY ONLY) ---
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const mediaContainer = entry.target;
+                const isIframe = mediaContainer.tagName === 'IFRAME';
+                const video = isIframe ? mediaContainer : mediaContainer.querySelector('video');
+                
+                if (!video) return;
+
+                if (window.innerWidth <= 768) { 
+                    // Mobile Mode: Play when visible, Pause when out of view
+                    if (!isIframe) {
+                        if (entry.isIntersecting) {
+                            video.muted = globalMuted;
+                            updateAllMuteIcons(); 
+                            let playPromise = video.play();
+                            if (playPromise !== undefined) {
+                                playPromise.catch(error => {
+                                    video.muted = true;
+                                    globalMuted = true;
+                                    updateAllMuteIcons();
+                                    video.play().catch(e => {});
+                                });
+                            }
+                        } else {
+                            video.pause();
+                        }
+                    } else {
+                        if (!entry.isIntersecting) video.src = video.src;
+                    }
+                } else { 
+                    // Desktop Mode: Do NOT auto-play. Just pause if scrolled out of view.
+                    if (!entry.isIntersecting) {
+                        if (!isIframe) video.pause();
+                        else video.src = video.src;
+                    }
+                }
+            });
+        }, { threshold: 0.6 }); 
+
+        function attachVideoObserver() {
+            document.querySelectorAll('.modern-video-player, iframe').forEach(media => {
+                videoObserver.observe(media);
+            });
         }
         // -----------------------------------------------------------
 
@@ -589,16 +701,13 @@
             if (shuffledVideos.length <= (window.innerWidth <= 768 ? shuffledVideos.length : 3)) document.getElementById('v-more').style.display = 'none';
             if (shuffledPhotos.length <= 3) document.getElementById('p-more').style.display = 'none';
 
-            attachVideoObserver(); // Auto-play සක්‍රිය කිරීම
+            attachVideoObserver();
         }
 
         function initScrollAnimations() {
-            // ෆෝන් එකේ ස්ක්‍රෝල් කරද්දි ක්‍රෑෂ් වීම වළක්වන්න ScrollTrigger එක Optimize කර ඇත
             gsap.utils.toArray('.section-title, .section-desc').forEach(el => {
                 gsap.fromTo(el, { opacity: 0, y: 30 }, { scrollTrigger: { trigger: el, start: "top 90%" }, opacity: 1, y: 0, duration: 0.8 });
             });
-            
-            // ලෝඩ් වන ගාන සීමා කර ඇත
             gsap.utils.toArray('.card').forEach((el, index) => {
                 if (index < 10) { 
                     gsap.fromTo(el, { opacity: 0, y: 40 }, { scrollTrigger: { trigger: el, start: "top 95%" }, opacity: 1, y: 0, duration: 0.8, ease: "power2.out" });
@@ -632,11 +741,11 @@
             const filtered = allData.filter(i => i.name === name && i.type === type);
             document.getElementById('overlay-title').innerHTML = `${name} <span>${type.toUpperCase()}S</span>`;
             document.getElementById('overlay-grid').innerHTML = filtered.map(i => createMediaItem(i, true)).join('');
-            document.getElementById('media-overlay').style.display = 'block';
+            document.getElementById('media-overlay').style.display = 'flex';
             document.body.style.overflow = 'hidden';
             gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
             
-            attachVideoObserver(); // Auto-play සක්‍රිය කිරීම
+            attachVideoObserver();
         }
 
         function closeOverlay() {
@@ -676,7 +785,7 @@
             document.getElementById('v-hide').style.display = 'block';
             setTimeout(() => ScrollTrigger.refresh(), 100);
             
-            attachVideoObserver(); // Auto-play සක්‍රිය කිරීම
+            attachVideoObserver();
         }
 
         function loadMorePhotos() {
@@ -705,7 +814,6 @@
             ScrollTrigger.refresh(); 
         }
 
-        // UPDATE: Syntax Error තිබුණු Image URL ෆන්ක්ෂන් එක නිවැරදි කර ඇත
         function getImageUrl(u) {
             if (u && (u.includes('drive.google.com') || u.includes('docs.google.com'))) {
                 let fileId = u.match(/[-\w]{25,}/);
@@ -716,7 +824,7 @@
             return u; 
         }
 
-        // UPDATE: RAM එක ක්‍රෑෂ් වීම වළක්වන්න preload="none" සහ playsinline එකතු කර ඇත
+        // --- MODERN CUSTOM VIDEO PLAYER GENERATOR ---
         function getVideoElement(u) {
             if (u.includes('youtube.com')) {
                 u = u.replace('watch?v=', 'embed/');
@@ -732,10 +840,19 @@
             }
 
             return `
-                <video width="100%" height="100%" controls playsinline webkit-playsinline loop preload="none" muted style="object-fit: contain; background: #000;" onvolumechange="handleVolumeChange(this)">
-                    <source src="${srcUrl}#t=2" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
+                <div class="modern-video-player">
+                    <video src="${srcUrl}#t=2" playsinline webkit-playsinline loop preload="none" muted class="custom-video"></video>
+                    <div class="play-overlay"><i class="ri-play-fill"></i></div>
+                    
+                    <div class="player-controls">
+                        <button class="mute-toggle"><i class="ri-volume-mute-fill"></i></button>
+                        <button class="fullscreen-toggle"><i class="ri-fullscreen-line"></i></button>
+                    </div>
+                    
+                    <div class="progress-bar-container">
+                        <div class="progress-fill"></div>
+                    </div>
+                </div>
             `;
         }
 
