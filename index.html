@@ -183,7 +183,6 @@
         }
         .control-icon:hover { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px rgba(255,0,85,0.5); transform: scale(1.1); }
         
-        /* Mute Button on Top Left, Fullscreen on Top Right */
         .mute-toggle { left: 12px; }
         .fullscreen-toggle { right: 12px; }
 
@@ -437,7 +436,7 @@
         // Desktop = Unmuted by default, Mobile = Muted by default
         let globalMuted = window.innerWidth <= 768;
 
-        // --- CUSTOM VIDEO PLAYER EVENTS & SINGLE PLAY LOGIC ---
+        // --- CUSTOM VIDEO PLAYER EVENTS ---
         document.addEventListener('click', function(e) {
             const player = e.target.closest('.modern-video-player');
             if (!player) return;
@@ -456,15 +455,13 @@
                 return;
             }
             
-            // Toggle Play/Pause on click
             if (video.paused) video.play();
             else video.pause();
         });
 
-        // 🔴 අලුත් වීඩියෝ එකක් ප්ලේ කරද්දී කලින් ප්ලේ වෙවී තිබුණු ඒවා Auto-Pause කරනවා
+        // අලුත් Video එකක් ප්ලේ වෙද්දි කලින් ඒවා Pause කිරීම (Single Play Logic)
         document.addEventListener('play', function(e) {
             if (e.target.tagName === 'VIDEO') {
-                // Pause all other videos across all devices (Mobile & Desktop)
                 document.querySelectorAll('video').forEach(v => {
                     if (v !== e.target && !v.paused) v.pause();
                 });
@@ -532,7 +529,18 @@
             });
         }
 
-        // --- 🟢 INTERSECTION OBSERVER (Auto-Play & Memory Cleanup for NO LAG) ---
+        // --- PRELOAD NEXT VIDEO LOGIC (To fix Stuttering) ---
+        function preloadNextVideo(currentIndex) {
+            const allVideos = document.querySelectorAll('.custom-video');
+            if (currentIndex + 1 < allVideos.length) {
+                const nextVideo = allVideos[currentIndex + 1];
+                if (nextVideo.preload === 'none') {
+                    nextVideo.preload = 'metadata'; // ඊළඟ වීඩියෝ එකේ මුල ටික කලින් ලෝඩ් කරගන්නවා
+                }
+            }
+        }
+
+        // --- INTERSECTION OBSERVER (Mobile Auto-play & Memory Optimization) ---
         const videoObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const mediaContainer = entry.target;
@@ -542,14 +550,11 @@
                 if (!video) return;
 
                 if (entry.isIntersecting) {
-                    // වීඩියෝ එක ස්ක්‍රීන් එකට ආවම Source එක සෙට් කරනවා (Lag එක නතර කිරීමට)
+                    // වීඩියෝ එක Screen එකට ආවම ඊළඟ එකත් ලෝඩ් වෙන්න ලෑස්ති කරනවා
                     if (!isIframe) {
-                        const dataSrc = video.getAttribute('data-src');
-                        if (dataSrc && !video.getAttribute('src')) {
-                            mediaContainer.classList.add('is-loading');
-                            video.setAttribute('src', dataSrc);
-                            video.load();
-                        }
+                        const allVideos = Array.from(document.querySelectorAll('.custom-video'));
+                        const currentIndex = allVideos.indexOf(video);
+                        preloadNextVideo(currentIndex);
                     }
 
                     if (window.innerWidth <= 768) { 
@@ -569,11 +574,9 @@
                         }
                     }
                 } else {
-                    // වීඩියෝ එක ස්ක්‍රීන් එකෙන් ගියාම Pause කරලා Memory එක අයින් කරනවා (Memory Cleanup)
+                    // වීඩියෝ එක Screen එකෙන් ගියාම Pause කරනවා විතරයි (Memory එකට හානියක් නොවී)
                     if (!isIframe) {
                         video.pause();
-                        video.removeAttribute('src'); // බ්‍රවුසර් එකේ RAM එක නිදහස් කරයි
-                        video.load(); 
                         mediaContainer.classList.remove('is-playing');
                         mediaContainer.classList.remove('is-loading');
                     } else {
@@ -581,7 +584,7 @@
                     }
                 }
             });
-        }, { threshold: 0.5 }); 
+        }, { threshold: 0.6 }); 
 
         function attachVideoObserver() {
             document.querySelectorAll('.modern-video-player, iframe').forEach(media => {
@@ -757,8 +760,6 @@
             document.body.style.overflow = 'auto';
             document.querySelectorAll('#media-overlay video').forEach(v => {
                 v.pause();
-                v.removeAttribute('src'); // Overlay වහද්දිත් Memory එක Free කරනවා
-                v.load();
             });
             document.querySelectorAll('#media-overlay iframe').forEach(iframe => iframe.src = iframe.src);
         }
@@ -832,7 +833,7 @@
             return u; 
         }
 
-        // --- MODERN CUSTOM VIDEO PLAYER (WITH LAZY LOAD DATA-SRC & THUMBNAILS) ---
+        // --- HTML BASED POSTER FIX (Black Screen Removed) ---
         function getVideoElement(u) {
             if (u.includes('youtube.com')) {
                 u = u.replace('watch?v=', 'embed/');
@@ -840,7 +841,6 @@
             }
             
             let srcUrl = u;
-            let posterUrl = getImageUrl(u); // Google Drive එකෙන්ම Thumbnail එක අරගෙන Poster එකට දානවා
 
             if (u.includes('docs.google.com/uc') || u.includes('drive.google.com')) {
                 let fileIdMatch = u.match(/[-\w]{25,}/);
@@ -855,7 +855,7 @@
             return `
                 <div class="modern-video-player">
                     <div class="custom-loader"></div>
-                    <video data-src="${srcUrl}#t=2" poster="${posterUrl}" playsinline webkit-playsinline loop preload="none" ${initialMuteState} class="custom-video"></video>
+                    <video src="${srcUrl}#t=0.1" playsinline webkit-playsinline loop preload="none" ${initialMuteState} class="custom-video"></video>
                     
                     <div class="play-overlay"><i class="ri-play-fill"></i></div>
                     
