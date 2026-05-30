@@ -116,7 +116,6 @@
             box-shadow: 0 10px 25px rgba(255, 0, 85, 0.15);
             transform: translateY(-5px);
         }
-        /* මෙතන ඔයා ඉල්ලපු විදිහට ඔක්කොම කොටු වල ඉලක්කම් රෝස පාට කළා */
         .stat-num {
             font-family: 'Syncopate', sans-serif;
             font-size: 2rem;
@@ -424,26 +423,54 @@
         let allData = [], shuffledVideos = [], shuffledPhotos = [], names = [];
         let aIndex = 0, vIndex = 3, pIndex = 3;
 
-        // --- AUTO PAUSE VIDEOS OBSERVER (අලුතින් එකතු කළ කොටස) ---
+        // --- GLOBAL MUTED STATE ---
+        let globalMuted = true; // මුලින්ම හැම වීඩියෝ එකක්ම mute වෙලා ප්ලේ වෙන්නේ
+
+        // --- AUTO PLAY & PAUSE OBSERVER ---
         const videoObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                // Video එක Screen එකෙන් 90% ක්ම අයින් වුණාම Auto-Pause වෙනවා
-                if (!entry.isIntersecting) {
-                    if (entry.target.tagName === 'VIDEO' && !entry.target.paused) {
-                        entry.target.pause();
-                    } else if (entry.target.tagName === 'IFRAME') {
-                        // YouTube වගේ iframe නම් ඒකේ ලින්ක් එක රීසෙට් කරලා ප්ලේ වීම නවත්වනවා
-                        let currentSrc = entry.target.src;
-                        entry.target.src = currentSrc;
+                const media = entry.target;
+                
+                if (media.tagName === 'VIDEO') {
+                    if (entry.isIntersecting) {
+                        // වීඩියෝ එක ස්ක්‍රීන් එකට ආවාම
+                        media.muted = globalMuted;
+                        let playPromise = media.play();
+                        
+                        // බ්‍රවුසර් එකෙන් Unmuted Auto-play බ්ලොක් කරොත්, ආපහු mute කරලා play කරනවා
+                        if (playPromise !== undefined) {
+                            playPromise.catch(error => {
+                                media.muted = true;
+                                media.play().catch(e => console.log("Play Blocked:", e));
+                            });
+                        }
+                    } else {
+                        // වීඩියෝ එක ස්ක්‍රීන් එකෙන් අයින් වුණාම
+                        media.pause();
+                    }
+                } else if (media.tagName === 'IFRAME') {
+                    // යූටියුබ් iframe වලට auto-play support කරන්නේ නැති නිසා ඒවා pause කරනවා විතරයි
+                    if (!entry.isIntersecting) {
+                        let currentSrc = media.src;
+                        media.src = currentSrc;
                     }
                 }
             });
-        }, { threshold: 0.1 }); // 10% කට වඩා අඩුවෙන් පේනවා නම් pause කරන්න
+        }, { threshold: 0.6 }); // වීඩියෝ එකෙන් 60%ක් දැක්කම ප්ලේ වෙන්න ගන්නවා
 
         function attachVideoObserver() {
             document.querySelectorAll('video, iframe').forEach(media => {
                 videoObserver.observe(media);
             });
+        }
+
+        // යූසර් වීඩියෝ එකක සද්දය වෙනස් කරද්දී State එක අප්ඩේට් කිරීම
+        function handleVolumeChange(videoElement) {
+            if (!videoElement.muted && videoElement.volume > 0) {
+                globalMuted = false; // යූසර් unmute කරා, මින්පසු සේරම සද්දෙන් ප්ලේ වෙනවා
+            } else if (videoElement.muted || videoElement.volume === 0) {
+                globalMuted = true;
+            }
         }
         // -----------------------------------------------------------
 
@@ -562,15 +589,23 @@
             if (shuffledVideos.length <= (window.innerWidth <= 768 ? shuffledVideos.length : 3)) document.getElementById('v-more').style.display = 'none';
             if (shuffledPhotos.length <= 3) document.getElementById('p-more').style.display = 'none';
 
-            attachVideoObserver(); // Auto-pause සක්‍රිය කිරීම
+            attachVideoObserver(); // Auto-play සක්‍රිය කිරීම
         }
 
         function initScrollAnimations() {
+            // ෆෝන් එකේ ස්ක්‍රෝල් කරද්දි ක්‍රෑෂ් වීම වළක්වන්න ScrollTrigger එක Optimize කර ඇත
             gsap.utils.toArray('.section-title, .section-desc').forEach(el => {
                 gsap.fromTo(el, { opacity: 0, y: 30 }, { scrollTrigger: { trigger: el, start: "top 90%" }, opacity: 1, y: 0, duration: 0.8 });
             });
-            gsap.utils.toArray('.card').forEach(el => {
-                gsap.fromTo(el, { opacity: 0, y: 40 }, { scrollTrigger: { trigger: el, start: "top 95%" }, opacity: 1, y: 0, duration: 0.8, ease: "power2.out" });
+            
+            // ලෝඩ් වන ගාන සීමා කර ඇත
+            gsap.utils.toArray('.card').forEach((el, index) => {
+                if (index < 10) { 
+                    gsap.fromTo(el, { opacity: 0, y: 40 }, { scrollTrigger: { trigger: el, start: "top 95%" }, opacity: 1, y: 0, duration: 0.8, ease: "power2.out" });
+                } else {
+                    el.style.opacity = 1;
+                    el.style.transform = "none";
+                }
             });
         }
 
@@ -601,7 +636,7 @@
             document.body.style.overflow = 'hidden';
             gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
             
-            attachVideoObserver(); // Auto-pause සක්‍රිය කිරීම
+            attachVideoObserver(); // Auto-play සක්‍රිය කිරීම
         }
 
         function closeOverlay() {
@@ -641,7 +676,7 @@
             document.getElementById('v-hide').style.display = 'block';
             setTimeout(() => ScrollTrigger.refresh(), 100);
             
-            attachVideoObserver(); // Auto-pause සක්‍රිය කිරීම
+            attachVideoObserver(); // Auto-play සක්‍රිය කිරීම
         }
 
         function loadMorePhotos() {
@@ -670,39 +705,35 @@
             ScrollTrigger.refresh(); 
         }
 
+        // UPDATE: Syntax Error තිබුණු Image URL ෆන්ක්ෂන් එක නිවැරදි කර ඇත
         function getImageUrl(u) {
             if (u && (u.includes('drive.google.com') || u.includes('docs.google.com'))) {
                 let fileId = u.match(/[-\w]{25,}/);
                 if (fileId) {
-                    return `https://lh3.googleusercontent.com/d/${fileId[0]}=s0`;
+                    return `https://drive.google.com/thumbnail?id=${fileId[0]}&sz=w800`;
                 }
             }
             return u; 
         }
 
+        // UPDATE: RAM එක ක්‍රෑෂ් වීම වළක්වන්න preload="none" සහ playsinline එකතු කර ඇත
         function getVideoElement(u) {
             if (u.includes('youtube.com')) {
                 u = u.replace('watch?v=', 'embed/');
                 return `<iframe src="${u}" allowfullscreen loading="lazy"></iframe>`;
             }
             
+            let srcUrl = u;
             if (u.includes('docs.google.com/uc') || u.includes('drive.google.com')) {
                 let fileIdMatch = u.match(/[-\w]{25,}/);
                 if (fileIdMatch) {
-                    let fileId = fileIdMatch[0];
-                    let proxyUrl = `${MY_WORKER_URL}/?id=${fileId}`;
-                    return `
-                        <video width="100%" height="100%" controls playsinline loop preload="metadata" style="object-fit: contain; background: #000;">
-                            <source src="${proxyUrl}#t=2" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    `;
+                    srcUrl = `${MY_WORKER_URL}/?id=${fileIdMatch[0]}`;
                 }
             }
 
             return `
-                <video width="100%" height="100%" controls playsinline loop preload="metadata" style="object-fit: contain; background: #000;">
-                    <source src="${u}#t=2" type="video/mp4">
+                <video width="100%" height="100%" controls playsinline webkit-playsinline loop preload="none" muted style="object-fit: contain; background: #000;" onvolumechange="handleVolumeChange(this)">
+                    <source src="${srcUrl}#t=2" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             `;
