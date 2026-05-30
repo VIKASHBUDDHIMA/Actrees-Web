@@ -87,7 +87,7 @@
         }
         .vip-btn:hover { transform: scale(1.08); }
 
-        /* --- MODERN STATS COUNTER UI --- */
+        /* --- STATS COUNTER UI --- */
         .home-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -111,26 +111,9 @@
             text-align: center;
             transition: 0.4s ease;
         }
-        .stat-card:hover {
-            border-color: var(--accent);
-            box-shadow: 0 10px 25px rgba(255, 0, 85, 0.15);
-            transform: translateY(-5px);
-        }
-        .stat-num {
-            font-family: 'Syncopate', sans-serif;
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--accent); 
-            margin-bottom: 5px;
-            text-shadow: 0 0 10px rgba(255, 0, 85, 0.2);
-        }
-        .stat-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #888;
-            font-weight: 700;
-        }
+        .stat-card:hover { border-color: var(--accent); box-shadow: 0 10px 25px rgba(255, 0, 85, 0.15); transform: translateY(-5px); }
+        .stat-num { font-family: 'Syncopate', sans-serif; font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 5px; text-shadow: 0 0 10px rgba(255, 0, 85, 0.2); }
+        .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: #888; font-weight: 700; }
 
         /* --- SECTIONS --- */
         section { padding: 80px 6%; }
@@ -138,7 +121,6 @@
         .section-title span { color: var(--accent); }
         .section-desc { text-align: center; color: #777; font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 50px; text-transform: uppercase; }
 
-        /* SLIDE HINT */
         .slide-hint {
             display: none; text-align: center; color: var(--gold); font-size: 0.65rem;
             letter-spacing: 2px; margin-bottom: 15px; text-transform: uppercase;
@@ -152,23 +134,12 @@
         
         .card { 
             background: var(--surface); position: relative; border-radius: 15px; overflow: hidden; 
-            border: 1px solid rgba(255,255,255,0.05); transition: 0.4s ease;
-            width: 100%;
+            border: 1px solid rgba(255,255,255,0.05); transition: 0.4s ease; width: 100%;
         }
-        
         .reveal-card { opacity: 0; transform: translateY(30px); }
-
         .card-img-wrap { height: 350px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; }
         #actress-grid .card-img-wrap { height: 260px; }
-        
-        .card img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            object-position: top;
-            transition: 0.8s ease; 
-        }
-        
+        .card img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: 0.8s ease; }
         .card:hover img { transform: scale(1.05); }
 
         /* --- MODERN CUSTOM VIDEO PLAYER UI --- */
@@ -190,7 +161,7 @@
         }
         .modern-video-player.is-playing .play-overlay { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
 
-        /* CUSTOM LOADING SPINNER */
+        /* CUSTOM GLOWING LOADING SPINNER */
         .custom-loader {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 45px; height: 45px; border: 3px solid rgba(255,0,85,0.2);
@@ -202,7 +173,7 @@
         .modern-video-player.is-loading .custom-loader { display: block; }
         .modern-video-player.is-loading .play-overlay { display: none; }
 
-        /* RE-POSITIONED CONTROLS */
+        /* TOP RE-POSITIONED CONTROLS */
         .control-icon {
             position: absolute; top: 12px;
             background: rgba(10, 10, 12, 0.4); border: 1px solid rgba(255,255,255,0.1);
@@ -212,24 +183,22 @@
         }
         .control-icon:hover { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px rgba(255,0,85,0.5); transform: scale(1.1); }
         
+        /* Mute Button on Top Left, Fullscreen on Top Right */
         .mute-toggle { left: 12px; }
         .fullscreen-toggle { right: 12px; }
 
         .progress-bar-container {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.15); z-index: 10; cursor: pointer;
         }
-        .progress-fill {
-            height: 100%; background: var(--accent); width: 0%; box-shadow: 0 0 15px var(--accent); transition: width 0.1s linear;
-        }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; box-shadow: 0 0 15px var(--accent); transition: width 0.1s linear; }
+
         /* ----------------------------------- */
 
         .card-info { 
             position: absolute; bottom: 0; width: 100%; padding: 15px; 
-            background: linear-gradient(to top, rgba(0,0,0,0.95) 40%, transparent); text-align: center; 
-            z-index: 15;
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 40%, transparent); text-align: center; z-index: 15;
         }
         .card-info h3 { font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
         .btn-row { display: flex; gap: 8px; }
         .btn-sm { flex: 1; padding: 10px 5px; background: rgba(255,0,85,0.1); color: var(--accent); border: 1px solid var(--accent); border-radius: 5px; cursor: pointer; font-size: 0.6rem; font-weight: 800; }
 
@@ -240,7 +209,6 @@
         }
         .close-overlay { position: fixed; top: 20px; right: 20px; font-size: 2.5rem; color: #fff; cursor: pointer; z-index: 5001; }
 
-        /* --- CONTROLS --- */
         .controls { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
         .control-btn { background: transparent; border: 1px solid #333; color: #fff; padding: 12px 30px; border-radius: 50px; cursor: pointer; font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; }
 
@@ -250,15 +218,7 @@
         #cta h2 span { color: var(--accent); }
         #cta p { max-width: 500px; margin: 0 auto 30px; color: #888; font-size: 0.85rem; line-height: 1.6; }
 
-        .custom-footer {
-            background: #050505; 
-            border-top: 1px solid rgba(255, 0, 85, 0.15); 
-            padding: 80px 8% 30px;
-            color: #fff;
-            font-family: 'Montserrat', sans-serif;
-            margin-top: 50px;
-        }
-
+        .custom-footer { background: #050505; border-top: 1px solid rgba(255, 0, 85, 0.15); padding: 80px 8% 30px; color: #fff; margin-top: 50px; }
         .footer-container { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 50px; margin-bottom: 60px; }
         .footer-left { flex: 1; min-width: 320px; }
         .newsletter-sub { font-size: 1rem; color: #ccc; margin-bottom: 15px; font-weight: 300; }
@@ -473,10 +433,11 @@
         let allData = [], shuffledVideos = [], shuffledPhotos = [], names = [];
         let aIndex = 0, vIndex = 3, pIndex = 3;
 
-        // --- GLOBAL MUTED STATE (Mobile = Muted by default, Desktop = Unmuted by default) ---
+        // --- GLOBAL MUTED STATE ---
+        // Desktop = Unmuted by default, Mobile = Muted by default
         let globalMuted = window.innerWidth <= 768;
 
-        // --- CUSTOM VIDEO PLAYER EVENTS ---
+        // --- CUSTOM VIDEO PLAYER EVENTS & SINGLE PLAY LOGIC ---
         document.addEventListener('click', function(e) {
             const player = e.target.closest('.modern-video-player');
             if (!player) return;
@@ -495,15 +456,15 @@
                 return;
             }
             
-            // Toggle Play/Pause on click anywhere else on video
+            // Toggle Play/Pause on click
             if (video.paused) video.play();
             else video.pause();
         });
 
-        // අලුතින් Video එකක් Play කරද්දි අනිත් ඔක්කොම Auto Pause වෙනවා
+        // 🔴 අලුත් වීඩියෝ එකක් ප්ලේ කරද්දී කලින් ප්ලේ වෙවී තිබුණු ඒවා Auto-Pause කරනවා
         document.addEventListener('play', function(e) {
             if (e.target.tagName === 'VIDEO') {
-                // Pause all other videos
+                // Pause all other videos across all devices (Mobile & Desktop)
                 document.querySelectorAll('video').forEach(v => {
                     if (v !== e.target && !v.paused) v.pause();
                 });
@@ -511,7 +472,7 @@
                 const player = e.target.closest('.modern-video-player');
                 if (player) {
                     player.classList.add('is-playing');
-                    player.classList.remove('is-loading'); // ප්ලේ වුණ ගමන් ලෝඩර් එක අයින් වෙනවා
+                    player.classList.remove('is-loading'); 
                     updateAllMuteIcons(); 
                 }
             }
@@ -571,7 +532,7 @@
             });
         }
 
-        // --- INTERSECTION OBSERVER (Auto Pause for all, Auto-play only for mobile) ---
+        // --- 🟢 INTERSECTION OBSERVER (Auto-Play & Memory Cleanup for NO LAG) ---
         const videoObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 const mediaContainer = entry.target;
@@ -580,10 +541,20 @@
                 
                 if (!video) return;
 
-                if (window.innerWidth <= 768) { 
-                    // Mobile Mode: Play when visible, Pause when out of view
+                if (entry.isIntersecting) {
+                    // වීඩියෝ එක ස්ක්‍රීන් එකට ආවම Source එක සෙට් කරනවා (Lag එක නතර කිරීමට)
                     if (!isIframe) {
-                        if (entry.isIntersecting) {
+                        const dataSrc = video.getAttribute('data-src');
+                        if (dataSrc && !video.getAttribute('src')) {
+                            mediaContainer.classList.add('is-loading');
+                            video.setAttribute('src', dataSrc);
+                            video.load();
+                        }
+                    }
+
+                    if (window.innerWidth <= 768) { 
+                        // Mobile Mode: Play when visible
+                        if (!isIframe) {
                             video.muted = globalMuted;
                             updateAllMuteIcons(); 
                             let playPromise = video.play();
@@ -595,21 +566,22 @@
                                     video.play().catch(e => {});
                                 });
                             }
-                        } else {
-                            video.pause();
                         }
-                    } else {
-                        if (!entry.isIntersecting) video.src = video.src;
                     }
-                } else { 
-                    // Desktop Mode: Do NOT auto-play. Just pause if scrolled out of view.
-                    if (!entry.isIntersecting) {
-                        if (!isIframe) video.pause();
-                        else video.src = video.src;
+                } else {
+                    // වීඩියෝ එක ස්ක්‍රීන් එකෙන් ගියාම Pause කරලා Memory එක අයින් කරනවා (Memory Cleanup)
+                    if (!isIframe) {
+                        video.pause();
+                        video.removeAttribute('src'); // බ්‍රවුසර් එකේ RAM එක නිදහස් කරයි
+                        video.load(); 
+                        mediaContainer.classList.remove('is-playing');
+                        mediaContainer.classList.remove('is-loading');
+                    } else {
+                        video.src = video.src;
                     }
                 }
             });
-        }, { threshold: 0.6 }); 
+        }, { threshold: 0.5 }); 
 
         function attachVideoObserver() {
             document.querySelectorAll('.modern-video-player, iframe').forEach(media => {
@@ -783,7 +755,11 @@
         function closeOverlay() {
             document.getElementById('media-overlay').style.display = 'none';
             document.body.style.overflow = 'auto';
-            document.querySelectorAll('#media-overlay video').forEach(v => v.pause());
+            document.querySelectorAll('#media-overlay video').forEach(v => {
+                v.pause();
+                v.removeAttribute('src'); // Overlay වහද්දිත් Memory එක Free කරනවා
+                v.load();
+            });
             document.querySelectorAll('#media-overlay iframe').forEach(iframe => iframe.src = iframe.src);
         }
 
@@ -856,7 +832,7 @@
             return u; 
         }
 
-        // --- MODERN CUSTOM VIDEO PLAYER GENERATOR (WITH POSTER & CUSTOM LOADER) ---
+        // --- MODERN CUSTOM VIDEO PLAYER (WITH LAZY LOAD DATA-SRC & THUMBNAILS) ---
         function getVideoElement(u) {
             if (u.includes('youtube.com')) {
                 u = u.replace('watch?v=', 'embed/');
@@ -864,7 +840,7 @@
             }
             
             let srcUrl = u;
-            let posterUrl = getImageUrl(u); // Drive එකෙන් කෙලින්ම Thumbnail එක අරන් Poster එකට දානවා
+            let posterUrl = getImageUrl(u); // Google Drive එකෙන්ම Thumbnail එක අරගෙන Poster එකට දානවා
 
             if (u.includes('docs.google.com/uc') || u.includes('drive.google.com')) {
                 let fileIdMatch = u.match(/[-\w]{25,}/);
@@ -879,7 +855,7 @@
             return `
                 <div class="modern-video-player">
                     <div class="custom-loader"></div>
-                    <video src="${srcUrl}#t=2" poster="${posterUrl}" playsinline webkit-playsinline loop preload="metadata" ${initialMuteState} class="custom-video"></video>
+                    <video data-src="${srcUrl}#t=2" poster="${posterUrl}" playsinline webkit-playsinline loop preload="none" ${initialMuteState} class="custom-video"></video>
                     
                     <div class="play-overlay"><i class="ri-play-fill"></i></div>
                     
