@@ -3,583 +3,898 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Content | STAR STREAM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <title>STAR STREAM | FAN GALLERY</title>
     
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Montserrat:wght@300;600;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
     <style>
-        :root { 
-            --accent: #ff0055; 
-            --accent-glow: rgba(255, 0, 85, 0.4);
-            --bg: #050505; 
-            --surface: rgba(15, 15, 18, 0.65); 
-            --text: #ffffff; 
-            --text-muted: #888890;
-            --border: rgba(255, 255, 255, 0.06);
-        }
+        :root { --accent: #ff0055; --gold: #d4af37; --bg: #030303; --surface: #0a0a0c; --text: #ffffff; }
         
-        * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); margin: 0; padding: 0; }
-        
-        body { 
-            background-color: var(--bg);
-            background-image: url('https://i.ibb.co/d4yLRC3s/yohani-hettiarachchi-1.jpg'); 
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: var(--text); 
-            font-family: 'Montserrat', sans-serif; 
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+        html { scroll-behavior: smooth; }
+        body { background: var(--bg); color: var(--text); overflow-x: hidden; width: 100%; }
 
-        /* Deep Modern Ambient Overlay */
-        .background-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 30%, rgba(5, 5, 5, 0.6) 0%, rgba(2, 2, 2, 0.95) 100%);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            z-index: -1;
+        /* --- LOADING SCREEN --- */
+        #loader {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 20px;
         }
-        
+        .loader-logo { font-family: 'Syncopate', sans-serif; font-size: 2rem; letter-spacing: 10px; color: var(--accent); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; text-shadow: 0 0 20px var(--accent); } 50% { opacity: 0.3; } }
+
+        /* --- DISCLAIMER OVERLAY --- */
+        #disclaimer-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000;
+            display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px);
+        }
+        .disclaimer-box {
+            background: var(--surface); padding: 40px; border-radius: 20px;
+            max-width: 550px; width: 90%; border: 1px solid rgba(255,255,255,0.1);
+            text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .disclaimer-box i { font-size: 3rem; color: var(--accent); margin-bottom: 20px; display: block; }
+        .disclaimer-box h2 { font-family: 'Syncopate'; font-size: 1.2rem; color: #fff; margin-bottom: 20px; letter-spacing: 2px; }
+        .disclaimer-box p { font-size: 0.85rem; line-height: 1.6; color: #aaa; margin-bottom: 30px; }
+        .disclaimer-btn {
+            background: var(--accent); color: white; border: none; padding: 12px 40px;
+            border-radius: 50px; font-weight: 800; cursor: pointer; transition: 0.3s;
+            text-transform: uppercase; letter-spacing: 2px; font-size: 0.7rem;
+        }
+        .disclaimer-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,0,85,0.3); }
+
+        /* --- NAVIGATION --- */
         nav { 
-            width: 100%; padding: 25px 8%; 
+            position: fixed; width: 100%; padding: 20px 6%; display: flex; 
+            justify-content: space-between; align-items: center; z-index: 1000; 
             background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
-            display: flex; justify-content: space-between; align-items: center; 
-            position: sticky; top: 0; z-index: 1000;
+            backdrop-filter: blur(10px);
         }
-        .logo { 
-            font-family: 'Syncopate'; 
-            color: var(--text); 
-            text-decoration: none; 
-            font-size: 1.5rem; 
-            letter-spacing: 4px;
-            font-weight: 700;
-        }
+        .logo { font-family: 'Syncopate', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--text); text-decoration: none; }
         .logo span { color: var(--accent); }
-        
-        .nav-links a { 
-            color: var(--text-muted); 
-            text-decoration: none; 
-            font-size: 0.75rem; 
-            font-weight: 700; 
-            letter-spacing: 2px; 
-            text-transform: uppercase;
-            padding: 10px 20px;
-            border-radius: 50px;
-            border: 1px solid rgba(255,255,255,0.05);
-            background: rgba(0,0,0,0.5);
-        }
-        .nav-links a:hover { 
-            color: #fff; 
-            border-color: var(--accent);
-            background: rgba(255, 0, 85, 0.1);
-            box-shadow: 0 0 15px var(--accent-glow); 
-        }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-links a { color: #888; text-decoration: none; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s; }
+        .nav-links a:hover { color: var(--accent); }
+        .menu-toggle { display: none; font-size: 1.8rem; color: var(--text); cursor: pointer; }
 
-        .container { 
-            max-width: 650px; 
-            width: 92%;
-            margin: 40px auto 60px; 
-            padding: 50px 45px; 
-            background: var(--surface); 
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border-radius: 24px; 
-            border: 1px solid var(--border); 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+        #mobile-menu {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center; gap: 30px;
+        }
+        #mobile-menu a { font-size: 1.5rem; color: #fff; text-decoration: none; font-family: 'Syncopate', sans-serif; }
+        .close-menu { position: absolute; top: 30px; right: 40px; font-size: 2.5rem; }
+
+        /* --- HERO --- */
+        #home { 
+            height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop') center/cover;
+            background-attachment: fixed;
             position: relative;
-            overflow: hidden;
+            padding-bottom: 120px; 
         }
-        
-        /* Top Highlight Line */
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 50%; transform: translateX(-50%);
-            width: 40%; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-        }
+        #home h1 { font-family: 'Syncopate', sans-serif; font-size: clamp(2.5rem, 10vw, 6rem); text-transform: uppercase; line-height: 1; margin-bottom: 20px; }
+        #home h1 span { color: var(--accent); -webkit-text-stroke: 1px var(--accent); -webkit-text-fill-color: transparent; }
+        #home p { font-size: 0.9rem; letter-spacing: 8px; color: var(--gold); margin-bottom: 30px; }
 
-        h2 { 
-            color: var(--text); 
-            text-align: center; 
-            margin-bottom: 40px; 
-            font-family: 'Syncopate'; 
-            letter-spacing: 4px;
-            font-size: 1.8rem;
-            font-weight: 700;
+        .vip-btn { 
+            padding: 18px 45px; background: var(--accent); color: white; border: none; 
+            font-weight: 900; letter-spacing: 3px; cursor: pointer; border-radius: 50px;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); transition: 0.4s ease;
         }
-        h2 span { color: var(--accent); }
+        .vip-btn:hover { transform: scale(1.08); }
 
-        .form-group { margin-bottom: 25px; }
-        
-        label { 
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 12px; 
-            font-size: 0.75rem; 
-            font-weight: 700; 
-            color: var(--text-muted); 
-            letter-spacing: 2px; 
-            text-transform: uppercase;
-        }
-        label i { color: var(--accent); font-size: 1.1rem; }
-        
-        /* Modern Inputs & Selects */
-        select, input[type="text"] { 
-            width: 100%; 
-            padding: 16px 20px; 
-            background: rgba(0, 0, 0, 0.4); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            color: white; 
-            border-radius: 12px; 
-            outline: none; 
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            appearance: none;
-        }
-        
-        /* Custom Select Arrow */
-        select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff0055'%3E%3Cpath d='M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 15px center;
-            background-size: 20px;
-            padding-right: 45px;
-            cursor: pointer;
-        }
-        select option { background: #111; color: #fff; padding: 10px; }
-
-        select:focus, input[type="text"]:focus { 
-            border-color: var(--accent); 
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.15);
-            background: rgba(0, 0, 0, 0.8);
-        }
-
-        /* Modern Dashed File Upload Zone */
-        input[type="file"] {
+        /* --- MODERN STATS COUNTER UI --- */
+        .home-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
             width: 100%;
-            padding: 25px 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border: 2px dashed rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            color: var(--text-muted);
-            cursor: pointer;
+            max-width: 850px;
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0 20px;
+            z-index: 10;
+        }
+        .stat-card {
+            background: rgba(10, 10, 12, 0.5);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 20px;
+            border-radius: 14px;
             text-align: center;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.85rem;
+            transition: 0.4s ease;
         }
-        input[type="file"]:hover {
+        .stat-card:hover {
             border-color: var(--accent);
-            background: rgba(255, 0, 85, 0.02);
-            color: #fff;
+            box-shadow: 0 10px 25px rgba(255, 0, 85, 0.15);
+            transform: translateY(-5px);
         }
-        input[type="file"]::file-selector-button {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-right: 20px;
-            font-family: 'Montserrat', sans-serif;
+        .stat-num {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 2rem;
             font-weight: 700;
-            font-size: 0.75rem;
+            color: var(--accent); 
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 0, 85, 0.2);
+        }
+        .stat-label {
+            font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.3s ease;
-        }
-        input[type="file"]::file-selector-button:hover {
-            background: #ff1a66;
-            box-shadow: 0 5px 15px var(--accent-glow);
-            transform: translateY(-2px);
-        }
-
-        /* Sub-panel for New Actress */
-        #newActressFields { 
-            display: none; 
-            margin-top: 15px; 
-            margin-bottom: 25px;
-            padding: 25px; 
-            background: rgba(0, 0, 0, 0.3); 
-            border-radius: 16px; 
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            position: relative;
-        }
-        #newActressFields::before {
-            content: ''; position: absolute; top: 0; left: 0; height: 100%; width: 4px;
-            background: var(--accent); border-radius: 16px 0 0 16px;
-        }
-        
-        /* Modern Glowing VIP Button */
-        .btn { 
-            width: 100%; 
-            padding: 18px; 
-            background: var(--accent); 
-            color: white; 
-            border: none; 
-            border-radius: 12px; 
-            font-weight: 800; 
-            cursor: pointer; 
-            font-size: 0.9rem; 
-            margin-top: 10px; 
-            font-family: 'Montserrat', sans-serif;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            box-shadow: 0 10px 25px rgba(255, 0, 85, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-        .btn:hover { 
-            background: #ff1a66; 
-            box-shadow: 0 15px 35px rgba(255, 0, 85, 0.5);
-            transform: translateY(-3px);
-        }
-        .btn:active { transform: translateY(1px); }
-        .btn:disabled { 
-            background: #1a1a1f; 
-            color: #444;
-            cursor: not-allowed; 
-            box-shadow: none; 
-            transform: none; 
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        /* Progress & Loader Section */
-        .progress-container { display: none; margin-top: 35px; text-align: center; }
-        .progress-bar-bg { 
-            width: 100%; 
-            background: rgba(0, 0, 0, 0.6); 
-            border-radius: 20px; 
-            height: 8px; 
-            overflow: hidden; 
-            margin-top: 15px; 
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-        }
-        .progress-bar { 
-            width: 0%; 
-            height: 100%; 
-            background: linear-gradient(90deg, #ff0055, #ff4d88); 
-            box-shadow: 0 0 20px var(--accent);
-            border-radius: 20px;
-            position: relative;
-        }
-        .progress-bar::after {
-            content: ''; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent);
-            background-size: 20px 20px;
-            animation: stripes 1s linear infinite;
-        }
-        @keyframes stripes { 100% { background-position: 20px 0; } }
-        
-        .status-text { 
-            font-size: 0.8rem; 
-            color: var(--text); 
-            margin-top: 15px; 
-            font-weight: 600; 
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            animation: pulse-text 1.5s infinite;
-        }
-        @keyframes pulse-text { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
-        /* Success Panel View */
-        #successView { display: none; text-align: center; padding: 40px 10px 20px; }
-        .success-icon-wrap {
-            width: 100px; height: 100px;
-            background: rgba(0, 255, 136, 0.1);
-            border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            margin: 0 auto 30px;
-            border: 2px solid rgba(0, 255, 136, 0.3);
-            box-shadow: 0 0 40px rgba(0, 255, 136, 0.2);
-            animation: bounceIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
-        
-        #successView i { font-size: 3.5rem; color: #00ff88; }
-        #successView h3 { 
-            color: #fff; 
-            margin-bottom: 15px; 
-            font-family: 'Syncopate'; 
-            font-size: 1.5rem; 
             letter-spacing: 2px;
+            color: #888;
+            font-weight: 700;
         }
-        #successView p { 
-            color: var(--text-muted); 
-            margin-bottom: 40px; 
-            line-height: 1.8; 
-            font-size: 0.9rem;
-            max-width: 400px;
-            margin-left: auto; margin-right: auto;
+
+        /* --- SECTIONS --- */
+        section { padding: 80px 6%; }
+        .section-title { font-family: 'Syncopate', sans-serif; font-size: 2rem; margin-bottom: 10px; text-align: center; }
+        .section-title span { color: var(--accent); }
+        .section-desc { text-align: center; color: #777; font-size: 0.8rem; letter-spacing: 2px; margin-bottom: 50px; text-transform: uppercase; }
+
+        /* SLIDE HINT */
+        .slide-hint {
+            display: none; text-align: center; color: var(--gold); font-size: 0.65rem;
+            letter-spacing: 2px; margin-bottom: 15px; text-transform: uppercase;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
+
+        /* --- GRID & CARDS --- */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        #actress-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+        
+        .card { 
+            background: var(--surface); position: relative; border-radius: 15px; overflow: hidden; 
+            border: 1px solid rgba(255,255,255,0.05); transition: 0.4s ease;
+            width: 100%;
         }
         
-        @media (max-width: 768px) {
-            .container { padding: 35px 25px; margin: 20px auto; border-radius: 20px; }
-            h2 { font-size: 1.4rem; }
-            .btn { padding: 16px; font-size: 0.85rem; }
+        .reveal-card { opacity: 0; transform: translateY(30px); }
+
+        .card-img-wrap { height: 350px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; }
+        #actress-grid .card-img-wrap { height: 260px; }
+        
+        .card img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            object-position: top;
+            transition: 0.8s ease; 
         }
+        
+        .card:hover img { transform: scale(1.05); }
+
+        /* --- MODERN CUSTOM VIDEO PLAYER UI --- */
+        .video-container { position: relative; width: 100%; padding-top: 177%; background: #000; overflow: hidden; }
+        
+        .modern-video-player {
+            position: absolute; top:0; left:0; width: 100%; height: 100%;
+            background: #000; overflow: hidden; display: flex; align-items: center; justify-content: center;
+        }
+        .modern-video-player video, .modern-video-player iframe {
+            width: 100%; height: 100%; object-fit: contain; cursor: pointer; border: none; outline: none;
+        }
+        
+        .play-overlay {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 4rem; color: rgba(255,255,255,0.85); pointer-events: none;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-shadow: 0 10px 30px rgba(255,0,85,0.7); z-index: 5;
+        }
+        .modern-video-player.is-playing .play-overlay { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+
+        /* CUSTOM LOADING SPINNER */
+        .custom-loader {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 45px; height: 45px; border: 3px solid rgba(255,0,85,0.2);
+            border-top-color: var(--accent); border-radius: 50%;
+            animation: spin 1s linear infinite; z-index: 4; display: none;
+            box-shadow: 0 0 15px rgba(255,0,85,0.4);
+        }
+        @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+        .modern-video-player.is-loading .custom-loader { display: block; }
+        .modern-video-player.is-loading .play-overlay { display: none; }
+
+        /* RE-POSITIONED CONTROLS */
+        .control-icon {
+            position: absolute; top: 12px;
+            background: rgba(10, 10, 12, 0.4); border: 1px solid rgba(255,255,255,0.1);
+            color: white; width: 36px; height: 36px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer;
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: 0.3s; z-index: 10;
+        }
+        .control-icon:hover { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px rgba(255,0,85,0.5); transform: scale(1.1); }
+        
+        .mute-toggle { left: 12px; }
+        .fullscreen-toggle { right: 12px; }
+
+        .progress-bar-container {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.15); z-index: 10; cursor: pointer;
+        }
+        .progress-fill {
+            height: 100%; background: var(--accent); width: 0%; box-shadow: 0 0 15px var(--accent); transition: width 0.1s linear;
+        }
+        /* ----------------------------------- */
+
+        .card-info { 
+            position: absolute; bottom: 0; width: 100%; padding: 15px; 
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 40%, transparent); text-align: center; 
+            z-index: 15;
+        }
+        .card-info h3 { font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .btn-row { display: flex; gap: 8px; }
+        .btn-sm { flex: 1; padding: 10px 5px; background: rgba(255,0,85,0.1); color: var(--accent); border: 1px solid var(--accent); border-radius: 5px; cursor: pointer; font-size: 0.6rem; font-weight: 800; }
+
+        /* --- OVERLAY --- */
+        #media-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 5000;
+            display: none; flex-direction: column; overflow-y: auto; padding: 80px 6% 40px;
+        }
+        .close-overlay { position: fixed; top: 20px; right: 20px; font-size: 2.5rem; color: #fff; cursor: pointer; z-index: 5001; }
+
+        /* --- CONTROLS --- */
+        .controls { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
+        .control-btn { background: transparent; border: 1px solid #333; color: #fff; padding: 12px 30px; border-radius: 50px; cursor: pointer; font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; }
+
+        /* --- FOOTER & CTA --- */
+        #cta { text-align: center; padding: 100px 6%; border-top: 1px solid rgba(255,255,255,0.02); }
+        #cta h2 { font-family: 'Syncopate', sans-serif; font-size: 1.8rem; margin-bottom: 15px; }
+        #cta h2 span { color: var(--accent); }
+        #cta p { max-width: 500px; margin: 0 auto 30px; color: #888; font-size: 0.85rem; line-height: 1.6; }
+
+        .custom-footer {
+            background: #050505; 
+            border-top: 1px solid rgba(255, 0, 85, 0.15); 
+            padding: 80px 8% 30px;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            margin-top: 50px;
+        }
+
+        .footer-container { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 50px; margin-bottom: 60px; }
+        .footer-left { flex: 1; min-width: 320px; }
+        .newsletter-sub { font-size: 1rem; color: #ccc; margin-bottom: 15px; font-weight: 300; }
+        .newsletter-title { font-family: 'Montserrat', sans-serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; line-height: 1.1; margin-bottom: 35px; }
+        .newsletter-title span { color: var(--accent); }
+        .subscribe-btn { display: inline-block; background: #a3c9c7; color: #000; font-weight: 700; font-size: 1rem; padding: 15px 40px; border-radius: 12px; text-decoration: none; transition: 0.3s ease; }
+        .subscribe-btn:hover { background: var(--accent); color: #fff; box-shadow: 0 10px 20px rgba(255, 0, 85, 0.3); transform: translateY(-2px); }
+        .footer-right { display: flex; gap: 80px; flex-wrap: wrap; }
+        .footer-col h4 { font-size: 1.2rem; font-weight: 700; margin-bottom: 25px; color: #fff; }
+        .footer-col ul { list-style: none; padding: 0; }
+        .footer-col ul li { margin-bottom: 18px; }
+        .footer-col ul li a { color: #999; text-decoration: none; font-size: 0.95rem; font-weight: 500; transition: 0.3s; }
+        .footer-col ul li a:hover { color: var(--accent); }
+        .footer-bottom-bar { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 30px; flex-wrap: wrap; gap: 20px; }
+        .copyright { font-size: 0.75rem; color: #666; letter-spacing: 1px; }
+        .footer-socials { display: flex; gap: 12px; }
+        .footer-socials a { color: #050505; background: #fff; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 50%; text-decoration: none; font-size: 1.3rem; transition: 0.3s ease; }
+        .footer-socials a:hover { background: var(--accent); color: #fff; transform: translateY(-3px); }
+        
+        @media (max-width: 900px) { .footer-container { flex-direction: column; } .footer-right { gap: 40px; width: 100%; justify-content: flex-start; } }
+        @media (max-width: 768px) {
+            #loader .loader-logo { font-size: 1.5rem; letter-spacing: 5px; }
+            #home { background-attachment: scroll; height: auto; min-height: 100vh; padding-top: 100px; padding-bottom: 20px; } 
+            .nav-links { display: none; }
+            .menu-toggle { display: block; }
+            
+            .home-stats { position: relative; bottom: auto; left: auto; transform: none; grid-template-columns: 1fr; gap: 15px; margin-top: 50px; padding: 0 10px; }
+            .stat-card { padding: 15px; border-radius: 10px; }
+            .stat-num { font-size: 1.6rem; }
+            
+            #actress-controls-desktop { display: none !important; }
+            #actress-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 20px; scrollbar-width: none; }
+            #actress-grid .card { min-width: 75%; scroll-snap-align: center; flex-shrink: 0; }
+            .slide-hint { display: block; }
+
+            #video-controls-desktop { display: none !important; }
+            #video-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; padding-bottom: 20px; scrollbar-width: none; }
+            #video-grid .card { min-width: 85%; scroll-snap-align: center; flex-shrink: 0; }
+            
+            section { padding: 60px 4%; }
+            .section-title { font-size: 1.6rem; }
+        }
+        @media (max-width: 600px) { .footer-bottom-bar { flex-direction: column; text-align: center; } .footer-col { width: 100%; } }
     </style>
 </head>
 <body>
-    <div class="background-overlay"></div>
-    
-    <nav>
-        <a href="index.html" class="logo">STAR <span>STREAM</span></a>
-        <div class="nav-links">
-            <a href="index.html"><i class="ri-gallery-fill" style="margin-right: 5px; vertical-align: -2px; font-size: 1.1rem;"></i> GALLERY</a>
-        </div>
-    </nav>
 
-    <div class="container">
-        <div id="formView">
-            <h2>UPLOAD <span>CONTENT</span></h2>
+    <div id="loader"><div class="loader-logo">STAR STREAM</div></div>
 
-            <div class="form-group">
-                <label><i class="ri-upload-cloud-2-line"></i> UPLOAD METHOD</label>
-                <select id="uploadMethod" onchange="toggleMethod()">
-                    <option value="file">FILE UPLOAD (FROM DEVICE)</option>
-                    <option value="tiktok">TIKTOK LINK (AUTO DOWNLOAD)</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label><i class="ri-filter-3-line"></i> CONTENT TYPE</label>
-                <select id="contentType">
-                    <option value="PHOTO">PHOTO</option>
-                    <option value="VIDEO">VIDEO</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label><i class="ri-user-star-line"></i> SELECT MODEL</label>
-                <select id="actressSelect" onchange="toggleNewFields()">
-                    <option value="">Loading Models...</option>
-                    <option value="NEW">+ ADD NEW MODEL</option>
-                </select>
-            </div>
-
-            <div id="newActressFields">
-                <div class="form-group">
-                    <label><i class="ri-edit-line"></i> NEW MODEL NAME</label>
-                    <input type="text" id="newName" placeholder="Enter model name">
-                </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label><i class="ri-image-circle-line"></i> PROFILE PICTURE</label>
-                    <input type="file" id="profilePic" accept="image/*">
-                </div>
-            </div>
-
-            <div id="fileUploadSection" class="form-group">
-                <label><i class="ri-folder-open-line"></i> SELECT MEDIA FILES</label>
-                <input type="file" id="contentFiles" multiple accept="image/*,video/*">
-            </div>
-
-            <div id="tiktokUploadSection" class="form-group" style="display: none;">
-                <label><i class="ri-tiktok-line"></i> TIKTOK VIDEO URL</label>
-                <input type="text" id="tiktokLink" placeholder="https://www.tiktok.com/@user/video/123456789">
-            </div>
-
-            <button class="btn" id="uploadBtn" onclick="upload()">SECURE UPLOAD <i class="ri-arrow-right-line" style="margin-left: 5px; vertical-align: -2px;"></i></button>
-
-            <div class="progress-container" id="progressContainer">
-                <div class="progress-bar-bg">
-                    <div class="progress-bar" id="progressBar"></div>
-                </div>
-                <div class="status-text" id="statusText">Initializing secure connection...</div>
-            </div>
-        </div>
-
-        <div id="successView">
-            <div class="success-icon-wrap">
-                <i class="ri-check-double-line"></i>
-            </div>
-            <h3>UPLOAD SUCCESSFUL!</h3>
-            <p>Your content has been securely encrypted and sent to the server. It is currently waiting for admin approval.</p>
-            <button class="btn" onclick="location.reload()"><i class="ri-add-line" style="margin-right: 5px; vertical-align: -2px;"></i> UPLOAD MORE</button>
+    <div id="disclaimer-overlay">
+        <div class="disclaimer-box">
+            <i class="ri-information-line"></i>
+            <h2>DISCLAIMER & TERMS</h2>
+            <p>
+                This website is a community-driven fan archive for entertainment purposes only. We do not host, store, or own any media files on our servers; all content is indexed from third-party sources. 
+                <br><br>
+                <b>Important:</b> This is a non-profit project and we do not generate any revenue through this platform. Any advertisements encountered during video playback are property of the third-party free video players used and are not controlled or endorsed by us.
+            </p>
+            <button class="disclaimer-btn" onclick="closeDisclaimer()">I Understand & Proceed</button>
         </div>
     </div>
 
+    <div id="media-overlay">
+        <i class="ri-close-circle-line close-overlay" onclick="closeOverlay()"></i>
+        <h2 class="section-title" id="overlay-title" style="margin-bottom: 30px;">PHOTO <span>GALLERY</span></h2>
+        <div id="overlay-grid" class="grid"></div>
+    </div>
+
+    <div id="mobile-menu">
+        <i class="ri-close-line close-menu" onclick="toggleMenu(false)"></i>
+        <a href="#home" onclick="toggleMenu(false)">HOME</a>
+        <a href="#actresses" onclick="toggleMenu(false)">MODELS</a>
+        <a href="#videos" onclick="toggleMenu(false)">VIDEOS</a>
+        <a href="#photos" onclick="toggleMenu(false)">PHOTOS</a>
+        <a href="contact.html">JOIN US</a>
+    </div>
+
+    <nav>
+        <a href="#home" class="logo">STAR<span>STREAM</span></a>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#actresses">Models</a>
+            <a href="#videos">Videos</a>
+            <a href="#photos">Photos</a>
+            <a href="contact.html">Join Us</a>
+        </div>
+        <i class="ri-menu-4-line menu-toggle" onclick="toggleMenu(true)"></i>
+    </nav>
+
+    <section id="home">
+        <p><i class="ri-community-line"></i> COMMUNITY ARCHIVE</p>
+        <h1>Creative <span>Vision.</span></h1>
+        
+        <p style="text-transform: none; letter-spacing: 2px; color: #ccc;">Explore the curated collection of trending social media creators.</p>
+        <button class="vip-btn" onclick="document.getElementById('actresses').scrollIntoView()" style="margin-bottom: 20px;">DISCOVER NOW</button>
+        
+        <div class="home-stats">
+            <div class="stat-card">
+                <div class="stat-num" id="count-models">0</div>
+                <div class="stat-label">Models</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="count-videos">0</div>
+                <div class="stat-label">Videos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" id="count-photos">0</div>
+                <div class="stat-label">Photos</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="actresses">
+        <h2 class="section-title">HOT <span>MODELS</span></h2>
+        <p class="section-desc">Handpicked creators featuring their public highlights and social media trends.</p>
+        <div class="slide-hint" id="a-hint"><i class="ri-arrow-left-right-line"></i> Slide to explore</div>
+        <div id="actress-grid" class="grid"></div>
+        <div class="controls" id="actress-controls-desktop">
+            <button class="control-btn" id="a-more" onclick="loadMoreActresses()">See More</button>
+            <button class="control-btn" id="a-hide" onclick="hideActresses()" style="display:none;">Hide</button>
+        </div>
+    </section>
+
+    <section id="videos" style="background: #000;">
+        <h2 class="section-title">VIDEO <span>GALLERY</span></h2>
+        <p class="section-desc">High-definition curated footage from across the web archive.</p>
+        <div id="video-grid" class="grid"></div>
+        <div class="controls" id="video-controls-desktop">
+            <button class="control-btn" id="v-more" onclick="loadMoreVideos()">See More</button>
+            <button class="control-btn" id="v-hide" onclick="hideVideos()" style="display:none;">Hide</button>
+        </div>
+    </section>
+
+    <section id="photos">
+        <h2 class="section-title">PHOTO <span>GALLERY</span></h2>
+        <p class="section-desc">Breathtaking captures and high-quality photography from featured creators.</p>
+        <div id="photo-grid" class="grid"></div>
+        <div class="controls">
+            <button class="control-btn" id="p-more" onclick="loadMorePhotos()">See More</button>
+            <button class="control-btn" id="p-hide" onclick="hidePhotos()" style="display:none;">Hide</button>
+        </div>
+    </section>
+
+    <section id="cta">
+        <h2>JOIN THE <span>COMMUNITY</span></h2>
+        <p>Stay updated with the latest highlights and join our community of creators and fans.</p>
+        <div style="display: flex; gap: 15px; justify-content: center;">
+            <button class="vip-btn" onclick="window.location.href='contact.html'">GET IN TOUCH</button>
+            <button class="vip-btn" style="background: transparent; border: 2px solid #ff0055;" onclick="window.location.href='upload.html'">UPLOAD CONTENT</button>
+        </div>
+    </section>
+
+    <footer class="custom-footer">
+        <div class="footer-container">
+            <div class="footer-left">
+                <p class="newsletter-sub">To always be informed</p>
+                <h2 class="newsletter-title">Join our<br><span>Community.</span></h2>
+                <a href="contact.html" class="subscribe-btn">Subscribe</a>
+            </div>
+
+            <div class="footer-right">
+                <div class="footer-col">
+                    <h4>Explore</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#actresses">Models</a></li>
+                        <li><a href="#videos">Videos</a></li>
+                        <li><a href="#photos">Photos</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Community</h4>
+                    <ul>
+                        <li><a href="upload.html">Upload Content</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="#">Request Creator</a></li>
+                        <li><a href="#">Join Telegram</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">DMCA Policy</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">FAQ</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom-bar">
+            <p class="copyright">© 2026 STAR STREAM. FOR ENTERTAINMENT PURPOSES ONLY.</p>
+            <div class="footer-socials">
+                <a href="#"><i class="ri-facebook-circle-fill"></i></a>
+                <a href="#"><i class="ri-whatsapp-line"></i></a>
+                <a href="#"><i class="ri-twitter-x-line"></i></a>
+                <a href="#"><i class="ri-instagram-line"></i></a>
+            </div>
+        </div>
+    </footer>
+
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6BMo92BLHsaViQjqIVXsz1RThusWr6iRd4BmZuogq1gca1AmbE3Bjwzp7SwvYuu7h/exec';
+        const MY_WORKER_URL = "https://starstream-proxy.rathuuweb.workers.dev";
 
-        window.onload = async () => {
-            try {
-                const res = await fetch(SCRIPT_URL + "?action=getNames");
-                const names = await res.json();
-                const select = document.getElementById('actressSelect');
-                select.innerHTML = '<option value="" disabled selected>Select Model</option>';
-                names.forEach(n => {
-                    select.innerHTML += `<option value="${n}">${n}</option>`;
-                });
-                select.innerHTML += '<option value="NEW">+ ADD NEW MODEL</option>';
-            } catch (e) {
-                console.log("Error loading names. Make sure SCRIPT_URL is correct.");
+        gsap.registerPlugin(ScrollTrigger);
+        
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTr0Iyy40tk0ruBQhi1yYtf4-mh26HPt3eZAZzVqhj62Hk_DH01r41cwvkEY40TWmnC1ZwKjFd03gJa/pub?gid=1227904236&single=true&output=csv'; 
+        let allData = [], shuffledVideos = [], shuffledPhotos = [], names = [];
+        let aIndex = 0, vIndex = 3, pIndex = 3;
+
+        // --- GLOBAL MUTED STATE (Mobile = Muted by default, Desktop = Unmuted by default) ---
+        let globalMuted = window.innerWidth <= 768;
+
+        // --- CUSTOM VIDEO PLAYER EVENTS ---
+        document.addEventListener('click', function(e) {
+            const player = e.target.closest('.modern-video-player');
+            if (!player) return;
+            
+            const video = player.querySelector('video');
+            if (!video) return;
+
+            if (e.target.closest('.mute-toggle')) {
+                globalMuted = !globalMuted;
+                updateAllMuteIcons();
+                return;
             }
-        };
-
-        function toggleMethod() {
-            const method = document.getElementById('uploadMethod').value;
-            if (method === 'file') {
-                document.getElementById('fileUploadSection').style.display = 'block';
-                document.getElementById('tiktokUploadSection').style.display = 'none';
-                document.getElementById('contentType').disabled = false;
-            } else {
-                document.getElementById('fileUploadSection').style.display = 'none';
-                document.getElementById('tiktokUploadSection').style.display = 'block';
-                document.getElementById('contentType').value = 'VIDEO';
-                document.getElementById('contentType').disabled = true;
+            if (e.target.closest('.fullscreen-toggle')) {
+                if (video.requestFullscreen) video.requestFullscreen();
+                else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
+                return;
             }
-        }
+            
+            // Toggle Play/Pause on click anywhere else on video
+            if (video.paused) video.play();
+            else video.pause();
+        });
 
-        function toggleNewFields() {
-            const val = document.getElementById('actressSelect').value;
-            document.getElementById('newActressFields').style.display = (val === 'NEW') ? 'block' : 'none';
-        }
-
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve({
-                    base64: reader.result.split(',')[1],
-                    type: file.type
+        // අලුතින් Video එකක් Play කරද්දි අනිත් ඔක්කොම Auto Pause වෙනවා
+        document.addEventListener('play', function(e) {
+            if (e.target.tagName === 'VIDEO') {
+                // Pause all other videos
+                document.querySelectorAll('video').forEach(v => {
+                    if (v !== e.target && !v.paused) v.pause();
                 });
-                reader.onerror = error => reject(error);
+
+                const player = e.target.closest('.modern-video-player');
+                if (player) {
+                    player.classList.add('is-playing');
+                    player.classList.remove('is-loading'); // ප්ලේ වුණ ගමන් ලෝඩර් එක අයින් වෙනවා
+                    updateAllMuteIcons(); 
+                }
+            }
+        }, true);
+        
+        document.addEventListener('pause', function(e) {
+            if (e.target.tagName === 'VIDEO') {
+                const player = e.target.closest('.modern-video-player');
+                if (player) player.classList.remove('is-playing');
+            }
+        }, true);
+
+        // Custom Loading Effect Events
+        document.addEventListener('waiting', function(e) {
+            if (e.target.tagName === 'VIDEO') {
+                const player = e.target.closest('.modern-video-player');
+                if (player) player.classList.add('is-loading');
+            }
+        }, true);
+
+        document.addEventListener('canplay', function(e) {
+            if (e.target.tagName === 'VIDEO') {
+                const player = e.target.closest('.modern-video-player');
+                if (player) player.classList.remove('is-loading');
+            }
+        }, true);
+
+        document.addEventListener('timeupdate', function(e) {
+            if (e.target.tagName === 'VIDEO') {
+                const player = e.target.closest('.modern-video-player');
+                if (player) {
+                    const progress = (e.target.currentTime / (e.target.duration || 1)) * 100;
+                    const bar = player.querySelector('.progress-fill');
+                    if (bar) bar.style.width = progress + '%';
+                }
+            }
+        }, true);
+
+        document.addEventListener('volumechange', function(e) {
+            if (e.target.tagName === 'VIDEO') {
+                const isMuted = e.target.muted || e.target.volume === 0;
+                if (globalMuted !== isMuted) {
+                    globalMuted = isMuted;
+                    updateAllMuteIcons();
+                }
+            }
+        }, true);
+
+        function updateAllMuteIcons() {
+            document.querySelectorAll('.modern-video-player').forEach(player => {
+                const video = player.querySelector('video');
+                const muteBtn = player.querySelector('.mute-toggle i');
+                if (video && muteBtn) {
+                    video.muted = globalMuted;
+                    muteBtn.className = globalMuted ? 'ri-volume-mute-fill' : 'ri-volume-up-fill';
+                }
             });
         }
 
-        async function upload() {
-            const method = document.getElementById('uploadMethod').value;
-            const contentType = document.getElementById('contentType').value;
-            const actressSelect = document.getElementById('actressSelect').value;
-            const newName = document.getElementById('newName').value;
-            const profilePic = document.getElementById('profilePic').files[0];
+        // --- INTERSECTION OBSERVER (Auto Pause for all, Auto-play only for mobile) ---
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const mediaContainer = entry.target;
+                const isIframe = mediaContainer.tagName === 'IFRAME';
+                const video = isIframe ? mediaContainer : mediaContainer.querySelector('video');
+                
+                if (!video) return;
 
-            if (!actressSelect) return alert("Please select a model.");
-            if (actressSelect === 'NEW' && !newName) return alert("Please enter the new model's name.");
-            if (actressSelect === 'NEW' && !profilePic) return alert("Please select a profile picture for the new model.");
-
-            let files = [];
-            let tkLink = "";
-
-            if (method === 'file') {
-                files = document.getElementById('contentFiles').files;
-                if (files.length === 0) return alert("Please select files to upload.");
-            } else {
-                tkLink = document.getElementById('tiktokLink').value;
-                if (!tkLink) return alert("Please paste a TikTok link.");
-            }
-
-            const btn = document.getElementById('uploadBtn');
-            const progContainer = document.getElementById('progressContainer');
-            const statusText = document.getElementById('statusText');
-            const bar = document.getElementById('progressBar');
-
-            btn.style.display = 'none';
-            progContainer.style.display = 'block';
-
-            try {
-                let profileData = null;
-                if (actressSelect === 'NEW') {
-                    statusText.innerText = "Processing Profile Picture...";
-                    profileData = await fileToBase64(profilePic);
-                }
-
-                if (method === 'tiktok') {
-                    statusText.innerText = "Fetching TikTok Data...";
-                    bar.style.width = '20%';
-
-                    const apiUrl = `https://www.tikwm.com/api/?url=${encodeURIComponent(tkLink)}&hd=1`;
-                    const tkResp = await fetch(apiUrl);
-                    const tkData = await tkResp.json();
-
-                    if (tkData.code !== 0 || !tkData.data || !tkData.data.play) {
-                        throw new Error("Invalid TikTok link or API error");
-                    }
-
-                    statusText.innerText = "Downloading TikTok to Server...";
-                    bar.style.width = '40%';
-
-                    const videoResp = await fetch(tkData.data.play);
-                    const videoBlob = await videoResp.blob();
-
-                    statusText.innerText = "Processing Video Data...";
-                    bar.style.width = '60%';
-
-                    const base64Data = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => resolve(reader.result.split(',')[1]);
-                        reader.onerror = reject;
-                        reader.readAsDataURL(videoBlob);
-                    });
-
-                    statusText.innerText = "Uploading to Drive... (1/1)";
-                    bar.style.width = '80%';
-
-                    const payload = {
-                        name: (actressSelect === 'NEW') ? newName : actressSelect,
-                        type: 'VIDEO',
-                        fileName: `TikTok_${Date.now()}.mp4`,
-                        fileType: videoBlob.type || 'video/mp4',
-                        fileBase64: base64Data
-                    };
-
-                    if (profileData) {
-                        payload.profileBase64 = profileData.base64;
-                        payload.profileType = profileData.type;
-                    }
-
-                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-                    const result = await response.text();
-                    if (!result.includes("Success")) throw new Error(result);
-
-                } else {
-                    for (let i = 0; i < files.length; i++) {
-                        statusText.innerText = `Uploading File ${i + 1} of ${files.length}...`;
-                        bar.style.width = `${((i) / files.length) * 100}%`;
-
-                        const currentFile = files[i];
-                        const mediaData = await fileToBase64(currentFile);
-
-                        const payload = {
-                            name: (actressSelect === 'NEW') ? newName : actressSelect,
-                            type: contentType,
-                            fileName: currentFile.name,
-                            fileType: currentFile.type,
-                            fileBase64: mediaData.base64
-                        };
-
-                        if (i === 0 && profileData) {
-                            payload.profileBase64 = profileData.base64;
-                            payload.profileType = profileData.type;
+                if (window.innerWidth <= 768) { 
+                    // Mobile Mode: Play when visible, Pause when out of view
+                    if (!isIframe) {
+                        if (entry.isIntersecting) {
+                            video.muted = globalMuted;
+                            updateAllMuteIcons(); 
+                            let playPromise = video.play();
+                            if (playPromise !== undefined) {
+                                playPromise.catch(error => {
+                                    video.muted = true;
+                                    globalMuted = true;
+                                    updateAllMuteIcons();
+                                    video.play().catch(e => {});
+                                });
+                            }
+                        } else {
+                            video.pause();
                         }
-
-                        const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-                        const result = await response.text();
-                        if (!result.includes("Success")) throw new Error("Failed to upload file " + (i + 1) + ": " + result);
-
-                        bar.style.width = `${((i + 1) / files.length) * 100}%`;
+                    } else {
+                        if (!entry.isIntersecting) video.src = video.src;
+                    }
+                } else { 
+                    // Desktop Mode: Do NOT auto-play. Just pause if scrolled out of view.
+                    if (!entry.isIntersecting) {
+                        if (!isIframe) video.pause();
+                        else video.src = video.src;
                     }
                 }
+            });
+        }, { threshold: 0.6 }); 
 
-                bar.style.width = '100%';
-                document.getElementById('formView').style.display = 'none';
-                document.getElementById('successView').style.display = 'block';
-
-            } catch (error) {
-                console.error("Upload Error:", error);
-                alert("Error: " + error.message);
-                btn.style.display = 'block';
-                progContainer.style.display = 'none';
-            }
+        function attachVideoObserver() {
+            document.querySelectorAll('.modern-video-player, iframe').forEach(media => {
+                videoObserver.observe(media);
+            });
         }
+        // -----------------------------------------------------------
+
+        function toggleMenu(s) { document.getElementById("mobile-menu").style.display = s ? "flex" : "none"; }
+
+        const loaderTimeout = setTimeout(() => { hideLoader(); }, 6000);
+
+        function hideLoader() {
+            clearTimeout(loaderTimeout);
+            gsap.to("#loader", { opacity: 0, duration: 1, onComplete: () => {
+                document.getElementById("loader").style.display = "none";
+                
+                if (!sessionStorage.getItem('sessionStarted')) {
+                    const disc = document.getElementById("disclaimer-overlay");
+                    disc.style.display = "flex";
+                    gsap.from(disc, {opacity: 0, duration: 0.5});
+                    
+                    window.scrollTo(0, 0);
+                    if(window.location.hash !== '#home') history.replaceState(null, null, '#home');
+                } else {
+                    initScrollAnimations();
+                }
+            }});
+        }
+
+        function closeDisclaimer() {
+            sessionStorage.setItem('sessionStarted', 'true');
+            gsap.to("#disclaimer-overlay", { opacity: 0, duration: 0.5, onComplete: () => {
+                document.getElementById("disclaimer-overlay").style.display = "none";
+                window.scrollTo(0, 0);
+                initScrollAnimations();
+            }});
+        }
+
+        function animateValue(id, start, end, duration) {
+            let obj = document.getElementById(id);
+            if (!obj) return;
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    obj.innerHTML = end;
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function getCols() {
+            if (window.innerWidth <= 768) return 1;
+            const grid = document.getElementById('actress-grid');
+            try {
+                const colsString = window.getComputedStyle(grid).getPropertyValue('grid-template-columns');
+                if (colsString === 'none') return 4;
+                const cols = colsString.trim().split(' ').length;
+                return (cols && !isNaN(cols) && cols > 0) ? cols : 4;
+            } catch (e) { return 4; }
+        }
+
+        async function fetchData() {
+            try {
+                const res = await fetch(CSV_URL);
+                const text = await res.text();
+                const rows = text.split('\n').slice(1);
+                let lastN = "", lastP = "";
+                
+                let tempAllData = rows.map(r => {
+                    const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    let n = c[0]?.replace(/"/g, '').trim() || lastN; lastN = n;
+                    let p = c[1]?.replace(/"/g, '').trim() || lastP; lastP = p;
+                    return { name: n, profile: p, type: c[2]?.trim().toLowerCase(), link: c[3]?.trim() };
+                }).filter(i => i.link);
+
+                const bgData = tempAllData.find(i => i.type === 'background');
+                if (bgData) document.getElementById('home').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url('${bgData.link}')`;
+
+                allData = tempAllData.filter(i => i.type !== 'background');
+                names = [...new Set(allData.map(i => i.name))].sort(() => Math.random() - 0.5);
+                shuffledVideos = allData.filter(i => i.type === 'video').sort(() => Math.random() - 0.5);
+                shuffledPhotos = allData.filter(i => i.type === 'photo').sort(() => Math.random() - 0.5);
+                
+                renderInitial();
+                hideLoader();
+                setupHintRemover();
+
+                setTimeout(() => {
+                    animateValue('count-models', 0, names.length, 2000);
+                    animateValue('count-videos', 0, shuffledVideos.length, 2000);
+                    animateValue('count-photos', 0, shuffledPhotos.length, 2000);
+                }, 500);
+
+            } catch (e) { hideLoader(); }
+        }
+
+        function setupHintRemover() {
+            const aGrid = document.getElementById('actress-grid');
+            const aHint = document.getElementById('a-hint');
+            aGrid.addEventListener('scroll', () => {
+                aHint.style.transition = "0.5s";
+                aHint.style.opacity = "0";
+                setTimeout(() => aHint.style.display = "none", 500);
+            }, { once: true });
+        }
+
+        function renderInitial() {
+            let cols = getCols();
+            aIndex = window.innerWidth <= 768 ? names.length : cols * 2; 
+            document.getElementById('actress-grid').innerHTML = names.slice(0, aIndex).map(n => createCard(n, false)).join('');
+            document.getElementById('video-grid').innerHTML = (window.innerWidth <= 768 ? shuffledVideos : shuffledVideos.slice(0, 3)).map(i => createMediaItem(i, false)).join('');
+            document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
+            
+            if (names.length <= aIndex) document.getElementById('a-more').style.display = 'none';
+            if (shuffledVideos.length <= (window.innerWidth <= 768 ? shuffledVideos.length : 3)) document.getElementById('v-more').style.display = 'none';
+            if (shuffledPhotos.length <= 3) document.getElementById('p-more').style.display = 'none';
+
+            attachVideoObserver();
+        }
+
+        function initScrollAnimations() {
+            gsap.utils.toArray('.section-title, .section-desc').forEach(el => {
+                gsap.fromTo(el, { opacity: 0, y: 30 }, { scrollTrigger: { trigger: el, start: "top 90%" }, opacity: 1, y: 0, duration: 0.8 });
+            });
+            gsap.utils.toArray('.card').forEach((el, index) => {
+                if (index < 10) { 
+                    gsap.fromTo(el, { opacity: 0, y: 40 }, { scrollTrigger: { trigger: el, start: "top 95%" }, opacity: 1, y: 0, duration: 0.8, ease: "power2.out" });
+                } else {
+                    el.style.opacity = 1;
+                    el.style.transform = "none";
+                }
+            });
+        }
+
+        function createCard(name, isNew = false) {
+            const m = allData.find(i => i.name === name);
+            return `<div class="card ${isNew ? 'reveal-card' : ''}">
+                <div class="card-img-wrap"><img src="${getImageUrl(m.profile)}" loading="lazy"></div>
+                <div class="card-info">
+                    <h3>${name}</h3>
+                    <div class="btn-row">
+                        <button class="btn-sm" onclick="openOverlay('${name}', 'video')">VIDEOS</button>
+                        <button class="btn-sm" onclick="openOverlay('${name}', 'photo')">PHOTOS</button>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function createMediaItem(i, isNew = false) {
+            if (i.type === 'video') return `<div class="card ${isNew ? 'reveal-card' : ''}"><div class="video-container">${getVideoElement(i.link)}</div></div>`;
+            return `<div class="card ${isNew ? 'reveal-card' : ''}"><div class="card-img-wrap"><img src="${getImageUrl(i.link)}" loading="lazy"></div></div>`;
+        }
+
+        function openOverlay(name, type) {
+            const filtered = allData.filter(i => i.name === name && i.type === type);
+            document.getElementById('overlay-title').innerHTML = `${name} <span>${type.toUpperCase()}S</span>`;
+            document.getElementById('overlay-grid').innerHTML = filtered.map(i => createMediaItem(i, true)).join('');
+            document.getElementById('media-overlay').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
+            
+            attachVideoObserver();
+        }
+
+        function closeOverlay() {
+            document.getElementById('media-overlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.querySelectorAll('#media-overlay video').forEach(v => v.pause());
+            document.querySelectorAll('#media-overlay iframe').forEach(iframe => iframe.src = iframe.src);
+        }
+
+        function loadMoreActresses() {
+            let cols = getCols();
+            let loadAmount = cols * 2;
+            const set = names.slice(aIndex, aIndex + loadAmount);
+            document.getElementById('actress-grid').insertAdjacentHTML('beforeend', set.map(n => createCard(n, true)).join(''));
+            gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
+            aIndex += loadAmount;
+            if (aIndex >= names.length) document.getElementById('a-more').style.display = 'none';
+            document.getElementById('a-hide').style.display = 'block';
+            setTimeout(() => ScrollTrigger.refresh(), 100);
+        }
+
+        function hideActresses() { 
+            let cols = getCols();
+            aIndex = cols * 2; 
+            document.getElementById('actress-grid').innerHTML = names.slice(0, aIndex).map(n => createCard(n, false)).join('');
+            document.getElementById('a-more').style.display = 'block'; 
+            document.getElementById('a-hide').style.display = 'none'; 
+            ScrollTrigger.refresh(); 
+        }
+
+        function loadMoreVideos() {
+            const set = shuffledVideos.slice(vIndex, vIndex + 3);
+            document.getElementById('video-grid').insertAdjacentHTML('beforeend', set.map(i => createMediaItem(i, true)).join(''));
+            gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
+            vIndex += 3;
+            if (vIndex >= shuffledVideos.length) document.getElementById('v-more').style.display = 'none';
+            document.getElementById('v-hide').style.display = 'block';
+            setTimeout(() => ScrollTrigger.refresh(), 100);
+            
+            attachVideoObserver();
+        }
+
+        function loadMorePhotos() {
+            const set = shuffledPhotos.slice(pIndex, pIndex + 3);
+            document.getElementById('photo-grid').insertAdjacentHTML('beforeend', set.map(i => createMediaItem(i, true)).join(''));
+            gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
+            pIndex += 3;
+            if (pIndex >= shuffledPhotos.length) document.getElementById('p-more').style.display = 'none';
+            document.getElementById('p-hide').style.display = 'block';
+            setTimeout(() => ScrollTrigger.refresh(), 100);
+        }
+
+        function hideVideos() { 
+            vIndex = 3; 
+            document.getElementById('video-grid').innerHTML = shuffledVideos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
+            document.getElementById('v-more').style.display = 'block'; 
+            document.getElementById('v-hide').style.display = 'none'; 
+            ScrollTrigger.refresh(); 
+        }
+        
+        function hidePhotos() { 
+            pIndex = 3; 
+            document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
+            document.getElementById('p-more').style.display = 'block'; 
+            document.getElementById('p-hide').style.display = 'none'; 
+            ScrollTrigger.refresh(); 
+        }
+
+        function getImageUrl(u) {
+            if (u && (u.includes('drive.google.com') || u.includes('docs.google.com'))) {
+                let fileId = u.match(/[-\w]{25,}/);
+                if (fileId) {
+                    return `https://drive.google.com/thumbnail?id=${fileId[0]}&sz=w800`;
+                }
+            }
+            return u; 
+        }
+
+        // --- MODERN CUSTOM VIDEO PLAYER GENERATOR (WITH POSTER & CUSTOM LOADER) ---
+        function getVideoElement(u) {
+            if (u.includes('youtube.com')) {
+                u = u.replace('watch?v=', 'embed/');
+                return `<iframe src="${u}" allowfullscreen loading="lazy"></iframe>`;
+            }
+            
+            let srcUrl = u;
+            let posterUrl = getImageUrl(u); // Drive එකෙන් කෙලින්ම Thumbnail එක අරන් Poster එකට දානවා
+
+            if (u.includes('docs.google.com/uc') || u.includes('drive.google.com')) {
+                let fileIdMatch = u.match(/[-\w]{25,}/);
+                if (fileIdMatch) {
+                    srcUrl = `${MY_WORKER_URL}/?id=${fileIdMatch[0]}`;
+                }
+            }
+
+            let initialMuteState = window.innerWidth <= 768 ? 'muted' : '';
+            let muteIconState = window.innerWidth <= 768 ? 'mute' : 'up';
+
+            return `
+                <div class="modern-video-player">
+                    <div class="custom-loader"></div>
+                    <video src="${srcUrl}#t=2" poster="${posterUrl}" playsinline webkit-playsinline loop preload="metadata" ${initialMuteState} class="custom-video"></video>
+                    
+                    <div class="play-overlay"><i class="ri-play-fill"></i></div>
+                    
+                    <button class="control-icon mute-toggle"><i class="ri-volume-${muteIconState}-fill"></i></button>
+                    <button class="control-icon fullscreen-toggle"><i class="ri-fullscreen-line"></i></button>
+                    
+                    <div class="progress-bar-container">
+                        <div class="progress-fill"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.addEventListener('resize', () => { ScrollTrigger.refresh(); });
+        fetchData();
     </script>
 </body>
 </html>
