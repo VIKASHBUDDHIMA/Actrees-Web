@@ -207,7 +207,6 @@
             let cols = getCols();
             aIndex = window.innerWidth <= 768 ? names.length : cols * 2;
             
-            // වීඩියෝ ඔක්කොම slide වෙන්න ඕන නිසා, mobile එකේදි ඔක්කොම render වෙන්න අරිනවා
             vIndex = window.innerWidth <= 768 ? shuffledVideos.length : cols;
             pIndex = window.innerWidth <= 768 ? shuffledPhotos.length : cols;
 
@@ -219,7 +218,6 @@
             if (shuffledVideos.length <= vIndex) document.getElementById('v-more').disabled = true;
             if (shuffledPhotos.length <= pIndex) document.getElementById('p-more').disabled = true;
 
-            // Smart Sliding Window Buffer එක සක්‍රීය කිරීම
             attachVideoObserver();
         }
 
@@ -268,7 +266,6 @@
             let initialMuteState = window.innerWidth <= 768 ? 'muted' : '';
             let muteIconState = window.innerWidth <= 768 ? 'mute' : 'up';
 
-            // data-src එක ඇතුලේ url එක සුරක්ෂිතව තියනවා. preload="metadata" දාලා Thumbnail එක ගන්නවා.
             return `
                 <div class="modern-video-player">
                     <div class="modern-loader"><span></span><span></span><span></span></div>
@@ -276,8 +273,8 @@
                     
                     <div class="play-overlay"><i class="ri-play-fill"></i></div>
                     
-                    <button class="control-icon mute-toggle"><i class="ri-volume-${muteIconState}-fill\"></i></button>
-                    <button class="control-icon fullscreen-toggle"><i class="ri-fullscreen-line\"></i></button>
+                    <button class="control-icon mute-toggle"><i class="ri-volume-${muteIconState}-fill"></i></button>
+                    <button class="control-icon fullscreen-toggle"><i class="ri-fullscreen-line"></i></button>
                     
                     <div class="progress-bar-container">
                         <div class="progress-fill"></div>
@@ -286,56 +283,62 @@
             `;
         }
 
-        // --- 🟢 SLIDING WINDOW BUFFER LOGIC (NO LAG, NO RE-DOWNLOAD, RESET ON RE-ENTRY) ---
         function attachVideoObserver() {
-            const videoWrappers = document.querySelectorAll('.video-card-wrapper');
+            const videoWrappers = Array.from(document.querySelectorAll('.video-card-wrapper'));
             if (videoWrappers.length === 0) return;
 
             const bufferObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
-                    const wrapper = entry.target;
-                    const video = wrapper.querySelector('video');
-                    if (!video) return;
-
                     if (entry.isIntersecting) {
-                        // 1. මුලින්ම ආවම විතරක් වීඩියෝ එක ඇත්තටම load කරනවා
-                        if (!video.src) {
-                            video.src = video.getAttribute('data-src');
-                            video.load();
-                        }
+                        const activeWrapper = entry.target;
+                        const activeIndex = videoWrappers.indexOf(activeWrapper);
+                        if (activeIndex === -1) return;
 
-                        // Player එක ලෑස්ති වුණාම Loader එක අයින් කරන්න
-                        video.onloadeddata = () => {
-                            video.closest('.modern-video-player').classList.add('is-loaded');
-                        };
+                        videoWrappers.forEach((wrapper, idx) => {
+                            const video = wrapper.querySelector('video');
+                            if (!video) return;
 
-                        // Mobile Autoplay පාලනය
-                        if (window.innerWidth <= 768) {
-                            video.muted = globalMuted;
-                            updateAllMuteIcons();
-                            
-                            // කලින් බලලා ආපහු මේ වීඩියෝ එකට එද්දි, මුල ඉඳන්ම ප්ලේ වෙන්න කාලය 0 කරනවා
-                            video.currentTime = 0; 
-                            
-                            let playPromise = video.play();
-                            if (playPromise !== undefined) {
-                                playPromise.then(() => {
-                                    video.closest('.modern-video-player').classList.add('is-playing');
-                                }).catch(e => {});
+                            const player = video.closest('.modern-video-player');
+                            const dataSrc = video.getAttribute('data-src');
+
+                            if (Math.abs(idx - activeIndex) <= 1) {
+                                if (!video.src || video.src !== dataSrc) {
+                                    video.src = dataSrc;
+                                    video.load();
+                                }
+
+                                video.onloadeddata = () => {
+                                    player.classList.add('is-loaded');
+                                };
+
+                                if (idx === activeIndex) {
+                                    video.muted = globalMuted;
+                                    updateAllMuteIcons();
+                                    
+                                    video.currentTime = 0; 
+                                    
+                                    let playPromise = video.play();
+                                    if (playPromise !== undefined) {
+                                        playPromise.then(() => {
+                                            player.classList.add('is-playing');
+                                        }).catch(e => {});
+                                    }
+                                } else {
+                                    video.pause();
+                                    player.classList.remove('is-playing');
+                                }
+                            } else {
+                                if (video.src) {
+                                    video.pause();
+                                    video.removeAttribute('src');
+                                    video.load();
+                                    player.classList.remove('is-playing', 'is-loaded');
+                                }
                             }
-                        }
-                    } else {
-                        // 2. වීඩියෝ එකෙන් අයින් වෙලා slide කරද්දි
-                        if (video.src) {
-                            video.pause();
-                            video.closest('.modern-video-player').classList.remove('is-playing');
-                            
-                            // 🛑 වැදගත්: src එක අයින් කරන්නේ නෑ! ඒ වෙනුවට ළඟම තියන ඒවා විතරක් memory එකේ තියනවා.
-                            // ගොඩක් ඈතට ගියොත් browser එකම memory එක කළමනාකරණය කරගන්නවා src එක එහෙම්මම තියෙද්දි.
-                        }
+                        });
                     }
                 });
-            }, { threshold: 0.5 }); // 50% ක් සක්‍රීය වුණාම වැඩ කරයි
+            }, { threshold: 0.5 });
 
             videoWrappers.forEach(wrapper => bufferObserver.observe(wrapper));
         }
@@ -346,10 +349,10 @@
             if (!video) return;
 
             const player = video.closest('.modern-video-player');
+            const dataSrc = video.getAttribute('data-src');
 
-            // Click කරපු වෙලාවට විතරක් src එක නැත්නම් load කරනවා (Desktop)
-            if (!video.src) {
-                video.src = video.getAttribute('data-src');
+            if (!video.src || video.src !== dataSrc) {
+                video.src = dataSrc;
                 video.load();
                 player.classList.add('is-loaded');
             }
