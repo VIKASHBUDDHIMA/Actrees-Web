@@ -623,27 +623,23 @@
             });
         }, { threshold: 0.3, rootMargin: '100px' });
 
-        // --- MOBILE SCROLL SENTINEL: loads more videos as user slides near end ---
-        const mobileScrollSentinelObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting && window.innerWidth <= 768 && !mobileLoadingMore) {
+        // --- MOBILE INFINITE SCROLL: scroll event based (IntersectionObserver horizontal container එකේ work නෑ) ---
+        function setupMobileVideoScroll() {
+            const grid = document.getElementById('video-grid');
+            if (!grid) return;
+            grid.addEventListener('scroll', function onMobileVideoScroll() {
+                if (window.innerWidth > 768) return;
+                if (mobileLoadingMore) return;
+                if (mobileVIndex >= shuffledVideos.length) {
+                    grid.removeEventListener('scroll', onMobileVideoScroll);
+                    return;
+                }
+                // Last card ලඟ 1.5 cards width ඇතිනම් load
+                const scrollRight = grid.scrollWidth - grid.scrollLeft - grid.clientWidth;
+                if (scrollRight < grid.clientWidth * 1.5) {
                     mobileFetchMoreVideos();
                 }
             });
-        }, { threshold: 0.1 });
-
-        function setupMobileScrollSentinel() {
-            // Remove old sentinel if any
-            const old = document.getElementById('mobile-video-sentinel');
-            if (old) { mobileScrollSentinelObserver.unobserve(old); old.remove(); }
-
-            if (mobileVIndex >= shuffledVideos.length) return; // all loaded
-
-            const sentinel = document.createElement('div');
-            sentinel.id = 'mobile-video-sentinel';
-            sentinel.style.cssText = 'width:20px;height:100%;flex-shrink:0;';
-            document.getElementById('video-grid').appendChild(sentinel);
-            mobileScrollSentinelObserver.observe(sentinel);
         }
 
         function mobileFetchMoreVideos() {
@@ -651,15 +647,13 @@
             mobileLoadingMore = true;
 
             const grid = document.getElementById('video-grid');
-            const sentinel = document.getElementById('mobile-video-sentinel');
             const batch = shuffledVideos.slice(mobileVIndex, mobileVIndex + MOBILE_BATCH);
 
             batch.forEach(item => {
                 const div = document.createElement('div');
                 div.innerHTML = createMediaItem(item, false);
                 const card = div.firstElementChild;
-                if (sentinel) grid.insertBefore(card, sentinel);
-                else grid.appendChild(card);
+                grid.appendChild(card);
                 // observe newly added video players
                 const player = card.querySelector('.modern-video-player');
                 if (player) videoObserver.observe(player);
@@ -667,9 +661,6 @@
 
             mobileVIndex += MOBILE_BATCH;
             mobileLoadingMore = false;
-
-            // re-setup sentinel (move it to end)
-            setupMobileScrollSentinel();
         }
 
         function attachVideoObserver() {
@@ -789,10 +780,11 @@
             document.getElementById('actress-grid').innerHTML = names.slice(0, aIndex).map(n => createCard(n, false)).join('');
 
             if (isMobile) {
-                // Mobile: start with first batch, sentinel handles rest
+                // Mobile: start with first batch, scroll event handles rest
                 mobileVIndex = 0;
                 document.getElementById('video-grid').innerHTML = '';
                 mobileFetchMoreVideos(); // loads first MOBILE_BATCH videos
+                setupMobileVideoScroll(); // scroll listener for infinite load
                 // No see more/hide buttons on mobile for videos
             } else {
                 // PC: original behaviour — 3 videos, see more button
@@ -943,12 +935,12 @@
             let initialMuteState = window.innerWidth <= 768 ? 'muted' : '';
             let muteIconState = window.innerWidth <= 768 ? 'mute' : 'up';
 
-            // preload="none" + data-src: no background download.
-            // Observer sets src + #t=0.1 when card is visible → thumbnail = first frame.
+            // preload="metadata" → browser first frame (thumbnail) load කරනවා, full video download නෑ
+            // data-src lazy: screen ලඟ ආවාම src set → #t=0.1 thumbnail visible
             return `
                 <div class="modern-video-player">
                     <div class="modern-loader"><span></span><span></span><span></span></div>
-                    <video data-src="${srcUrl}" playsinline webkit-playsinline loop preload="none" ${initialMuteState} class="custom-video"></video>
+                    <video data-src="${srcUrl}" playsinline webkit-playsinline loop preload="metadata" ${initialMuteState} class="custom-video"></video>
                     
                     <div class="play-overlay"><i class="ri-play-fill"></i></div>
                     
