@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -408,110 +408,110 @@
 
     <script>
         // මේකට අලුතෙන් ගත්තු Web App URL එක දාන්න
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx6BMo92BLHsaViQjqIVXsz1RThusWr6iRd4BmZuogq1gca1AmbE3Bjwzp7SwvYuu7h/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx6BMo92BLHsaViQjqIVXsz1RThusWr6iRd4BmZuogq1gca1AmbE3Bjwzp7SwvYuu7h/exec";
 
-async function handleUpload() {
-    const btn = document.getElementById('uploadBtn');
-    const progContainer = document.getElementById('progressContainer');
-    const bar = document.getElementById('progressBar');
+        async function handleUpload() {
+            const btn = document.getElementById('uploadBtn');
+            const progContainer = document.getElementById('progressContainer');
+            const bar = document.getElementById('progressBar');
 
-    const actressSelect = document.getElementById('actressSelect').value;
-    const newName = document.getElementById('newActressName').value.trim();
-    const contentType = document.getElementById('contentType').value;
-    const mediaFiles = document.getElementById('mediaFile').files;
-    const profileFile = document.getElementById('profileFile').files[0];
+            const actressSelect = document.getElementById('actressSelect').value;
+            const newName = document.getElementById('newActressName').value.trim();
+            const contentType = document.getElementById('contentType').value;
+            const mediaFiles = document.getElementById('mediaFile').files;
+            const profileFile = document.getElementById('profileFile').files[0];
 
-    if (actressSelect === 'NEW' && !newName) return alert("කරුණාකර නම ඇතුලත් කරන්න");
-    if (mediaFiles.length === 0) return alert("කරුණාකර වීඩියෝ එකක් තෝරන්න");
+            if (actressSelect === 'NEW' && !newName) return alert("කරුණාකර නම ඇතුලත් කරන්න");
+            if (mediaFiles.length === 0) return alert("කරුණාකර වීඩියෝ එකක් තෝරන්න");
 
-    const currentFile = mediaFiles[0];
+            const currentFile = mediaFiles[0];
     
-    // වීඩියෝ එක 200MB වලට වඩා වැඩිද බලනවා (Catbox Free Limit එක)
-    if (currentFile.size > 200 * 1024 * 1024) {
-        return alert("වීඩියෝ එක 200MB වලට වඩා වැඩියි. කරුණාකර කුඩා වීඩියෝවක් තෝරන්න.");
-    }
+            // වීඩියෝ එක 200MB වලට වඩා වැඩිද බලනවා (Catbox Free Limit එක)
+            if (currentFile.size > 200 * 1024 * 1024) {
+                return alert("වීඩියෝ එක 200MB වලට වඩා වැඩියි. කරුණාකර කුඩා වීඩියෝවක් තෝරන්න.");
+            }
 
-    btn.style.display = 'none';
-    progContainer.style.display = 'block';
-    bar.style.width = '0%';
-    bar.innerText = '0%';
+            btn.style.display = 'none';
+            progContainer.style.display = 'block';
+            bar.style.width = '0%';
+            bar.innerText = '0%';
 
-    try {
-        // 1. Profile Image එක තිබේ නම් Base64 කරගැනීම
-        let profileData = null;
-        if (actressSelect === 'NEW' && profileFile) {
-            profileData = await new Promise((res) => {
-                const r = new FileReader();
-                r.onload = () => res({ base64: r.result.split(',')[1], type: profileFile.type });
-                r.readAsDataURL(profileFile);
-            });
-        }
-
-        // 2. වීඩියෝ එක Catbox එකට අප්ලෝඩ් කිරීම (Progress Bar එකත් එක්ක)
-        const catboxUrl = await new Promise((resolve, reject) => {
-            const formData = new FormData();
-            formData.append('reqtype', 'fileupload');
-            formData.append('fileToUpload', currentFile);
-
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'https://catbox.moe/user/api.php', true);
-
-            xhr.upload.onprogress = function(e) {
-                if (e.lengthComputable) {
-                    const percentComplete = Math.round((e.loaded / e.total) * 100);
-                    bar.style.width = percentComplete + '%';
-                    bar.innerText = percentComplete + '%';
+            try {
+                // 1. Profile Image එක තිබේ නම් Base64 කරගැනීම
+                let profileData = null;
+                if (actressSelect === 'NEW' && profileFile) {
+                    profileData = await new Promise((res) => {
+                        const r = new FileReader();
+                        r.onload = () => res({ base64: r.result.split(',')[1], type: profileFile.type });
+                        r.readAsDataURL(profileFile);
+                    });
                 }
-            };
 
-            xhr.onload = function() {
-                if (xhr.status === 200) {
+                // 2. වීඩියෝ එක Catbox එකට අප්ලෝඩ් කිරීම (Progress Bar එකත් එක්ක)
+                const catboxUrl = await new Promise((resolve, reject) => {
+                    const formData = new FormData();
+                    formData.append('reqtype', 'fileupload');
+                    formData.append('fileToUpload', currentFile);
+
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', 'https://catbox.moe/user/api.php', true);
+
+                    xhr.upload.onprogress = function(e) {
+                        if (e.lengthComputable) {
+                            const percentComplete = Math.round((e.loaded / e.total) * 100)
+                            bar.style.width = percentComplete + '%';
+                            bar.innerText = percentComplete + '%';
+                        }
+                    };
+
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
                     // Catbox එකෙන් කෙලින්ම Direct Link එක Text එකක් විදිහට දෙනවා
-                    resolve(xhr.responseText); 
-                } else {
-                    reject(new Error("Catbox Upload Failed!"));
-                }
-            };
-            xhr.onerror = () => reject(new Error("Network Error during upload"));
-            xhr.send(formData);
-        });
+                            resolve(xhr.responseText); 
+                        } else {
+                            reject(new Error("Catbox Upload Failed!"));
+                        }
+                    };
+                    xhr.onerror = () => reject(new Error("Network Error during upload"));
+                    xhr.send(formData);
+                    });
 
-        bar.innerText = 'Saving Data...';
+                    bar.innerText = 'Saving Data...';
 
-        // 3. ලැබුණු Catbox Link එකයි අනිත් විස්තරයි Google Sheet එකට යැවීම
-        const metadataPayload = {
-            action: 'saveMetadata',
-            name: (actressSelect === 'NEW') ? newName : actressSelect,
-            type: contentType,
-            videoUrl: catboxUrl, // මේක තමයි අපේ අලුත් Direct Mp4 Link එක!
-            profileBase64: profileData ? profileData.base64 : null,
-            profileType: profileData ? profileData.type : null
-        };
+                    // 3. ලැබුණු Catbox Link එකයි අනිත් විස්තරයි Google Sheet එකට යැවීම
+              const metadataPayload = {
+                    action: 'saveMetadata',
+                    name: (actressSelect === 'NEW') ? newName : actressSelect,
+                    type: contentType,
+                    videoUrl: catboxUrl, // මේක තමයි අපේ අලුත් Direct Mp4 Link එක!
+                    profileBase64: profileData ? profileData.base64 : null,
+                    profileType: profileData ? profileData.type : null
+                    };
 
-        const finalResponse = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify(metadataPayload)
-        });
-        
-        const finalResult = await finalResponse.text();
-        
-        if (!finalResult.includes("Success")) throw new Error("Sheet Save Error: " + finalResult);
-
-        // සාර්ථකයි!
-        bar.style.width = '100%';
-        bar.innerText = 'Upload Complete!';
-        setTimeout(() => {
-            document.getElementById('formView').style.display = 'none';
-            document.getElementById('successView').style.display = 'block';
-        }, 1000);
-
-    } catch (error) {
-        console.error(error);
-        alert("දෝෂයක් මතු විය: " + error.message);
-        btn.style.display = 'block';
-        progContainer.style.display = 'none';
+              const finalResponse = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(metadataPayload)
+                    });
+                
+                    const finalResult = await finalResponse.text();
+            
+                    if (!finalResult.includes("Success")) throw new Error("Sheet Save Error: " + finalResult);
+    
+                // සාර්ථකයි!
+                    bar.style.width = '100%';
+                    bar.innerText = 'Upload Complete!';
+                    setTimeout(() => {
+                    document.getElementById('formView').style.display = 'none';
+                    document.getElementById('successView').style.display = 'block';
+                    }, 1000);
+    
+                    } catch (error) {
+                    console.error(error);
+                    alert("දෝෂයක් මතු විය: " + error.message);
+                    btn.style.display = 'block';
+                    progContainer.style.display = 'none';
+        }
     }
-}
     </script>
 </body>
 </html>
