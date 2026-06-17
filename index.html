@@ -455,145 +455,179 @@
         </div>
     </footer>
 
-    <script>
-        const MY_WORKER_URL = "https://starstream-proxy.rathuuweb.workers.dev";
+ <script>
+    const MY_WORKER_URL = "https://starstream-proxy.rathuuweb.workers.dev";
+    
+    // 1. ඔබේ Telegram Bot Token එක මෙතැනට ඇතුලත් කරන්න
+    const BOT_TOKEN = "8974378669:AAE3fxJa-OdGUi9HXiKkPu9b7SC8QeUXp4Q"; 
 
-        gsap.registerPlugin(ScrollTrigger);
+    gsap.registerPlugin(ScrollTrigger);
+    
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTr0Iyy40tk0ruBQhi1yYtf4-mh26HPt3eZAZzVqhj62Hk_DH01r41cwvkEY40TWmnC1ZwKjFd03gJa/pub?gid=1227904236&single=true&output=csv'; 
+    let allData = [], shuffledVideos = [], shuffledPhotos = [], names = [];
+    let aIndex = 0, vIndex = 3, pIndex = 3;
+
+    // --- Mobile video infinite scroll tracking ---
+    // obile mode: videos load on demand as user slides near the end
+    let mobileVIndex = 0;         // how many videos loaded so far on mobile
+    const MOBILE_BATCH = 5;       // load 5 videos at a time on mobile
+    let mobileLoadingMore = false; // prevent duplicate loads
+
+    // --- SMART MUTE STATE ---
+    let globalMuted = window.innerWidth <= 768; // Desktop = Unmuted, Mobile = Muted initially
+    let hasUserUnmuted = !globalMuted; // True on desktop, False on mobile initially
+
+    // --- CUSTOM VIDEO PLAYER EVENTS ---
+    document.addEventListener('click', function(e) {
+        const player = e.target.closest('.modern-video-player');
+        if (!player) return;
         
-        let vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
+        const video = player.querySelector('video');
+        if (!video) return;
 
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTr0Iyy40tk0ruBQhi1yYtf4-mh26HPt3eZAZzVqhj62Hk_DH01r41cwvkEY40TWmnC1ZwKjFd03gJa/pub?gid=1227904236&single=true&output=csv'; 
-        let allData = [], shuffledVideos = [], shuffledPhotos = [], names = [];
-        let aIndex = 0, vIndex = 3, pIndex = 3;
-
-        // --- Mobile video infinite scroll tracking ---
-        // obile mode: videos load on demand as user slides near the end
-        let mobileVIndex = 0;         // how many videos loaded so far on mobile
-        const MOBILE_BATCH = 5;       // load 5 videos at a time on mobile
-        let mobileLoadingMore = false; // prevent duplicate loads
-
-        // --- SMART MUTE STATE ---
-        let globalMuted = window.innerWidth <= 768; // Desktop = Unmuted, Mobile = Muted initially
-        let hasUserUnmuted = !globalMuted; // True on desktop, False on mobile initially
-
-        // --- CUSTOM VIDEO PLAYER EVENTS ---
-        document.addEventListener('click', function(e) {
-            const player = e.target.closest('.modern-video-player');
-            if (!player) return;
-            
-            const video = player.querySelector('video');
-            if (!video) return;
-
-            // Mute Toggle Button Click
-            if (e.target.closest('.mute-toggle')) {
-                globalMuted = !globalMuted;
-                if (!globalMuted) hasUserUnmuted = true;
-                updateAllMuteIcons();
-                return;
-            }
-            
-            // Fullscreen Toggle
-            if (e.target.closest('.fullscreen-toggle')) {
-                if (video.requestFullscreen) video.requestFullscreen();
-                else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
-                return;
-            }
-            
-            // Toggle Play/Pause when clicking on video
-            if (video.paused) video.play();
-            else video.pause();
-        });
-
-        // Single Play Logic: one video plays at a time
-        document.addEventListener('play', function(e) {
-            if (e.target.tagName === 'VIDEO') {
-                document.querySelectorAll('video').forEach(v => {
-                    if (v !== e.target && !v.paused) v.pause();
-                });
-
-                const player = e.target.closest('.modern-video-player');
-                if (player) {
-                    player.classList.add('is-playing');
-                    player.classList.remove('is-loading'); 
-                    updateAllMuteIcons(); 
-                }
-            }
-        }, true);
-        
-        document.addEventListener('pause', function(e) {
-            if (e.target.tagName === 'VIDEO') {
-                const player = e.target.closest('.modern-video-player');
-                if (player) player.classList.remove('is-playing');
-            }
-        }, true);
-
-        // Loading Animations Event Setup
-        document.addEventListener('waiting', function(e) {
-            if (e.target.tagName === 'VIDEO') {
-                const player = e.target.closest('.modern-video-player');
-                if (player) player.classList.add('is-loading');
-            }
-        }, true);
-
-        document.addEventListener('canplay', function(e) {
-            if (e.target.tagName === 'VIDEO') {
-                const player = e.target.closest('.modern-video-player');
-                if (player) player.classList.remove('is-loading');
-            }
-        }, true);
-
-        // Progress Bar Updater
-        document.addEventListener('timeupdate', function(e) {
-            if (e.target.tagName === 'VIDEO') {
-                const player = e.target.closest('.modern-video-player');
-                if (player) {
-                    const progress = (e.target.currentTime / (e.target.duration || 1)) * 100;
-                    const bar = player.querySelector('.progress-fill');
-                    if (bar) bar.style.width = progress + '%';
-                }
-            }
-        }, true);
-
-        // Global Mute Memory Updater
-        document.addEventListener('volumechange', function(e) {
-            if (e.target.tagName === 'VIDEO') {
-                const isMuted = e.target.muted || e.target.volume === 0;
-                if (globalMuted !== isMuted) {
-                    globalMuted = isMuted;
-                    if (!isMuted) hasUserUnmuted = true;
-                    updateAllMuteIcons();
-                }
-            }
-        }, true);
-
-        function updateAllMuteIcons() {
-            document.querySelectorAll('.modern-video-player').forEach(player => {
-                const video = player.querySelector('video');
-                const muteBtn = player.querySelector('.mute-toggle i');
-                if (video && muteBtn) {
-                    video.muted = globalMuted;
-                    muteBtn.className = globalMuted ? 'ri-volume-mute-fill' : 'ri-volume-up-fill';
-                }
-            });
+        // Mute Toggle Button Click
+        if (e.target.closest('.mute-toggle')) {
+            globalMuted = !globalMuted;
+            if (!globalMuted) hasUserUnmuted = true;
+            updateAllMuteIcons();
+            return;
         }
+        
+        // Fullscreen Toggle
+        if (e.target.closest('.fullscreen-toggle')) {
+            if (video.requestFullscreen) video.requestFullscreen();
+            else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
+            return;
+        }
+        
+        // Toggle Play/Pause when clicking on video
+        if (video.paused) video.play();
+        else video.pause();
+    });
 
-        // --- INTERSECTION OBSERVER (LAZY SRC LOAD + MOBILE AUTOPLAY) ---
-        const videoObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const mediaContainer = entry.target;
-                const isIframe = mediaContainer.tagName === 'IFRAME';
-                const video = isIframe ? null : mediaContainer.querySelector('video');
+    // Single Play Logic: one video plays at a time
+    document.addEventListener('play', function(e) {
+        if (e.target.tagName === 'VIDEO') {
+            document.querySelectorAll('video').forEach(v => {
+                if (v !== e.target && !v.paused) v.pause();
+            });
 
-                if (entry.isIntersecting) {
-                    if (video) {
-                        // Lazy src: data-src → src only when visible (thumbnail = first frame via #t=0.1)
-                        if (video.dataset.src) {
-                            video.src = video.dataset.src + '#t=0.1';
-                            delete video.dataset.src;
-                        }
+            const player = e.target.closest('.modern-video-player');
+            if (player) {
+                player.classList.add('is-playing');
+                player.classList.remove('is-loading'); 
+                updateAllMuteIcons(); 
+            }
+        }
+    }, true);
+    
+    document.addEventListener('pause', function(e) {
+        if (e.target.tagName === 'VIDEO') {
+            const player = e.target.closest('.modern-video-player');
+            if (player) player.classList.remove('is-playing');
+        }
+    }, true);
 
-                        // Mobile: autoplay + reset to beginning on each visit
+    // Loading Animations Event Setup
+    document.addEventListener('waiting', function(e) {
+        if (e.target.tagName === 'VIDEO') {
+            const player = e.target.closest('.modern-video-player');
+            if (player) player.classList.add('is-loading');
+        }
+    }, true);
+
+    document.addEventListener('canplay', function(e) {
+        if (e.target.tagName === 'VIDEO') {
+            const player = e.target.closest('.modern-video-player');
+            if (player) player.classList.remove('is-loading');
+        }
+    }, true);
+
+    // Progress Bar Updater
+    document.addEventListener('timeupdate', function(e) {
+        if (e.target.tagName === 'VIDEO') {
+            const player = e.target.closest('.modern-video-player');
+            if (player) {
+                const progress = (e.target.currentTime / (e.target.duration || 1)) * 100;
+                const bar = player.querySelector('.progress-fill');
+                if (bar) bar.style.width = progress + '%';
+            }
+        }
+    }, true);
+
+    // Global Mute Memory Updater
+    document.addEventListener('volumechange', function(e) {
+        if (e.target.tagName === 'VIDEO') {
+            const isMuted = e.target.muted || e.target.volume === 0;
+            if (globalMuted !== isMuted) {
+                globalMuted = isMuted;
+                if (!isMuted) hasUserUnmuted = true;
+                updateAllMuteIcons();
+            }
+        }
+    }, true);
+
+    function updateAllMuteIcons() {
+        document.querySelectorAll('.modern-video-player').forEach(player => {
+            const video = player.querySelector('video');
+            const muteBtn = player.querySelector('.mute-toggle i');
+            if (video && muteBtn) {
+                video.muted = globalMuted;
+                muteBtn.className = globalMuted ? 'ri-volume-mute-fill' : 'ri-volume-up-fill';
+            }
+        });
+    }
+
+    // --- INTERSECTION OBSERVER (LAZY SRC LOAD + MOBILE AUTOPLAY) ---
+    const videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const mediaContainer = entry.target;
+            const isIframe = mediaContainer.tagName === 'IFRAME';
+            const video = isIframe ? null : mediaContainer.querySelector('video');
+
+            if (entry.isIntersecting) {
+                if (video) {
+                    // Lazy src: data-src වල තියෙන Telegram File ID එක, වීඩියෝව ස්ක්‍රීන් එකට එන විට Stream URL එකක් බවට හැරවීම
+                    if (video.dataset.src) {
+                        const fileId = video.dataset.src;
+                        mediaContainer.classList.add('is-loading'); // Telegram එකෙන් ලින්ක් එක ගන්නකන් ලෝඩර් එක පෙන්වීම
+                        
+                        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${fileId}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.ok) {
+                                    const videoUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${data.result.file_path}`;
+                                    video.src = videoUrl + '#t=0.1';
+                                    delete video.dataset.src;
+                                    mediaContainer.classList.remove('is-loading');
+                                    
+                                    // Mobile: autoplay + reset to beginning on each visit
+                                    if (window.innerWidth <= 768) {
+                                        video.currentTime = 0;
+                                        video.muted = globalMuted;
+                                        updateAllMuteIcons();
+                                        let playPromise = video.play();
+                                        if (playPromise !== undefined) {
+                                            playPromise.catch(() => {
+                                                if (!hasUserUnmuted) {
+                                                    video.muted = true;
+                                                    globalMuted = true;
+                                                    updateAllMuteIcons();
+                                                    video.play().catch(() => {});
+                                                }
+                                            });
+                                        }
+                                    }
+                                } else {
+                                    console.error("Telegram API Error:", data.description);
+                                }
+                            })
+                            .catch(err => console.error("Telegram Fetch Error:", err));
+                    } else {
+                        // දැනටමත් ලින්ක් එක ලෝඩ් වී ඇති වීඩියෝ සඳහා මුල් ලොජික් එකම ක්‍රියාත්මක වේ
                         if (window.innerWidth <= 768) {
                             video.currentTime = 0;
                             video.muted = globalMuted;
@@ -611,351 +645,347 @@
                             }
                         }
                     }
-                } else {
-                    // Off screen: pause (keep src loaded — no re-download)
-                    if (video) {
-                        video.pause();
-                        mediaContainer.classList.remove('is-playing', 'is-loading');
-                    } else if (isIframe) {
-                        mediaContainer.src = mediaContainer.src;
-                    }
                 }
-            });
-        }, { threshold: 0.3, rootMargin: '100px' });
-
-        // --- MOBILE INFINITE SCROLL: scroll event based (IntersectionObserver horizontal container එකේ work නෑ) ---
-        function setupMobileVideoScroll() {
-            const grid = document.getElementById('video-grid');
-            if (!grid) return;
-            grid.addEventListener('scroll', function onMobileVideoScroll() {
-                if (window.innerWidth > 768) return;
-                if (mobileLoadingMore) return;
-                if (mobileVIndex >= shuffledVideos.length) {
-                    grid.removeEventListener('scroll', onMobileVideoScroll);
-                    return;
-                }
-                // Last card ලඟ 1.5 cards width ඇතිනම් load
-                const scrollRight = grid.scrollWidth - grid.scrollLeft - grid.clientWidth;
-                if (scrollRight < grid.clientWidth * 1.5) {
-                    mobileFetchMoreVideos();
-                }
-            });
-        }
-
-        function mobileFetchMoreVideos() {
-            if (mobileVIndex >= shuffledVideos.length) return;
-            mobileLoadingMore = true;
-
-            const grid = document.getElementById('video-grid');
-            const batch = shuffledVideos.slice(mobileVIndex, mobileVIndex + MOBILE_BATCH);
-
-            batch.forEach(item => {
-                const div = document.createElement('div');
-                div.innerHTML = createMediaItem(item, false);
-                const card = div.firstElementChild;
-                grid.appendChild(card);
-                // observe newly added video players
-                const player = card.querySelector('.modern-video-player');
-                if (player) videoObserver.observe(player);
-            });
-
-            mobileVIndex += MOBILE_BATCH;
-            mobileLoadingMore = false;
-        }
-
-        function attachVideoObserver() {
-            document.querySelectorAll('.modern-video-player, iframe').forEach(media => {
-                videoObserver.observe(media);
-            });
-        }
-
-        function toggleMenu(s) { document.getElementById("mobile-menu").style.display = s ? "flex" : "none"; }
-
-        const loaderTimeout = setTimeout(() => { hideLoader(); }, 6000);
-
-        function hideLoader() {
-            clearTimeout(loaderTimeout);
-            gsap.to("#loader", { opacity: 0, duration: 1, onComplete: () => {
-                document.getElementById("loader").style.display = "none";
-                
-                if (!sessionStorage.getItem('sessionStarted')) {
-                    const disc = document.getElementById("disclaimer-overlay");
-                    disc.style.display = "flex";
-                    gsap.from(disc, {opacity: 0, duration: 0.5});
-                    
-                    window.scrollTo(0, 0);
-                    if(window.location.hash !== '#home') history.replaceState(null, null, '#home');
-                } else {
-                    initScrollAnimations();
-                }
-            }});
-        }
-
-        function closeDisclaimer() {
-            sessionStorage.setItem('sessionStarted', 'true');
-            gsap.to("#disclaimer-overlay", { opacity: 0, duration: 0.5, onComplete: () => {
-                document.getElementById("disclaimer-overlay").style.display = "none";
-                window.scrollTo(0, 0);
-                initScrollAnimations();
-            }});
-        }
-
-        function animateValue(id, start, end, duration) {
-            let obj = document.getElementById(id);
-            if (!obj) return;
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                obj.innerHTML = Math.floor(progress * (end - start) + start);
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                } else {
-                    obj.innerHTML = end;
-                }
-            };
-            window.requestAnimationFrame(step);
-        }
-
-        function getCols() {
-            if (window.innerWidth <= 768) return 1;
-            const grid = document.getElementById('actress-grid');
-            try {
-                const colsString = window.getComputedStyle(grid).getPropertyValue('grid-template-columns');
-                if (colsString === 'none') return 4;
-                const cols = colsString.trim().split(' ').length;
-                return (cols && !isNaN(cols) && cols > 0) ? cols : 4;
-            } catch (e) { return 4; }
-        }
-
-        async function fetchData() {
-            try {
-                const res = await fetch(CSV_URL);
-                const text = await res.text();
-                const rows = text.split('\n').slice(1);
-                let lastN = "", lastP = "";
-                
-                let tempAllData = rows.map(r => {
-                    const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    let n = c[0]?.replace(/"/g, '').trim() || lastN; lastN = n;
-                    let p = c[1]?.replace(/"/g, '').trim() || lastP; lastP = p;
-                    return { name: n, profile: p, type: c[2]?.trim().toLowerCase(), link: c[3]?.trim() };
-                }).filter(i => i.link);
-
-                const bgData = tempAllData.find(i => i.type === 'background');
-                if (bgData) document.getElementById('home').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url('${bgData.link}')`;
-
-                allData = tempAllData.filter(i => i.type !== 'background');
-                names = [...new Set(allData.map(i => i.name))].sort(() => Math.random() - 0.5);
-                shuffledVideos = allData.filter(i => i.type === 'video').sort(() => Math.random() - 0.5);
-                shuffledPhotos = allData.filter(i => i.type === 'photo').sort(() => Math.random() - 0.5);
-                
-                renderInitial();
-                hideLoader();
-                setupHintRemover();
-
-                setTimeout(() => {
-                    animateValue('count-models', 0, names.length, 2000);
-                    animateValue('count-videos', 0, shuffledVideos.length, 2000);
-                    animateValue('count-photos', 0, shuffledPhotos.length, 2000);
-                }, 500);
-
-            } catch (e) { hideLoader(); }
-        }
-
-        function setupHintRemover() {
-            const aGrid = document.getElementById('actress-grid');
-            const aHint = document.getElementById('a-hint');
-            aGrid.addEventListener('scroll', () => {
-                aHint.style.transition = "0.5s";
-                aHint.style.opacity = "0";
-                setTimeout(() => aHint.style.display = "none", 500);
-            }, { once: true });
-        }
-
-        function renderInitial() {
-            const isMobile = window.innerWidth <= 768;
-            let cols = getCols();
-            aIndex = isMobile ? names.length : cols * 2; 
-            document.getElementById('actress-grid').innerHTML = names.slice(0, aIndex).map(n => createCard(n, false)).join('');
-
-            if (isMobile) {
-                // Mobile: start with first batch, scroll event handles rest
-                mobileVIndex = 0;
-                document.getElementById('video-grid').innerHTML = '';
-                mobileFetchMoreVideos(); // loads first MOBILE_BATCH videos
-                setupMobileVideoScroll(); // scroll listener for infinite load
-                // No see more/hide buttons on mobile for videos
             } else {
-                // PC: original behaviour — 3 videos, see more button
-                vIndex = 3;
-                document.getElementById('video-grid').innerHTML = shuffledVideos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
-                if (shuffledVideos.length <= 3) document.getElementById('v-more').style.display = 'none';
-            }
-
-            document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
-            
-            if (names.length <= aIndex) document.getElementById('a-more').style.display = 'none';
-            if (shuffledPhotos.length <= 3) document.getElementById('p-more').style.display = 'none';
-
-            attachVideoObserver();
-        }
-
-        function initScrollAnimations() {
-            gsap.utils.toArray('.section-title, .section-desc').forEach(el => {
-                gsap.fromTo(el, { opacity: 0, y: 30 }, { scrollTrigger: { trigger: el, start: "top 90%" }, opacity: 1, y: 0, duration: 0.8 });
-            });
-            gsap.utils.toArray('.card').forEach((el, index) => {
-                if (index < 10) { 
-                    gsap.fromTo(el, { opacity: 0, y: 40 }, { scrollTrigger: { trigger: el, start: "top 95%" }, opacity: 1, y: 0, duration: 0.8, ease: "power2.out" });
-                } else {
-                    el.style.opacity = 1;
-                    el.style.transform = "none";
+                // Off screen: pause (keep src loaded — no re-download)
+                if (video) {
+                    video.pause();
+                    mediaContainer.classList.remove('is-playing', 'is-loading');
+                } else if (isIframe) {
+                    mediaContainer.src = mediaContainer.src;
                 }
-            });
-        }
+            }
+        });
+    }, { threshold: 0.3, rootMargin: '100px' });
 
-        function createCard(name, isNew = false) {
-            const m = allData.find(i => i.name === name);
-            return `<div class="card ${isNew ? 'reveal-card' : ''}">
-                <div class="card-img-wrap"><img src="${getImageUrl(m.profile)}" loading="lazy"></div>
-                <div class="card-info">
-                    <h3>${name}</h3>
-                    <div class="btn-row">
-                        <button class="btn-sm" onclick="openOverlay('${name}', 'video')">VIDEOS</button>
-                        <button class="btn-sm" onclick="openOverlay('${name}', 'photo')">PHOTOS</button>
-                    </div>
-                </div>
-            </div>`;
-        }
+    // --- MOBILE INFINITE SCROLL: scroll event based (IntersectionObserver horizontal container එකේ work නෑ) ---
+    function setupMobileVideoScroll() {
+        const grid = document.getElementById('video-grid');
+        if (!grid) return;
+        grid.addEventListener('scroll', function onMobileVideoScroll() {
+            if (window.innerWidth > 768) return;
+            if (mobileLoadingMore) return;
+            if (mobileVIndex >= shuffledVideos.length) {
+                grid.removeEventListener('scroll', onMobileVideoScroll);
+                return;
+            }
+            // Last card ලඟ 1.5 cards width ඇතිනම් load
+            const scrollRight = grid.scrollWidth - grid.scrollLeft - grid.clientWidth;
+            if (scrollRight < grid.clientWidth * 1.5) {
+                mobileFetchMoreVideos();
+            }
+        });
+    }
 
-        function createMediaItem(i, isNew = false) {
-            if (i.type === 'video') return `<div class="card ${isNew ? 'reveal-card' : ''}"><div class="video-container">${getVideoElement(i.link)}</div></div>`;
-            return `<div class="card photo-card ${isNew ? 'reveal-card' : ''}"><div class="card-img-wrap"><img src="${getImageUrl(i.link)}" loading="lazy"></div></div>`;
-        }
+    function mobileFetchMoreVideos() {
+        if (mobileVIndex >= shuffledVideos.length) return;
+        mobileLoadingMore = true;
 
-        function openOverlay(name, type) {
-            const filtered = allData.filter(i => i.name === name && i.type === type);
-            document.getElementById('overlay-title').innerHTML = `${name} <span>${type.toUpperCase()}S</span>`;
-            document.getElementById('overlay-grid').innerHTML = filtered.map(i => createMediaItem(i, true)).join('');
-            document.getElementById('media-overlay').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-            gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
+        const grid = document.getElementById('video-grid');
+        const batch = shuffledVideos.slice(mobileVIndex, mobileVIndex + MOBILE_BATCH);
+
+        batch.forEach(item => {
+            const div = document.createElement('div');
+            div.innerHTML = createMediaItem(item, false);
+            const card = div.firstElementChild;
+            grid.appendChild(card);
+            // observe newly added video players
+            const player = card.querySelector('.modern-video-player');
+            if (player) videoObserver.observe(player);
+        });
+
+        mobileVIndex += MOBILE_BATCH;
+        mobileLoadingMore = false;
+    }
+
+    function attachVideoObserver() {
+        document.querySelectorAll('.modern-video-player, iframe').forEach(media => {
+            videoObserver.observe(media);
+        });
+    }
+
+    function toggleMenu(s) { document.getElementById("mobile-menu").style.display = s ? "flex" : "none"; }
+
+    const loaderTimeout = setTimeout(() => { hideLoader(); }, 6000);
+
+    function hideLoader() {
+        clearTimeout(loaderTimeout);
+        gsap.to("#loader", { opacity: 0, duration: 1, onComplete: () => {
+            document.getElementById("loader").style.display = "none";
             
-            attachVideoObserver();
-        }
+            if (!sessionStorage.getItem('sessionStarted')) {
+                const disc = document.getElementById("disclaimer-overlay");
+                disc.style.display = "flex";
+                gsap.from(disc, {opacity: 0, duration: 0.5});
+                
+                window.scrollTo(0, 0);
+                if(window.location.hash !== '#home') history.replaceState(null, null, '#home');
+            } else {
+                initScrollAnimations();
+            }
+        }});
+    }
 
-        function closeOverlay() {
-            document.getElementById('media-overlay').style.display = 'none';
-            document.body.style.overflow = 'auto';
-            document.querySelectorAll('#media-overlay video').forEach(v => v.pause());
-            document.querySelectorAll('#media-overlay iframe').forEach(iframe => iframe.src = iframe.src);
-        }
+    function closeDisclaimer() {
+        sessionStorage.setItem('sessionStarted', 'true');
+        gsap.to("#disclaimer-overlay", { opacity: 0, duration: 0.5, onComplete: () => {
+            document.getElementById("disclaimer-overlay").style.display = "none";
+            window.scrollTo(0, 0);
+            initScrollAnimations();
+        }});
+    }
 
-        function loadMoreActresses() {
-            let cols = getCols();
-            let loadAmount = cols * 2;
-            const set = names.slice(aIndex, aIndex + loadAmount);
-            document.getElementById('actress-grid').insertAdjacentHTML('beforeend', set.map(n => createCard(n, true)).join(''));
-            gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
-            aIndex += loadAmount;
-            if (aIndex >= names.length) document.getElementById('a-more').style.display = 'none';
-            document.getElementById('a-hide').style.display = 'block';
-            setTimeout(() => ScrollTrigger.refresh(), 100);
-        }
+    function animateValue(id, start, end, duration) {
+        let obj = document.getElementById(id);
+        if (!obj) return;
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            obj.innerHTML = Math.floor(progress * (end - start) + start);
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                obj.innerHTML = end;
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
 
-        function hideActresses() { 
-            let cols = getCols();
-            aIndex = cols * 2; 
-            document.getElementById('actress-grid').innerHTML = names.slice(0, aIndex).map(n => createCard(n, false)).join('');
-            document.getElementById('a-more').style.display = 'block'; 
-            document.getElementById('a-hide').style.display = 'none'; 
-            ScrollTrigger.refresh(); 
-        }
+    function getCols() {
+        if (window.innerWidth <= 768) return 1;
+        const grid = document.getElementById('actress-grid');
+        try {
+            const colsString = window.getComputedStyle(grid).getPropertyValue('grid-template-columns');
+            if (colsString === 'none') return 4;
+            const cols = colsString.trim().split(' ').length;
+            return (cols && !isNaN(cols) && cols > 0) ? cols : 4;
+        } catch (e) { return 4; }
+    }
 
-        // PC only: loadMoreVideos / hideVideos (mobile uses sentinel auto-load)
-        function loadMoreVideos() {
-            const set = shuffledVideos.slice(vIndex, vIndex + 3);
-            document.getElementById('video-grid').insertAdjacentHTML('beforeend', set.map(i => createMediaItem(i, true)).join(''));
-            gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
-            vIndex += 3;
-            if (vIndex >= shuffledVideos.length) document.getElementById('v-more').style.display = 'none';
-            document.getElementById('v-hide').style.display = 'block';
-            setTimeout(() => ScrollTrigger.refresh(), 100);
-            attachVideoObserver();
-        }
+    async function fetchData() {
+        try {
+            const res = await fetch(CSV_URL);
+            const text = await res.text();
+            const rows = text.split('\n').slice(1);
+            let lastN = "", lastP = "";
+            
+            let tempAllData = rows.map(r => {
+                const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                let n = c[0]?.replace(/"/g, '').trim() || lastN; lastN = n;
+                let p = c[1]?.replace(/"/g, '').trim() || lastP; lastP = p;
+                return { name: n, profile: p, type: c[2]?.trim().toLowerCase(), link: c[3]?.trim() };
+            }).filter(i => i.link);
 
-        function loadMorePhotos() {
-            const set = shuffledPhotos.slice(pIndex, pIndex + 3);
-            document.getElementById('photo-grid').insertAdjacentHTML('beforeend', set.map(i => createMediaItem(i, true)).join(''));
-            gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
-            pIndex += 3;
-            if (pIndex >= shuffledPhotos.length) document.getElementById('p-more').style.display = 'none';
-            document.getElementById('p-hide').style.display = 'block';
-            setTimeout(() => ScrollTrigger.refresh(), 100);
-        }
+            const bgData = tempAllData.find(i => i.type === 'background');
+            if (bgData) document.getElementById('home').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url('${bgData.link}')`;
 
-        function hideVideos() { 
-            vIndex = 3; 
+            allData = tempAllData.filter(i => i.type !== 'background');
+            names = [...new Set(allData.map(i => i.name))].sort(() => Math.random() - 0.5);
+            shuffledVideos = allData.filter(i => i.type === 'video').sort(() => Math.random() - 0.5);
+            shuffledPhotos = allData.filter(i => i.type === 'photo').sort(() => Math.random() - 0.5);
+            
+            renderInitial();
+            hideLoader();
+            setupHintRemover();
+
+            setTimeout(() => {
+                animateValue('count-models', 0, names.length, 2000);
+                animateValue('count-videos', 0, shuffledVideos.length, 2000);
+                animateValue('count-photos', 0, shuffledPhotos.length, 2000);
+            }, 500);
+
+        } catch (e) { hideLoader(); }
+    }
+
+    function setupHintRemover() {
+        const aGrid = document.getElementById('actress-grid');
+        const aHint = document.getElementById('a-hint');
+        aGrid.addEventListener('scroll', () => {
+            aHint.style.transition = "0.5s";
+            aHint.style.opacity = "0";
+            setTimeout(() => aHint.style.display = "none", 500);
+        }, { once: true });
+    }
+
+    function renderInitial() {
+        const isMobile = window.innerWidth <= 768;
+        let cols = getCols();
+        aIndex = isMobile ? names.length : cols * 2; 
+        document.getElementById('actress-grid').innerHTML = names.slice(0, aIndex).map(n => createCard(n, false)).join('');
+
+        if (isMobile) {
+            // Mobile: start with first batch, scroll event handles rest
+            mobileVIndex = 0;
+            document.getElementById('video-grid').innerHTML = '';
+            mobileFetchMoreVideos(); // loads first MOBILE_BATCH videos
+            setupMobileVideoScroll(); // scroll listener for infinite load
+            // No see more/hide buttons on mobile for videos
+        } else {
+            // PC: original behaviour — 3 videos, see more button
+            vIndex = 3;
             document.getElementById('video-grid').innerHTML = shuffledVideos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
-            document.getElementById('v-more').style.display = 'block'; 
-            document.getElementById('v-hide').style.display = 'none'; 
-            ScrollTrigger.refresh(); 
-            attachVideoObserver();
+            if (shuffledVideos.length <= 3) document.getElementById('v-more').style.display = 'none';
+        }
+
+        document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
+        
+        if (names.length <= aIndex) document.getElementById('a-more').style.display = 'none';
+        if (shuffledPhotos.length <= 3) document.getElementById('p-more').style.display = 'none';
+
+        attachVideoObserver();
+    }
+
+    function initScrollAnimations() {
+        gsap.utils.toArray('.section-title, .section-desc').forEach(el => {
+            gsap.fromTo(el, { opacity: 0, y: 30 }, { scrollTrigger: { trigger: el, start: "top 90%" }, opacity: 1, y: 0, duration: 0.8 });
+        });
+        gsap.utils.toArray('.card').forEach((el, index) => {
+            if (index < 10) { 
+                gsap.fromTo(el, { opacity: 0, y: 40 }, { scrollTrigger: { trigger: el, start: "top 95%" }, opacity: 1, y: 0, duration: 0.8, ease: "power2.out" });
+            } else {
+                el.style.opacity = 1;
+                el.style.transform = "none";
+            }
+        });
+    }
+
+    function createCard(name, isNew = false) {
+        const m = allData.find(i => i.name === name);
+        return `<div class="card ${isNew ? 'reveal-card' : ''}">
+            <div class="card-img-wrap"><img src="${getImageUrl(m.profile)}" loading="lazy"></div>
+            <div class="card-info">
+                <h3>${name}</h3>
+                <div class="btn-row">
+                    <button class="btn-sm" onclick="openOverlay('${name}', 'video')">VIDEOS</button>
+                    <button class="btn-sm" onclick="openOverlay('${name}', 'photo')">PHOTOS</button>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function createMediaItem(i, isNew = false) {
+        if (i.type === 'video') return `<div class="card ${isNew ? 'reveal-card' : ''}"><div class="video-container">${getVideoElement(i.link)}</div></div>`;
+        return `<div class="card photo-card ${isNew ? 'reveal-card' : ''}"><div class="card-img-wrap"><img src="${getImageUrl(i.link)}" loading="lazy"></div></div>`;
+    }
+
+    function openOverlay(name, type) {
+        const filtered = allData.filter(i => i.name === name && i.type === type);
+        document.getElementById('overlay-title').innerHTML = `${name} <span>${type.toUpperCase()}S</span>`;
+        document.getElementById('overlay-grid').innerHTML = filtered.map(i => createMediaItem(i, true)).join('');
+        document.getElementById('media-overlay').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
+        
+        attachVideoObserver();
+    }
+
+    function closeOverlay() {
+        document.getElementById('media-overlay').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        document.querySelectorAll('#media-overlay video').forEach(v => v.pause());
+        document.querySelectorAll('#media-overlay iframe').forEach(iframe => iframe.src = iframe.src);
+    }
+
+    function loadMoreActresses() {
+        let cols = getCols();
+        let loadAmount = cols * 2;
+        const set = names.slice(aIndex, aIndex + loadAmount);
+        document.getElementById('actress-grid').insertAdjacentHTML('beforeend', set.map(n => createCard(n, true)).join(''));
+        gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
+        aIndex += loadAmount;
+        if (aIndex >= names.length) document.getElementById('a-more').style.display = 'none';
+        document.getElementById('a-hide').style.display = 'block';
+        setTimeout(() => ScrollTrigger.refresh(), 100);
+    }
+
+    function hideActresses() { 
+        let cols = getCols();
+        aIndex = cols * 2; 
+        document.getElementById('actress-grid').innerHTML = names.slice(0, aIndex).map(n => createCard(n, false)).join('');
+        document.getElementById('a-more').style.display = 'block'; 
+        document.getElementById('a-hide').style.display = 'none'; 
+        ScrollTrigger.refresh(); 
+    }
+
+    // PC only: loadMoreVideos / hideVideos (mobile uses sentinel auto-load)
+    function loadMoreVideos() {
+        const set = shuffledVideos.slice(vIndex, vIndex + 3);
+        document.getElementById('video-grid').insertAdjacentHTML('beforeend', set.map(i => createMediaItem(i, true)).join(''));
+        gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
+        vIndex += 3;
+        if (vIndex >= shuffledVideos.length) document.getElementById('v-more').style.display = 'none';
+        document.getElementById('v-hide').style.display = 'block';
+        setTimeout(() => ScrollTrigger.refresh(), 100);
+        attachVideoObserver();
+    }
+
+    function loadMorePhotos() {
+        const set = shuffledPhotos.slice(pIndex, pIndex + 3);
+        document.getElementById('photo-grid').insertAdjacentHTML('beforeend', set.map(i => createMediaItem(i, true)).join(''));
+        gsap.to(".reveal-card", { opacity: 1, y: 0, stagger: 0.05, duration: 0.6 });
+        pIndex += 3;
+        if (pIndex >= shuffledPhotos.length) document.getElementById('p-more').style.display = 'none';
+        document.getElementById('p-hide').style.display = 'block';
+        setTimeout(() => ScrollTrigger.refresh(), 100);
+    }
+
+    function hideVideos() { 
+        vIndex = 3; 
+        document.getElementById('video-grid').innerHTML = shuffledVideos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
+        document.getElementById('v-more').style.display = 'block'; 
+        document.getElementById('v-hide').style.display = 'none'; 
+        ScrollTrigger.refresh(); 
+        attachVideoObserver();
+    }
+    
+    function hidePhotos() { 
+        pIndex = 3; 
+        document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
+        document.getElementById('p-more').style.display = 'block'; 
+        document.getElementById('p-hide').style.display = 'none'; 
+        ScrollTrigger.refresh(); 
+    }
+
+    function getImageUrl(u) {
+        if (u && (u.includes('drive.google.com') || u.includes('docs.google.com'))) {
+            let fileId = u.match(/[-\w]{25,}/);
+            if (fileId) return `https://drive.google.com/thumbnail?id=${fileId[0]}&sz=w800`;
+        }
+        return u; 
+    }
+
+    function getVideoElement(u) {
+        if (u.includes('youtube.com')) {
+            u = u.replace('watch?v=', 'embed/');
+            return `<iframe src="${u}" allowfullscreen loading="lazy"></iframe>`;
         }
         
-        function hidePhotos() { 
-            pIndex = 3; 
-            document.getElementById('photo-grid').innerHTML = shuffledPhotos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
-            document.getElementById('p-more').style.display = 'block'; 
-            document.getElementById('p-hide').style.display = 'none'; 
-            ScrollTrigger.refresh(); 
-        }
+        // පැරණි Google Drive Proxy වෙනුවට Sheet එකෙන් එන Telegram File ID එක කෙලින්ම data-src එකට ලබා දීම
+        let srcUrl = u.trim();
 
-        function getImageUrl(u) {
-            if (u && (u.includes('drive.google.com') || u.includes('docs.google.com'))) {
-                let fileId = u.match(/[-\w]{25,}/);
-                if (fileId) return `https://drive.google.com/thumbnail?id=${fileId[0]}&sz=w800`;
-            }
-            return u; 
-        }
+        let initialMuteState = window.innerWidth <= 768 ? 'muted' : '';
+        let muteIconState = window.innerWidth <= 768 ? 'mute' : 'up';
 
-        function getVideoElement(u) {
-            if (u.includes('youtube.com')) {
-                u = u.replace('watch?v=', 'embed/');
-                return `<iframe src="${u}" allowfullscreen loading="lazy"></iframe>`;
-            }
-            
-            let srcUrl = u;
-            if (u.includes('docs.google.com/uc') || u.includes('drive.google.com')) {
-                let fileIdMatch = u.match(/[-\w]{25,}/);
-                if (fileIdMatch) srcUrl = `${MY_WORKER_URL}/?id=${fileIdMatch[0]}`;
-            }
-
-            let initialMuteState = window.innerWidth <= 768 ? 'muted' : '';
-            let muteIconState = window.innerWidth <= 768 ? 'mute' : 'up';
-
-            // preload="metadata" → browser first frame (thumbnail) load කරනවා, full video download නෑ
-            // data-src lazy: screen ලඟ ආවාම src set → #t=0.1 thumbnail visible
-            return `
-                <div class="modern-video-player">
-                    <div class="modern-loader"><span></span><span></span><span></span></div>
-                    <video data-src="${srcUrl}" playsinline webkit-playsinline loop preload="metadata" ${initialMuteState} class="custom-video"></video>
-                    
-                    <div class="play-overlay"><i class="ri-play-fill"></i></div>
-                    
-                    <button class="control-icon mute-toggle"><i class="ri-volume-${muteIconState}-fill"></i></button>
-                    <button class="control-icon fullscreen-toggle"><i class="ri-fullscreen-line"></i></button>
-                    
-                    <div class="progress-bar-container">
-                        <div class="progress-fill"></div>
-                    </div>
+        return `
+            <div class="modern-video-player">
+                <div class="modern-loader"><span></span><span></span><span></span></div>
+                <video data-src="${srcUrl}" playsinline webkit-playsinline loop preload="metadata" ${initialMuteState} class="custom-video"></video>
+                
+                <div class="play-overlay"><i class="ri-play-fill"></i></div>
+                
+                <button class="control-icon mute-toggle"><i class="ri-volume-${muteIconState}-fill"></i></button>
+                <button class="control-icon fullscreen-toggle"><i class="ri-fullscreen-line"></i></button>
+                
+                <div class="progress-bar-container">
+                    <div class="progress-fill"></div>
                 </div>
-            `;
-        }
+            </div>
+        `;
+    }
 
-        window.addEventListener('resize', () => { ScrollTrigger.refresh(); });
-        fetchData();
-    </script>
+    window.addEventListener('resize', () => { ScrollTrigger.refresh(); });
+    fetchData();
+ </script>
 </body>
 </html>
