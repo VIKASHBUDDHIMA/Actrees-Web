@@ -407,7 +407,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTCZKldIRRUCofjALevRM-YIEWm5DuHtIbsQ7MIWjU9L2v-4ty_BMC6Vi4bGl7Cl0y/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxlLBwCHaC3LT1u0oYPKniqzI061s8f5yx0S16p-lhLBA53Rb9tUCHLqHfYof16dSCv/exec';
 
         window.onload = async () => {
             try {
@@ -520,7 +520,7 @@
                         reader.readAsDataURL(videoBlob);
                     });
 
-                    statusText.innerText = "Uploading to Drive... (1/1)";
+                    statusText.innerText = "Uploading to Telegram... (1/1)";
                     bar.style.width = '80%';
 
                     const payload = {
@@ -542,7 +542,7 @@
 
                 } else {
                     for (let i = 0; i < files.length; i++) {
-                        statusText.innerText = `Uploading File ${i + 1} of ${files.length}...`;
+                        statusText.innerText = `Uploading to Telegram (${i + 1} of ${files.length})...`;
                         bar.style.width = `${((i) / files.length) * 100}%`;
 
                         const currentFile = files[i];
