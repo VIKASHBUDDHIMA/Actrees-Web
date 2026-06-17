@@ -532,22 +532,21 @@
                     if (!result.includes("Success")) throw new Error(result);
 
                 } else {
-                    // FILE UPLOAD (Browser -> Cloudflare Worker -> Catbox)
+                    // FILE UPLOAD (Browser -> Cloudflare Worker /api/upload -> Catbox)
                     for (let i = 0; i < files.length; i++) {
                         const currentFile = files[i];
 
                         statusText.innerText = `Preparing File ${i + 1} of ${files.length}...`;
                         bar.style.width = '5%';
 
-                        // Send directly to YOUR Cloudflare Worker via XMLHttpRequest (to show Progress)
                         const catboxUrl = await new Promise((resolve, reject) => {
                             const formData = new FormData();
                             formData.append('reqtype', 'fileupload');
                             formData.append('fileToUpload', currentFile);
 
                             const xhr = new XMLHttpRequest();
-                            // මෙතන අනිවාර්යයෙන්ම ඔයාගේ worker URL එක තියෙන්න ඕනේ
-                            xhr.open('POST', 'https://actresscollection.rathuuweb.workers.dev/upload', true);
+                            // අලුත් path එක /api/upload
+                            xhr.open('POST', 'https://actresscollection.rathuuweb.workers.dev/api/upload', true);
                             
                             xhr.upload.onprogress = function(e) {
                                 if (e.lengthComputable) {
@@ -559,7 +558,7 @@
 
                             xhr.onload = function() {
                                 if (xhr.status === 200 && xhr.responseText.startsWith("https://")) {
-                                    resolve(xhr.responseText); // Catbox ලින්ක් එක එනවා
+                                    resolve(xhr.responseText); // Catbox ලින්ක් එක
                                 } else {
                                     reject(new Error("Upload failed. Status: " + xhr.status + ". Body: " + xhr.responseText));
                                 }
@@ -575,7 +574,7 @@
                         statusText.innerText = `Saving Metadata for File ${i + 1}...`;
                         bar.style.width = '90%';
 
-                        // ලින්ක් එක විතරක් App Script එකට යවනවා
+                        // ලින්ක් එක App Script එකට යවනවා
                         const payload = {
                             name: (actressSelect === 'NEW') ? newName : actressSelect,
                             type: contentType,
