@@ -461,8 +461,9 @@
                 formData.append('reqtype', 'fileupload');
                 formData.append('fileToUpload', file);
 
+                // Upload via our Cloudflare Worker proxy (catbox.moe blocks direct CORS uploads)
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', 'https://catbox.moe/user/api', true);
+                xhr.open('POST', 'https://starstream-proxy.rathuuweb.workers.dev/upload', true);
 
                 // Real-time progress reporting
                 xhr.upload.onprogress = (e) => {
