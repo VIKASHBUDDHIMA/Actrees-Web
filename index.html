@@ -252,7 +252,6 @@
            PC mode: zero changes — original grid + see more
         ============================================= */
         @media (max-width: 768px) {
-            /* Mobile video grid → horizontal infinite scroll */
             #video-grid {
                 display: flex !important;
                 overflow-x: auto !important;
@@ -261,7 +260,6 @@
                 padding-bottom: 20px !important;
                 scrollbar-width: none !important;
                 -ms-overflow-style: none !important;
-                /* grid override */
                 grid-template-columns: unset !important;
             }
             #video-grid::-webkit-scrollbar { display: none; }
@@ -272,7 +270,6 @@
                 flex-shrink: 0 !important;
                 width: 84vw !important;
             }
-            /* Hide See More / Hide buttons for video on mobile */
             #video-controls-desktop { display: none !important; }
         }
 
@@ -457,8 +454,6 @@
 
  <script>
     const MY_WORKER_URL = "https://starstream-proxy.rathuuweb.workers.dev";
-    
-    // 1. ඔබේ Telegram Bot Token එක මෙතැනට ඇතුලත් කරන්න
     const BOT_TOKEN = "8974378669:AAE3fxJa-OdGUi9HXiKkPu9b7SC8QeUXp4Q"; 
 
     gsap.registerPlugin(ScrollTrigger);
@@ -470,12 +465,10 @@
     let allData = [], shuffledVideos = [], shuffledPhotos = [], names = [];
     let aIndex = 0, vIndex = 3, pIndex = 3;
 
-    // --- Mobile video infinite scroll tracking ---
     let mobileVIndex = 0;         
     const MOBILE_BATCH = 5;       
     let mobileLoadingMore = false; 
 
-    // --- SMART MUTE STATE ---
     let globalMuted = window.innerWidth <= 768; 
     let hasUserUnmuted = !globalMuted; 
 
@@ -573,16 +566,16 @@
         });
     }
 
-    // --- INTERSECTION OBSERVER (LAZY MEDIA LOAD WITH RANDOM VIDEO THUMBNAILS) ---
+    // --- INTERSECTION OBSERVER (LAZY MEDIA LOAD & FIX) ---
     const videoObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             const mediaContainer = entry.target;
 
-            // --- Handling Image/Profile Telegram Async Loading ---
+            // --- Telegram Photos & Profiles Handling ---
             if (mediaContainer.tagName === 'IMG') {
                 if (entry.isIntersecting && mediaContainer.dataset.tgImg) {
                     const fileId = mediaContainer.dataset.tgImg;
-                    delete mediaContainer.dataset.tgImg; 
+                    mediaContainer.removeAttribute('data-tg-img'); 
                     
                     fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${fileId}`)
                         .then(res => res.json())
@@ -612,8 +605,6 @@
                             .then(data => {
                                 if (data.ok) {
                                     const videoUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${data.result.file_path}`;
-                                    
-                                    // Website එක refresh කරන හැම සැරේකම Thumbnail Frame එක වෙනස් වීමට Random time එකක් ලබාදීම (0.5s - 5.5s අතර)
                                     const randomThumbTime = (Math.random() * 5 + 0.5).toFixed(1);
                                     video.src = videoUrl + `#t=${randomThumbTime}`;
                                     delete video.dataset.src;
@@ -880,7 +871,7 @@
             if (p.includes('drive.google.com') || p.includes('docs.google.com') || p.includes('http://') || p.includes('https://')) {
                 profileSrc = getImageUrl(p);
             } else {
-                profileSrc = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>';
+                profileSrc = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
                 profileDataAttr = `data-tg-img="${p}"`;
             }
         }
@@ -907,7 +898,7 @@
             if (l.includes('drive.google.com') || l.includes('docs.google.com') || l.includes('http://') || l.includes('https://')) {
                 photoSrc = getImageUrl(l);
             } else {
-                photoSrc = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>';
+                photoSrc = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
                 photoDataAttr = `data-tg-img="${l}"`;
             }
         }
