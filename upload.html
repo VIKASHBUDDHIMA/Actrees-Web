@@ -443,58 +443,105 @@
             document.getElementById('newActressFields').style.display = (val === 'NEW') ? 'block' : 'none';
         }
 
+        // Profile picture: still base64 → AppScript → Drive (small file, no size issue)
         function fileToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
-                reader.onload = () => resolve({
-                    base64: reader.result.split(',')[1],
-                    type: file.type
-                });
+                reader.onload = () => resolve({ base64: reader.result.split(',')[1], type: file.type });
                 reader.onerror = error => reject(error);
             });
         }
 
+        // ── NEW: Upload content file directly to Catbox (browser → Catbox)
+        // XHR used so we get real upload progress (fetch API doesn't expose upload progress)
+        function uploadToCatbox(file, onProgress) {
+            return new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append('reqtype', 'fileupload');
+                formData.append('fileToUpload', file);
+
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'https://catbox.moe/user/api', true);
+
+                // Real-time progress reporting
+                xhr.upload.onprogress = (e) => {
+                    if (e.lengthComputable && onProgress) onProgress(e.loaded, e.total);
+                };
+
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        const url = xhr.responseText.trim();
+                        if (url.startsWith('https://')) resolve(url);
+                        else reject(new Error('Catbox error: ' + url));
+                    } else {
+                        reject(new Error('Catbox upload failed (HTTP ' + xhr.status + ')'));
+                    }
+                };
+                xhr.onerror  = () => reject(new Error('Network error during Catbox upload.'));
+                xhr.onabort  = () => reject(new Error('Upload was cancelled.'));
+                xhr.send(formData);
+            });
+        }
+
+        // ── Send only the Catbox URL (+ optional profile) to AppScript
+        async function saveToAppScript(name, type, catboxUrl, profileData, isFirstFile) {
+            const payload = { name, type, catboxUrl };
+            if (isFirstFile && profileData) {
+                payload.profileBase64 = profileData.base64;
+                payload.profileType   = profileData.type;
+            }
+            const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+            const result = await response.text();
+            if (!result.includes("Success")) throw new Error(result);
+        }
+
         async function upload() {
-            const method = document.getElementById('uploadMethod').value;
-            const contentType = document.getElementById('contentType').value;
+            const method       = document.getElementById('uploadMethod').value;
+            const contentType  = document.getElementById('contentType').value;
             const actressSelect = document.getElementById('actressSelect').value;
-            const newName = document.getElementById('newName').value;
-            const profilePic = document.getElementById('profilePic').files[0];
+            const newName      = document.getElementById('newName').value.trim();
+            const profilePic   = document.getElementById('profilePic').files[0];
 
-            if (!actressSelect) return alert("Please select a model.");
-            if (actressSelect === 'NEW' && !newName) return alert("Please enter the new model's name.");
-            if (actressSelect === 'NEW' && !profilePic) return alert("Please select a profile picture for the new model.");
+            if (!actressSelect)                                   return alert("Please select a model.");
+            if (actressSelect === 'NEW' && !newName)              return alert("Please enter the new model's name.");
+            if (actressSelect === 'NEW' && !profilePic)           return alert("Please select a profile picture for the new model.");
 
-            let files = [];
+            let files  = [];
             let tkLink = "";
 
             if (method === 'file') {
                 files = document.getElementById('contentFiles').files;
                 if (files.length === 0) return alert("Please select files to upload.");
             } else {
-                tkLink = document.getElementById('tiktokLink').value;
+                tkLink = document.getElementById('tiktokLink').value.trim();
                 if (!tkLink) return alert("Please paste a TikTok link.");
             }
 
-            const btn = document.getElementById('uploadBtn');
+            const actressName  = (actressSelect === 'NEW') ? newName : actressSelect;
+            const btn          = document.getElementById('uploadBtn');
             const progContainer = document.getElementById('progressContainer');
-            const statusText = document.getElementById('statusText');
-            const bar = document.getElementById('progressBar');
+            const statusText   = document.getElementById('statusText');
+            const bar          = document.getElementById('progressBar');
 
-            btn.style.display = 'none';
+            btn.style.display  = 'none';
             progContainer.style.display = 'block';
 
             try {
+                // ── Profile picture (base64 → AppScript → Drive — small file, no issue)
                 let profileData = null;
                 if (actressSelect === 'NEW') {
-                    statusText.innerText = "Processing Profile Picture...";
+                    statusText.innerText = "Processing profile picture...";
+                    bar.style.width = '5%';
                     profileData = await fileToBase64(profilePic);
                 }
 
+                // ──────────────────────────────────────────────
+                //  TIKTOK METHOD
+                // ──────────────────────────────────────────────
                 if (method === 'tiktok') {
-                    statusText.innerText = "Fetching TikTok Data...";
-                    bar.style.width = '20%';
+                    statusText.innerText = "Fetching TikTok data...";
+                    bar.style.width = '10%';
 
                     const apiUrl = `https://www.tikwm.com/api/?url=${encodeURIComponent(tkLink)}&hd=1`;
                     const tkResp = await fetch(apiUrl);
@@ -504,106 +551,60 @@
                         throw new Error("Invalid TikTok link or API error");
                     }
 
-                    statusText.innerText = "Downloading TikTok to Server...";
-                    bar.style.width = '40%';
+                    statusText.innerText = "Downloading TikTok video...";
+                    bar.style.width = '25%';
 
                     const videoResp = await fetch(tkData.data.play);
                     const videoBlob = await videoResp.blob();
 
-                    statusText.innerText = "Processing Video Data...";
-                    bar.style.width = '60%';
+                    // Convert blob → File so Catbox gets a proper filename
+                    const videoFile = new File(
+                        [videoBlob],
+                        `TikTok_${Date.now()}.mp4`,
+                        { type: videoBlob.type || 'video/mp4' }
+                    );
 
-                    const base64Data = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => resolve(reader.result.split(',')[1]);
-                        reader.onerror = reject;
-                        reader.readAsDataURL(videoBlob);
+                    statusText.innerText = "Uploading to Catbox...";
+                    bar.style.width = '35%';
+
+                    const catboxUrl = await uploadToCatbox(videoFile, (loaded, total) => {
+                        const pct = 35 + Math.round((loaded / total) * 55); // 35% → 90%
+                        bar.style.width = pct + '%';
+                        const mb = (loaded / 1048576).toFixed(1);
+                        const totalMb = (total / 1048576).toFixed(1);
+                        statusText.innerText = `Uploading to Catbox... ${mb} / ${totalMb} MB`;
                     });
 
-                    statusText.innerText = "Uploading to Drive... (1/1)";
-                    bar.style.width = '80%';
+                    statusText.innerText = "Saving to database...";
+                    bar.style.width = '92%';
 
-                    const payload = {
-                        name: (actressSelect === 'NEW') ? newName : actressSelect,
-                        type: 'VIDEO',
-                        fileName: `TikTok_${Date.now()}.mp4`,
-                        fileType: videoBlob.type || 'video/mp4',
-                        fileBase64: base64Data
-                    };
+                    await saveToAppScript(actressName, 'VIDEO', catboxUrl, profileData, true);
 
-                    if (profileData) {
-                        payload.profileBase64 = profileData.base64;
-                        payload.profileType = profileData.type;
-                    }
-
-                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-                    const result = await response.text();
-                    if (!result.includes("Success")) throw new Error(result);
-
+                // ──────────────────────────────────────────────
+                //  FILE UPLOAD METHOD
+                // ──────────────────────────────────────────────
                 } else {
-                    // FILE UPLOAD - DIRECT TO CATBOX (NO BASE64)
                     for (let i = 0; i < files.length; i++) {
                         const currentFile = files[i];
+                        const fileLabel   = `File ${i + 1} of ${files.length}`;
+                        const baseProgress = (i / files.length) * 90;     // 0% → 90%
+                        const nextProgress = ((i + 1) / files.length) * 90;
 
-                        statusText.innerText = `Preparing File ${i + 1} of ${files.length}...`;
-                        bar.style.width = '5%';
+                        statusText.innerText = `Uploading ${fileLabel} to Catbox...`;
+                        bar.style.width = baseProgress + '%';
 
-                        // 1. Direct Upload with XMLHttpRequest for Progress Bar
-                        const catboxUrl = await new Promise((resolve, reject) => {
-                            const formData = new FormData();
-                            formData.append('reqtype', 'fileupload');
-                            formData.append('fileToUpload', currentFile);
-
-                            const xhr = new XMLHttpRequest();
-                            xhr.open('POST', 'https://catbox.moe/user/api.php', true);
-                            
-                            xhr.upload.onprogress = function(e) {
-                                if (e.lengthComputable) {
-                                    const percentComplete = Math.round((e.loaded / e.total) * 100);
-                                    bar.style.width = percentComplete + '%';
-                                    statusText.innerText = `Uploading File ${i + 1} of ${files.length} to Server: ${percentComplete}%`;
-                                }
-                            };
-
-                            xhr.onload = function() {
-                                if (xhr.status === 200) {
-                                    resolve(xhr.responseText); // Gets the direct URL
-                                } else {
-                                    reject(new Error("Catbox server error: " + xhr.status));
-                                }
-                            };
-                            
-                            xhr.onerror = function() {
-                                reject(new Error("Network Error during upload."));
-                            };
-                            
-                            xhr.send(formData);
+                        const catboxUrl = await uploadToCatbox(currentFile, (loaded, total) => {
+                            const pct = baseProgress + ((loaded / total) * (nextProgress - baseProgress));
+                            bar.style.width = pct.toFixed(1) + '%';
+                            const mb = (loaded / 1048576).toFixed(1);
+                            const totalMb = (total / 1048576).toFixed(1);
+                            statusText.innerText = `Uploading ${fileLabel} — ${mb} / ${totalMb} MB`;
                         });
 
-                        statusText.innerText = `Saving Metadata for File ${i + 1}...`;
-                        bar.style.width = '90%';
+                        statusText.innerText = `Saving ${fileLabel} to database...`;
+                        await saveToAppScript(actressName, contentType, catboxUrl, profileData, i === 0);
 
-                        // 2. Send the URL to Google Apps Script
-                        const payload = {
-                            name: (actressSelect === 'NEW') ? newName : actressSelect,
-                            type: contentType,
-                            fileUrl: catboxUrl
-                        };
-
-                        if (i === 0 && profileData) {
-                            payload.profileBase64 = profileData.base64;
-                            payload.profileType = profileData.type;
-                        }
-
-                        const response = await fetch(SCRIPT_URL, { 
-                            method: 'POST', 
-                            body: JSON.stringify(payload) 
-                        });
-                        
-                        const result = await response.text();
-                        if (!result.includes("Success")) throw new Error("Failed to save data: " + result);
-
-                        bar.style.width = '100%';
+                        bar.style.width = nextProgress + '%';
                     }
                 }
 
@@ -616,6 +617,7 @@
                 alert("Error: " + error.message);
                 btn.style.display = 'block';
                 progContainer.style.display = 'none';
+                bar.style.width = '0%';
             }
         }
     </script>
