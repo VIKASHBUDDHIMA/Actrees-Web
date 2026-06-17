@@ -19,205 +19,567 @@
         }
         
         * { box-sizing: border-box; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); margin: 0; padding: 0; }
-        body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { width: 100%; max-width: 550px; background: var(--surface); padding: 40px; border-radius: 16px; border: 1px solid var(--border); backdrop-filter: blur(10px); }
-        h2 { font-family: 'Syncopate', sans-serif; text-align: center; margin-bottom: 30px; letter-spacing: 1px; }
-        h2 span { color: var(--accent); text-shadow: 0 0 15px var(--accent-glow); }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
-        select, input[type="text"], input[type="file"] { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.5); color: #fff; font-family: 'Montserrat', sans-serif; outline: none; }
-        select:focus, input[type="text"]:focus { border-color: var(--accent); }
         
-        button { background: linear-gradient(45deg, #ff0055, #ff4081); color: #fff; border: none; padding: 16px; width: 100%; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 5px 20px var(--accent-glow); margin-top: 10px; }
-        button:disabled { background: #333; color: #777; cursor: not-allowed; box-shadow: none; }
+        body { 
+            background-color: var(--bg);
+            background-image: url('https://i.ibb.co/d4yLRC3s/yohani-hettiarachchi-1.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text); 
+            font-family: 'Montserrat', sans-serif; 
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Deep Modern Ambient Overlay */
+        .background-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 30%, rgba(5, 5, 5, 0.6) 0%, rgba(2, 2, 2, 0.95) 100%);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: -1;
+        }
         
-        .progress-container { margin-top: 20px; display: none; }
-        .progress-bar-bg { width: 100%; background: rgba(255,255,255,0.1); border-radius: 10px; height: 8px; overflow: hidden; margin-bottom: 10px; }
-        .progress-bar { height: 100%; background: var(--accent); width: 0%; box-shadow: 0 0 10px var(--accent-glow); transition: width 0.3s; }
-        .status-text { text-align: center; color: var(--text-muted); font-size: 13px; font-weight: 500; }
+        nav { 
+            width: 100%; padding: 25px 8%; 
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+            display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .logo { 
+            font-family: 'Syncopate'; 
+            color: var(--text); 
+            text-decoration: none; 
+            font-size: 1.5rem; 
+            letter-spacing: 4px;
+            font-weight: 700;
+        }
+        .logo span { color: var(--accent); }
         
-        .hidden { display: none !important; }
-        #successView { text-align: center; }
-        .success-icon { font-size: 60px; color: #00ff88; text-shadow: 0 0 20px rgba(0,255,136,0.4); margin-bottom: 15px; }
+        .nav-links a { 
+            color: var(--text-muted); 
+            text-decoration: none; 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            letter-spacing: 2px; 
+            text-transform: uppercase;
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(0,0,0,0.5);
+        }
+        .nav-links a:hover { 
+            color: #fff; 
+            border-color: var(--accent);
+            background: rgba(255, 0, 85, 0.1);
+            box-shadow: 0 0 15px var(--accent-glow); 
+        }
+
+        .container { 
+            max-width: 650px; 
+            width: 92%;
+            margin: 40px auto 60px; 
+            padding: 50px 45px; 
+            background: var(--surface); 
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 24px; 
+            border: 1px solid var(--border); 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Top Highlight Line */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%; transform: translateX(-50%);
+            width: 40%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        }
+
+        h2 { 
+            color: var(--text); 
+            text-align: center; 
+            margin-bottom: 40px; 
+            font-family: 'Syncopate'; 
+            letter-spacing: 4px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        h2 span { color: var(--accent); }
+
+        .form-group { margin-bottom: 25px; }
+        
+        label { 
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px; 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            color: var(--text-muted); 
+            letter-spacing: 2px; 
+            text-transform: uppercase;
+        }
+        label i { color: var(--accent); font-size: 1.1rem; }
+        
+        /* Modern Inputs & Selects */
+        select, input[type="text"] { 
+            width: 100%; 
+            padding: 16px 20px; 
+            background: rgba(0, 0, 0, 0.4); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            color: white; 
+            border-radius: 12px; 
+            outline: none; 
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            appearance: none;
+        }
+        
+        /* Custom Select Arrow */
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff0055'%3E%3Cpath d='M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 20px;
+            padding-right: 45px;
+            cursor: pointer;
+        }
+        select option { background: #111; color: #fff; padding: 10px; }
+
+        select:focus, input[type="text"]:focus { 
+            border-color: var(--accent); 
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.15);
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        /* Modern Dashed File Upload Zone */
+        input[type="file"] {
+            width: 100%;
+            padding: 25px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+        }
+        input[type="file"]:hover {
+            border-color: var(--accent);
+            background: rgba(255, 0, 85, 0.02);
+            color: #fff;
+        }
+        input[type="file"]::file-selector-button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-right: 20px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s ease;
+        }
+        input[type="file"]::file-selector-button:hover {
+            background: #ff1a66;
+            box-shadow: 0 5px 15px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        /* Sub-panel for New Actress */
+        #newActressFields { 
+            display: none; 
+            margin-top: 15px; 
+            margin-bottom: 25px;
+            padding: 25px; 
+            background: rgba(0, 0, 0, 0.3); 
+            border-radius: 16px; 
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+        #newActressFields::before {
+            content: ''; position: absolute; top: 0; left: 0; height: 100%; width: 4px;
+            background: var(--accent); border-radius: 16px 0 0 16px;
+        }
+        
+        /* Modern Glowing VIP Button */
+        .btn { 
+            width: 100%; 
+            padding: 18px; 
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: 800; 
+            cursor: pointer; 
+            font-size: 0.9rem; 
+            margin-top: 10px; 
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            box-shadow: 0 10px 25px rgba(255, 0, 85, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn:hover { 
+            background: #ff1a66; 
+            box-shadow: 0 15px 35px rgba(255, 0, 85, 0.5);
+            transform: translateY(-3px);
+        }
+        .btn:active { transform: translateY(1px); }
+        .btn:disabled { 
+            background: #1a1a1f; 
+            color: #444;
+            cursor: not-allowed; 
+            box-shadow: none; 
+            transform: none; 
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Progress & Loader Section */
+        .progress-container { display: none; margin-top: 35px; text-align: center; }
+        .progress-bar-bg { 
+            width: 100%; 
+            background: rgba(0, 0, 0, 0.6); 
+            border-radius: 20px; 
+            height: 8px; 
+            overflow: hidden; 
+            margin-top: 15px; 
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+        }
+        .progress-bar { 
+            width: 0%; 
+            height: 100%; 
+            background: linear-gradient(90deg, #ff0055, #ff4d88); 
+            box-shadow: 0 0 20px var(--accent);
+            border-radius: 20px;
+            position: relative;
+        }
+        .progress-bar::after {
+            content: ''; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent);
+            background-size: 20px 20px;
+            animation: stripes 1s linear infinite;
+        }
+        @keyframes stripes { 100% { background-position: 20px 0; } }
+        
+        .status-text { 
+            font-size: 0.8rem; 
+            color: var(--text); 
+            margin-top: 15px; 
+            font-weight: 600; 
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            animation: pulse-text 1.5s infinite;
+        }
+        @keyframes pulse-text { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* Success Panel View */
+        #successView { display: none; text-align: center; padding: 40px 10px 20px; }
+        .success-icon-wrap {
+            width: 100px; height: 100px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            margin: 0 auto 30px;
+            border: 2px solid rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.2);
+            animation: bounceIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+        
+        #successView i { font-size: 3.5rem; color: #00ff88; }
+        #successView h3 { 
+            color: #fff; 
+            margin-bottom: 15px; 
+            font-family: 'Syncopate'; 
+            font-size: 1.5rem; 
+            letter-spacing: 2px;
+        }
+        #successView p { 
+            color: var(--text-muted); 
+            margin-bottom: 40px; 
+            line-height: 1.8; 
+            font-size: 0.9rem;
+            max-width: 400px;
+            margin-left: auto; margin-right: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 35px 25px; margin: 20px auto; border-radius: 20px; }
+            h2 { font-size: 1.4rem; }
+            .btn { padding: 16px; font-size: 0.85rem; }
+        }
     </style>
 </head>
 <body>
-
-<div class="container" id="formView">
-    <h2>UPLOAD <span>MEDIA</span></h2>
+    <div class="background-overlay"></div>
     
-    <div class="form-group">
-        <label><i class="ri-user-star-line"></i> Model Name</label>
-        <select id="modelSelect" onchange="toggleNewModel()">
-            <option value="">-- Select Model --</option>
-            <option value="NEW">+ Add New Model</option>
-        </select>
-        <input type="text" id="newModelName" class="hidden" placeholder="Enter New Model Name" style="margin-top:10px;">
+    <nav>
+        <a href="index.html" class="logo">STAR <span>STREAM</span></a>
+        <div class="nav-links">
+            <a href="index.html"><i class="ri-gallery-fill" style="margin-right: 5px; vertical-align: -2px; font-size: 1.1rem;"></i> GALLERY</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="formView">
+            <h2>UPLOAD <span>CONTENT</span></h2>
+
+            <div class="form-group">
+                <label><i class="ri-upload-cloud-2-line"></i> UPLOAD METHOD</label>
+                <select id="uploadMethod" onchange="toggleMethod()">
+                    <option value="file">FILE UPLOAD (FROM DEVICE)</option>
+                    <option value="tiktok">TIKTOK LINK (AUTO DOWNLOAD)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label><i class="ri-filter-3-line"></i> CONTENT TYPE</label>
+                <select id="contentType">
+                    <option value="PHOTO">PHOTO</option>
+                    <option value="VIDEO">VIDEO</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label><i class="ri-user-star-line"></i> SELECT MODEL</label>
+                <select id="actressSelect" onchange="toggleNewFields()">
+                    <option value="">Loading Models...</option>
+                    <option value="NEW">+ ADD NEW MODEL</option>
+                </select>
+            </div>
+
+            <div id="newActressFields">
+                <div class="form-group">
+                    <label><i class="ri-edit-line"></i> NEW MODEL NAME</label>
+                    <input type="text" id="newName" placeholder="Enter model name">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label><i class="ri-image-circle-line"></i> PROFILE PICTURE</label>
+                    <input type="file" id="profilePic" accept="image/*">
+                </div>
+            </div>
+
+            <div id="fileUploadSection" class="form-group">
+                <label><i class="ri-folder-open-line"></i> SELECT MEDIA FILES</label>
+                <input type="file" id="contentFiles" multiple accept="image/*,video/*">
+            </div>
+
+            <div id="tiktokUploadSection" class="form-group" style="display: none;">
+                <label><i class="ri-tiktok-line"></i> TIKTOK VIDEO URL</label>
+                <input type="text" id="tiktokLink" placeholder="https://www.tiktok.com/@user/video/123456789">
+            </div>
+
+            <button class="btn" id="uploadBtn" onclick="upload()">SECURE UPLOAD <i class="ri-arrow-right-line" style="margin-left: 5px; vertical-align: -2px;"></i></button>
+
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="status-text" id="statusText">Initializing secure connection...</div>
+            </div>
+        </div>
+
+        <div id="successView">
+            <div class="success-icon-wrap">
+                <i class="ri-check-double-line"></i>
+            </div>
+            <h3>UPLOAD SUCCESSFUL!</h3>
+            <p>Your content has been securely encrypted and sent to the server. It is currently waiting for admin approval.</p>
+            <button class="btn" onclick="location.reload()"><i class="ri-add-line" style="margin-right: 5px; vertical-align: -2px;"></i> UPLOAD MORE</button>
+        </div>
     </div>
 
-    <div class="form-group hidden" id="profileUploadDiv">
-        <label><i class="ri-image-add-line"></i> Profile Picture (For New Model)</label>
-        <input type="file" id="profilePic" accept="image/*">
-    </div>
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxtmBeY8ek41WhGAtA_iPjLMgXjR7L_WiHN_ONNz-3ZFBQM5iLlplcI1AlngIRRzTrA/exec';
 
-    <div class="form-group">
-        <label><i class="ri-folder-video-line"></i> Upload Type</label>
-        <select id="uploadType" onchange="toggleInputType()">
-            <option value="Photo">Photo</option>
-            <option value="Video">Video File</option>
-            <option value="TikTok">TikTok Link</option>
-        </select>
-    </div>
+        window.onload = async () => {
+            try {
+                const res = await fetch(SCRIPT_URL + "?action=getNames");
+                const names = await res.json();
+                const select = document.getElementById('actressSelect');
+                select.innerHTML = '<option value="" disabled selected>Select Model</option>';
+                names.forEach(n => {
+                    select.innerHTML += `<option value="${n}">${n}</option>`;
+                });
+                select.innerHTML += '<option value="NEW">+ ADD NEW MODEL</option>';
+            } catch (e) {
+                console.log("Error loading names. Make sure SCRIPT_URL is correct.");
+            }
+        };
 
-    <div class="form-group" id="fileInputDiv">
-        <label><i class="ri-upload-cloud-2-line"></i> Select File</label>
-        <input type="file" id="mediaFile" accept="image/*,video/*">
-    </div>
-
-    <div class="form-group hidden" id="linkInputDiv">
-        <label><i class="ri-links-line"></i> TikTok URL</label>
-        <input type="text" id="tiktokUrl" placeholder="Paste TikTok Link here...">
-    </div>
-
-    <button id="uploadBtn" onclick="processUpload()">Upload Content</button>
-
-    <div class="progress-container" id="progressContainer">
-        <div class="progress-bar-bg"><div class="progress-bar" id="progressBar"></div></div>
-        <div class="status-text" id="statusText">Processing...</div>
-    </div>
-</div>
-
-<div class="container hidden" id="successView">
-    <i class="ri-checkbox-circle-fill success-icon"></i>
-    <h2 style="color: #00ff88; margin-bottom:10px;">SUCCESS!</h2>
-    <p style="color: var(--text-muted); margin-bottom: 20px;">Media has been uploaded and sent for Admin Approval.</p>
-    <button onclick="location.reload()">Upload Another</button>
-</div>
-
-<script>
-    // අලුත් Web App URL එක දාන්න
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtmBeY8ek41WhGAtA_iPjLMgXjR7L_WiHN_ONNz-3ZFBQM5iLlplcI1AlngIRRzTrA/exec";
-    const BOT_TOKEN = "8974378669:AAE3fxJa-OdGUi9HXiKkPu9b7SC8QeUXp4Q";
-    const CHANNEL_ID = "-1003754232314";
-
-    fetch(SCRIPT_URL + "?action=getNames")
-        .then(res => res.json())
-        .then(data => {
-            const sel = document.getElementById('modelSelect');
-            data.forEach(name => sel.innerHTML += `<option value="${name}">${name}</option>`);
-        });
-
-    function toggleNewModel() {
-        const sel = document.getElementById('modelSelect').value;
-        document.getElementById('newModelName').classList.toggle('hidden', sel !== 'NEW');
-        document.getElementById('profileUploadDiv').classList.toggle('hidden', sel !== 'NEW');
-    }
-
-    function toggleInputType() {
-        const type = document.getElementById('uploadType').value;
-        if(type === 'TikTok') {
-            document.getElementById('fileInputDiv').classList.add('hidden');
-            document.getElementById('linkInputDiv').classList.remove('hidden');
-        } else {
-            document.getElementById('fileInputDiv').classList.remove('hidden');
-            document.getElementById('linkInputDiv').classList.add('hidden');
-            document.getElementById('mediaFile').accept = type === 'Photo' ? 'image/*' : 'video/*';
+        function toggleMethod() {
+            const method = document.getElementById('uploadMethod').value;
+            if (method === 'file') {
+                document.getElementById('fileUploadSection').style.display = 'block';
+                document.getElementById('tiktokUploadSection').style.display = 'none';
+                document.getElementById('contentType').disabled = false;
+            } else {
+                document.getElementById('fileUploadSection').style.display = 'none';
+                document.getElementById('tiktokUploadSection').style.display = 'block';
+                document.getElementById('contentType').value = 'VIDEO';
+                document.getElementById('contentType').disabled = true;
+            }
         }
-    }
 
-    async function uploadToTelegram(fileOrUrl, isPhoto) {
-        const endpoint = isPhoto ? 'sendPhoto' : 'sendVideo';
-        const formData = new FormData();
-        formData.append('chat_id', CHANNEL_ID);
-        formData.append(isPhoto ? 'photo' : 'video', fileOrUrl);
+        function toggleNewFields() {
+            const val = document.getElementById('actressSelect').value;
+            document.getElementById('newActressFields').style.display = (val === 'NEW') ? 'block' : 'none';
+        }
 
-        const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${endpoint}`, { method: 'POST', body: formData });
-        const data = await res.json();
-        if (!data.ok) throw new Error(data.description);
-        return isPhoto ? data.result.photo[data.result.photo.length - 1].file_id : data.result.video.file_id;
-    }
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve({
+                    base64: reader.result.split(',')[1],
+                    type: file.type
+                });
+                reader.onerror = error => reject(error);
+            });
+        }
 
-    async function processUpload() {
-        const btn = document.getElementById('uploadBtn');
-        const progCont = document.getElementById('progressContainer');
-        const progBar = document.getElementById('progressBar');
-        const status = document.getElementById('statusText');
-        
-        const modelSel = document.getElementById('modelSelect').value;
-        const name = modelSel === 'NEW' ? document.getElementById('newModelName').value : modelSel;
-        const upType = document.getElementById('uploadType').value;
-        
-        if (!name) return alert("Please select or enter a Model Name!");
+        async function upload() {
+            const method = document.getElementById('uploadMethod').value;
+            const contentType = document.getElementById('contentType').value;
+            const actressSelect = document.getElementById('actressSelect').value;
+            const newName = document.getElementById('newName').value;
+            const profilePic = document.getElementById('profilePic').files[0];
 
-        btn.style.display = 'none';
-        progCont.style.display = 'block';
-        progBar.style.width = '10%';
-        
-        try {
-            let profileId = "";
-            let contentFileId = "";
+            if (!actressSelect) return alert("Please select a model.");
+            if (actressSelect === 'NEW' && !newName) return alert("Please enter the new model's name.");
+            if (actressSelect === 'NEW' && !profilePic) return alert("Please select a profile picture for the new model.");
 
-            if (modelSel === 'NEW') {
-                const pFile = document.getElementById('profilePic').files[0];
-                if (pFile) {
-                    status.innerText = "Uploading Profile Picture...";
-                    profileId = await uploadToTelegram(pFile, true);
-                    progBar.style.width = '30%';
-                }
+            let files = [];
+            let tkLink = "";
+
+            if (method === 'file') {
+                files = document.getElementById('contentFiles').files;
+                if (files.length === 0) return alert("Please select files to upload.");
+            } else {
+                tkLink = document.getElementById('tiktokLink').value;
+                if (!tkLink) return alert("Please paste a TikTok link.");
             }
 
-            if (upType === 'TikTok') {
-                status.innerText = "Fetching TikTok Video...";
-                const tikUrl = document.getElementById('tiktokUrl').value;
-                const tikRes = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(tikUrl)}`);
-                const tikData = await tikRes.json();
-                
-                if (tikData.code === 0) {
-                    status.innerText = "Uploading TikTok to Telegram...";
-                    progBar.style.width = '60%';
-                    contentFileId = await uploadToTelegram(tikData.data.play, false);
+            const btn = document.getElementById('uploadBtn');
+            const progContainer = document.getElementById('progressContainer');
+            const statusText = document.getElementById('statusText');
+            const bar = document.getElementById('progressBar');
+
+            btn.style.display = 'none';
+            progContainer.style.display = 'block';
+
+            try {
+                let profileData = null;
+                if (actressSelect === 'NEW') {
+                    statusText.innerText = "Processing Profile Picture...";
+                    profileData = await fileToBase64(profilePic);
+                }
+
+                if (method === 'tiktok') {
+                    statusText.innerText = "Fetching TikTok Data...";
+                    bar.style.width = '20%';
+
+                    const apiUrl = `https://www.tikwm.com/api/?url=${encodeURIComponent(tkLink)}&hd=1`;
+                    const tkResp = await fetch(apiUrl);
+                    const tkData = await tkResp.json();
+
+                    if (tkData.code !== 0 || !tkData.data || !tkData.data.play) {
+                        throw new Error("Invalid TikTok link or API error");
+                    }
+
+                    statusText.innerText = "Downloading TikTok to Server...";
+                    bar.style.width = '40%';
+
+                    const videoResp = await fetch(tkData.data.play);
+                    const videoBlob = await videoResp.blob();
+
+                    statusText.innerText = "Processing Video Data...";
+                    bar.style.width = '60%';
+
+                    const base64Data = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(videoBlob);
+                    });
+
+                    statusText.innerText = "Uploading to Drive... (1/1)";
+                    bar.style.width = '80%';
+
+                    const payload = {
+                        name: (actressSelect === 'NEW') ? newName : actressSelect,
+                        type: 'VIDEO',
+                        fileName: `TikTok_${Date.now()}.mp4`,
+                        fileType: videoBlob.type || 'video/mp4',
+                        fileBase64: base64Data
+                    };
+
+                    if (profileData) {
+                        payload.profileBase64 = profileData.base64;
+                        payload.profileType = profileData.type;
+                    }
+
+                    const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                    const result = await response.text();
+                    if (!result.includes("Success")) throw new Error(result);
+
                 } else {
-                    throw new Error("Invalid TikTok Link");
+                    for (let i = 0; i < files.length; i++) {
+                        statusText.innerText = `Uploading File ${i + 1} of ${files.length}...`;
+                        bar.style.width = `${((i) / files.length) * 100}%`;
+
+                        const currentFile = files[i];
+                        const mediaData = await fileToBase64(currentFile);
+
+                        const payload = {
+                            name: (actressSelect === 'NEW') ? newName : actressSelect,
+                            type: contentType,
+                            fileName: currentFile.name,
+                            fileType: currentFile.type,
+                            fileBase64: mediaData.base64
+                        };
+
+                        if (i === 0 && profileData) {
+                            payload.profileBase64 = profileData.base64;
+                            payload.profileType = profileData.type;
+                        }
+
+                        const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                        const result = await response.text();
+                        if (!result.includes("Success")) throw new Error("Failed to upload file " + (i + 1) + ": " + result);
+
+                        bar.style.width = `${((i + 1) / files.length) * 100}%`;
+                    }
                 }
-            } else {
-                const mFile = document.getElementById('mediaFile').files[0];
-                if (!mFile) throw new Error("Please select a file to upload");
-                
-                status.innerText = "Uploading Media File to Telegram...";
-                progBar.style.width = '60%';
-                contentFileId = await uploadToTelegram(mFile, upType === 'Photo');
+
+                bar.style.width = '100%';
+                document.getElementById('formView').style.display = 'none';
+                document.getElementById('successView').style.display = 'block';
+
+            } catch (error) {
+                console.error("Upload Error:", error);
+                alert("Error: " + error.message);
+                btn.style.display = 'block';
+                progContainer.style.display = 'none';
             }
-
-            progBar.style.width = '90%';
-            status.innerText = "Saving to Database...";
-
-            const payload = {
-                name: name,
-                type: upType === 'TikTok' ? 'Video' : upType,
-                fileId: contentFileId,
-                profileId: profileId
-            };
-
-            const sheetRes = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-            const resultText = await sheetRes.text();
-
-            if (resultText === "Success") {
-                progBar.style.width = '100%';
-                setTimeout(() => {
-                    document.getElementById('formView').classList.add('hidden');
-                    document.getElementById('successView').classList.remove('hidden');
-                }, 500);
-            } else {
-                throw new Error("Database Error: " + resultText);
-            }
-
-        } catch (error) {
-            status.innerText = "Error: " + error.message;
-            status.style.color = "#ff0055";
-            btn.style.display = 'block';
-            console.error(error);
         }
-    }
-</script>
+    </script>
 </body>
 </html>
