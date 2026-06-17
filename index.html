@@ -471,14 +471,13 @@
     let aIndex = 0, vIndex = 3, pIndex = 3;
 
     // --- Mobile video infinite scroll tracking ---
-    // obile mode: videos load on demand as user slides near the end
-    let mobileVIndex = 0;         // how many videos loaded so far on mobile
-    const MOBILE_BATCH = 5;       // load 5 videos at a time on mobile
-    let mobileLoadingMore = false; // prevent duplicate loads
+    let mobileVIndex = 0;         
+    const MOBILE_BATCH = 5;       
+    let mobileLoadingMore = false; 
 
     // --- SMART MUTE STATE ---
-    let globalMuted = window.innerWidth <= 768; // Desktop = Unmuted, Mobile = Muted initially
-    let hasUserUnmuted = !globalMuted; // True on desktop, False on mobile initially
+    let globalMuted = window.innerWidth <= 768; 
+    let hasUserUnmuted = !globalMuted; 
 
     // --- CUSTOM VIDEO PLAYER EVENTS ---
     document.addEventListener('click', function(e) {
@@ -488,7 +487,6 @@
         const video = player.querySelector('video');
         if (!video) return;
 
-        // Mute Toggle Button Click
         if (e.target.closest('.mute-toggle')) {
             globalMuted = !globalMuted;
             if (!globalMuted) hasUserUnmuted = true;
@@ -496,19 +494,16 @@
             return;
         }
         
-        // Fullscreen Toggle
         if (e.target.closest('.fullscreen-toggle')) {
             if (video.requestFullscreen) video.requestFullscreen();
             else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
             return;
         }
         
-        // Toggle Play/Pause when clicking on video
         if (video.paused) video.play();
         else video.pause();
     });
 
-    // Single Play Logic: one video plays at a time
     document.addEventListener('play', function(e) {
         if (e.target.tagName === 'VIDEO') {
             document.querySelectorAll('video').forEach(v => {
@@ -531,7 +526,6 @@
         }
     }, true);
 
-    // Loading Animations Event Setup
     document.addEventListener('waiting', function(e) {
         if (e.target.tagName === 'VIDEO') {
             const player = e.target.closest('.modern-video-player');
@@ -546,7 +540,6 @@
         }
     }, true);
 
-    // Progress Bar Updater
     document.addEventListener('timeupdate', function(e) {
         if (e.target.tagName === 'VIDEO') {
             const player = e.target.closest('.modern-video-player');
@@ -558,7 +551,6 @@
         }
     }, true);
 
-    // Global Mute Memory Updater
     document.addEventListener('volumechange', function(e) {
         if (e.target.tagName === 'VIDEO') {
             const isMuted = e.target.muted || e.target.volume === 0;
@@ -581,30 +573,52 @@
         });
     }
 
-    // --- INTERSECTION OBSERVER (LAZY SRC LOAD + MOBILE AUTOPLAY) ---
+    // --- INTERSECTION OBSERVER (LAZY MEDIA LOAD WITH RANDOM VIDEO THUMBNAILS) ---
     const videoObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             const mediaContainer = entry.target;
+
+            // --- Handling Image/Profile Telegram Async Loading ---
+            if (mediaContainer.tagName === 'IMG') {
+                if (entry.isIntersecting && mediaContainer.dataset.tgImg) {
+                    const fileId = mediaContainer.dataset.tgImg;
+                    delete mediaContainer.dataset.tgImg; 
+                    
+                    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${fileId}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.ok) {
+                                mediaContainer.src = `https://api.telegram.org/file/bot${BOT_TOKEN}/${data.result.file_path}`;
+                            } else {
+                                console.error("Telegram Image API Error:", data.description);
+                            }
+                        })
+                        .catch(err => console.error("Telegram Image Fetch Error:", err));
+                }
+                return;
+            }
+
             const isIframe = mediaContainer.tagName === 'IFRAME';
             const video = isIframe ? null : mediaContainer.querySelector('video');
 
             if (entry.isIntersecting) {
                 if (video) {
-                    // Lazy src: data-src වල තියෙන Telegram File ID එක, වීඩියෝව ස්ක්‍රීන් එකට එන විට Stream URL එකක් බවට හැරවීම
                     if (video.dataset.src) {
                         const fileId = video.dataset.src;
-                        mediaContainer.classList.add('is-loading'); // Telegram එකෙන් ලින්ක් එක ගන්නකන් ලෝඩර් එක පෙන්වීම
+                        mediaContainer.classList.add('is-loading'); 
                         
                         fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${fileId}`)
                             .then(res => res.json())
                             .then(data => {
                                 if (data.ok) {
                                     const videoUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${data.result.file_path}`;
-                                    video.src = videoUrl + '#t=0.1';
+                                    
+                                    // Website එක refresh කරන හැම සැරේකම Thumbnail Frame එක වෙනස් වීමට Random time එකක් ලබාදීම (0.5s - 5.5s අතර)
+                                    const randomThumbTime = (Math.random() * 5 + 0.5).toFixed(1);
+                                    video.src = videoUrl + `#t=${randomThumbTime}`;
                                     delete video.dataset.src;
                                     mediaContainer.classList.remove('is-loading');
                                     
-                                    // Mobile: autoplay + reset to beginning on each visit
                                     if (window.innerWidth <= 768) {
                                         video.currentTime = 0;
                                         video.muted = globalMuted;
@@ -627,7 +641,6 @@
                             })
                             .catch(err => console.error("Telegram Fetch Error:", err));
                     } else {
-                        // දැනටමත් ලින්ක් එක ලෝඩ් වී ඇති වීඩියෝ සඳහා මුල් ලොජික් එකම ක්‍රියාත්මක වේ
                         if (window.innerWidth <= 768) {
                             video.currentTime = 0;
                             video.muted = globalMuted;
@@ -647,7 +660,6 @@
                     }
                 }
             } else {
-                // Off screen: pause (keep src loaded — no re-download)
                 if (video) {
                     video.pause();
                     mediaContainer.classList.remove('is-playing', 'is-loading');
@@ -658,7 +670,6 @@
         });
     }, { threshold: 0.3, rootMargin: '100px' });
 
-    // --- MOBILE INFINITE SCROLL: scroll event based (IntersectionObserver horizontal container එකේ work නෑ) ---
     function setupMobileVideoScroll() {
         const grid = document.getElementById('video-grid');
         if (!grid) return;
@@ -669,7 +680,6 @@
                 grid.removeEventListener('scroll', onMobileVideoScroll);
                 return;
             }
-            // Last card ලඟ 1.5 cards width ඇතිනම් load
             const scrollRight = grid.scrollWidth - grid.scrollLeft - grid.clientWidth;
             if (scrollRight < grid.clientWidth * 1.5) {
                 mobileFetchMoreVideos();
@@ -689,7 +699,6 @@
             div.innerHTML = createMediaItem(item, false);
             const card = div.firstElementChild;
             grid.appendChild(card);
-            // observe newly added video players
             const player = card.querySelector('.modern-video-player');
             if (player) videoObserver.observe(player);
         });
@@ -699,7 +708,7 @@
     }
 
     function attachVideoObserver() {
-        document.querySelectorAll('.modern-video-player, iframe').forEach(media => {
+        document.querySelectorAll('.modern-video-player, iframe, img.tg-lazy-img').forEach(media => {
             videoObserver.observe(media);
         });
     }
@@ -778,7 +787,21 @@
             }).filter(i => i.link);
 
             const bgData = tempAllData.find(i => i.type === 'background');
-            if (bgData) document.getElementById('home').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url('${bgData.link}')`;
+            if (bgData) {
+                const bgLink = bgData.link.trim();
+                if (bgLink.includes('drive.google.com') || bgLink.includes('docs.google.com') || bgLink.includes('http://') || bgLink.includes('https://')) {
+                    document.getElementById('home').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url('${getImageUrl(bgLink)}')`;
+                } else {
+                    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${bgLink}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.ok) {
+                                const bgUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${data.result.file_path}`;
+                                document.getElementById('home').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url('${bgUrl}')`;
+                            }
+                        }).catch(e => console.error(e));
+                }
+            }
 
             allData = tempAllData.filter(i => i.type !== 'background');
             names = [...new Set(allData.map(i => i.name))].sort(() => Math.random() - 0.5);
@@ -815,14 +838,11 @@
         document.getElementById('actress-grid').innerHTML = names.slice(0, aIndex).map(n => createCard(n, false)).join('');
 
         if (isMobile) {
-            // Mobile: start with first batch, scroll event handles rest
             mobileVIndex = 0;
             document.getElementById('video-grid').innerHTML = '';
-            mobileFetchMoreVideos(); // loads first MOBILE_BATCH videos
-            setupMobileVideoScroll(); // scroll listener for infinite load
-            // No see more/hide buttons on mobile for videos
+            mobileFetchMoreVideos(); 
+            setupMobileVideoScroll(); 
         } else {
-            // PC: original behaviour — 3 videos, see more button
             vIndex = 3;
             document.getElementById('video-grid').innerHTML = shuffledVideos.slice(0, 3).map(i => createMediaItem(i, false)).join('');
             if (shuffledVideos.length <= 3) document.getElementById('v-more').style.display = 'none';
@@ -852,8 +872,21 @@
 
     function createCard(name, isNew = false) {
         const m = allData.find(i => i.name === name);
+        
+        let profileSrc = '';
+        let profileDataAttr = '';
+        if (m && m.profile) {
+            const p = m.profile.trim();
+            if (p.includes('drive.google.com') || p.includes('docs.google.com') || p.includes('http://') || p.includes('https://')) {
+                profileSrc = getImageUrl(p);
+            } else {
+                profileSrc = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>';
+                profileDataAttr = `data-tg-img="${p}"`;
+            }
+        }
+
         return `<div class="card ${isNew ? 'reveal-card' : ''}">
-            <div class="card-img-wrap"><img src="${getImageUrl(m.profile)}" loading="lazy"></div>
+            <div class="card-img-wrap"><img src="${profileSrc}" ${profileDataAttr} loading="lazy" class="tg-lazy-img"></div>
             <div class="card-info">
                 <h3>${name}</h3>
                 <div class="btn-row">
@@ -866,7 +899,20 @@
 
     function createMediaItem(i, isNew = false) {
         if (i.type === 'video') return `<div class="card ${isNew ? 'reveal-card' : ''}"><div class="video-container">${getVideoElement(i.link)}</div></div>`;
-        return `<div class="card photo-card ${isNew ? 'reveal-card' : ''}"><div class="card-img-wrap"><img src="${getImageUrl(i.link)}" loading="lazy"></div></div>`;
+        
+        let photoSrc = '';
+        let photoDataAttr = '';
+        if (i.link) {
+            const l = i.link.trim();
+            if (l.includes('drive.google.com') || l.includes('docs.google.com') || l.includes('http://') || l.includes('https://')) {
+                photoSrc = getImageUrl(l);
+            } else {
+                photoSrc = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>';
+                photoDataAttr = `data-tg-img="${l}"`;
+            }
+        }
+
+        return `<div class="card photo-card ${isNew ? 'reveal-card' : ''}"><div class="card-img-wrap"><img src="${photoSrc}" ${photoDataAttr} loading="lazy" class="tg-lazy-img"></div></div>`;
     }
 
     function openOverlay(name, type) {
@@ -897,6 +943,7 @@
         if (aIndex >= names.length) document.getElementById('a-more').style.display = 'none';
         document.getElementById('a-hide').style.display = 'block';
         setTimeout(() => ScrollTrigger.refresh(), 100);
+        attachVideoObserver();
     }
 
     function hideActresses() { 
@@ -906,9 +953,9 @@
         document.getElementById('a-more').style.display = 'block'; 
         document.getElementById('a-hide').style.display = 'none'; 
         ScrollTrigger.refresh(); 
+        attachVideoObserver();
     }
 
-    // PC only: loadMoreVideos / hideVideos (mobile uses sentinel auto-load)
     function loadMoreVideos() {
         const set = shuffledVideos.slice(vIndex, vIndex + 3);
         document.getElementById('video-grid').insertAdjacentHTML('beforeend', set.map(i => createMediaItem(i, true)).join(''));
@@ -928,6 +975,7 @@
         if (pIndex >= shuffledPhotos.length) document.getElementById('p-more').style.display = 'none';
         document.getElementById('p-hide').style.display = 'block';
         setTimeout(() => ScrollTrigger.refresh(), 100);
+        attachVideoObserver();
     }
 
     function hideVideos() { 
@@ -945,6 +993,7 @@
         document.getElementById('p-more').style.display = 'block'; 
         document.getElementById('p-hide').style.display = 'none'; 
         ScrollTrigger.refresh(); 
+        attachVideoObserver();
     }
 
     function getImageUrl(u) {
@@ -961,9 +1010,7 @@
             return `<iframe src="${u}" allowfullscreen loading="lazy"></iframe>`;
         }
         
-        // පැරණි Google Drive Proxy වෙනුවට Sheet එකෙන් එන Telegram File ID එක කෙලින්ම data-src එකට ලබා දීම
         let srcUrl = u.trim();
-
         let initialMuteState = window.innerWidth <= 768 ? 'muted' : '';
         let muteIconState = window.innerWidth <= 768 ? 'mute' : 'up';
 
