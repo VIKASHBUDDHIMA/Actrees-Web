@@ -33,7 +33,6 @@
             flex-direction: column;
         }
 
-        /* Deep Modern Ambient Overlay */
         .background-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -93,7 +92,6 @@
             overflow: hidden;
         }
         
-        /* Top Highlight Line */
         .container::before {
             content: '';
             position: absolute;
@@ -128,7 +126,6 @@
         }
         label i { color: var(--accent); font-size: 1.1rem; }
         
-        /* Modern Inputs & Selects */
         select, input[type="text"] { 
             width: 100%; 
             padding: 16px 20px; 
@@ -144,7 +141,6 @@
             appearance: none;
         }
         
-        /* Custom Select Arrow */
         select {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ff0055'%3E%3Cpath d='M11.9997 13.1714L16.9495 8.22168L18.3637 9.63589L11.9997 15.9999L5.63574 9.63589L7.04996 8.22168L11.9997 13.1714Z'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
@@ -161,7 +157,6 @@
             background: rgba(0, 0, 0, 0.8);
         }
 
-        /* Modern Dashed File Upload Zone */
         input[type="file"] {
             width: 100%;
             padding: 25px 20px;
@@ -200,7 +195,6 @@
             transform: translateY(-2px);
         }
 
-        /* Sub-panel for New Actress */
         #newActressFields { 
             display: none; 
             margin-top: 15px; 
@@ -216,7 +210,6 @@
             background: var(--accent); border-radius: 16px 0 0 16px;
         }
         
-        /* Modern Glowing VIP Button */
         .btn { 
             width: 100%; 
             padding: 18px; 
@@ -250,7 +243,6 @@
             border: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* Progress & Loader Section */
         .progress-container { display: none; margin-top: 35px; text-align: center; }
         .progress-bar-bg { 
             width: 100%; 
@@ -270,13 +262,6 @@
             border-radius: 20px;
             position: relative;
         }
-        .progress-bar::after {
-            content: ''; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent);
-            background-size: 20px 20px;
-            animation: stripes 1s linear infinite;
-        }
-        @keyframes stripes { 100% { background-position: 20px 0; } }
         
         .status-text { 
             font-size: 0.8rem; 
@@ -285,11 +270,8 @@
             font-weight: 600; 
             letter-spacing: 1px;
             text-transform: uppercase;
-            animation: pulse-text 1.5s infinite;
         }
-        @keyframes pulse-text { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-        /* Success Panel View */
         #successView { display: none; text-align: center; padding: 40px 10px 20px; }
         .success-icon-wrap {
             width: 100px; height: 100px;
@@ -299,10 +281,7 @@
             margin: 0 auto 30px;
             border: 2px solid rgba(0, 255, 136, 0.3);
             box-shadow: 0 0 40px rgba(0, 255, 136, 0.2);
-            animation: bounceIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        @keyframes bounceIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
-        
         #successView i { font-size: 3.5rem; color: #00ff88; }
         #successView h3 { 
             color: #fff; 
@@ -392,7 +371,7 @@
                 <div class="progress-bar-bg">
                     <div class="progress-bar" id="progressBar"></div>
                 </div>
-                <div class="status-text" id="statusText">Initializing secure connection...</div>
+                <div class="status-text" id="statusText">Initializing upload...</div>
             </div>
         </div>
 
@@ -401,13 +380,19 @@
                 <i class="ri-check-double-line"></i>
             </div>
             <h3>UPLOAD SUCCESSFUL!</h3>
-            <p>Your content has been securely encrypted and sent to the server. It is currently waiting for admin approval.</p>
+            <p>Your content has been securely sent to Telegram and saved to the Database.</p>
             <button class="btn" onclick="location.reload()"><i class="ri-add-line" style="margin-right: 5px; vertical-align: -2px;"></i> UPLOAD MORE</button>
         </div>
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxt4vMEfzxb2cZkn-uccy-Uj-AF5SiIlIxAIuCa1S-d3jjNv7qJZzaotWrlQjQGQXU01w/exec';
+        // ==========================================
+        // අනිවාර්යයෙන්ම ඔයාගේ විස්තර මෙතනට දාන්න
+        // ==========================================
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxSoGcnbus3RedfRAPf99KnkRX065cKat6rn3Wlpt__IViqHM_cOtgjcIa74sr1jG6hjA/exec'; 
+        const BOT_TOKEN = '8974378669:AAE3fxJa-OdGUi9HXiKkPu9b7SC8QeUXp4Q';
+        const CHANNEL_ID = '-1003754232314'; // ඔයාගේ Channel ID එක
+        // ==========================================
 
         window.onload = async () => {
             try {
@@ -420,7 +405,7 @@
                 });
                 select.innerHTML += '<option value="NEW">+ ADD NEW MODEL</option>';
             } catch (e) {
-                console.log("Error loading names. Make sure SCRIPT_URL is correct.");
+                console.log("Error loading names.");
             }
         };
 
@@ -443,15 +428,50 @@
             document.getElementById('newActressFields').style.display = (val === 'NEW') ? 'block' : 'none';
         }
 
-        function fileToBase64(file) {
+        // කෙලින්ම Browser එකෙන් Telegram එකට Upload කරලා file_id එක ගන්නවා
+        function uploadToTelegram(fileBlob, fileName, isPhoto = false) {
             return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve({
-                    base64: reader.result.split(',')[1],
-                    type: file.type
+                const xhr = new XMLHttpRequest();
+                const formData = new FormData();
+                formData.append('chat_id', CHANNEL_ID);
+                
+                if (isPhoto) {
+                    formData.append('photo', fileBlob, fileName);
+                } else {
+                    formData.append('document', fileBlob, fileName); // Quality අඩු නොවෙන්න 'document' විදිහට යවනවා
+                }
+
+                const bar = document.getElementById('progressBar');
+                const statusText = document.getElementById('statusText');
+
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable && !isPhoto) {
+                        const percent = Math.round((e.loaded / e.total) * 100);
+                        bar.style.width = percent + '%';
+                        statusText.innerText = `Uploading to Telegram... ${percent}%`;
+                    }
                 });
-                reader.onerror = error => reject(error);
+
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        const res = JSON.parse(xhr.responseText);
+                        if (res.ok) {
+                            const fileId = res.result.document ? res.result.document.file_id : 
+                                          (res.result.video ? res.result.video.file_id : 
+                                          (res.result.photo ? res.result.photo[res.result.photo.length-1].file_id : ''));
+                            resolve(fileId);
+                        } else {
+                            reject(new Error(res.description));
+                        }
+                    } else {
+                        reject(new Error('Telegram Upload failed'));
+                    }
+                };
+                xhr.onerror = () => reject(new Error('Network Error during Telegram upload'));
+                
+                const apiEndpoint = isPhoto ? 'sendPhoto' : 'sendDocument';
+                xhr.open('POST', `https://api.telegram.org/bot${BOT_TOKEN}/${apiEndpoint}`);
+                xhr.send(formData);
             });
         }
 
@@ -486,14 +506,17 @@
             progContainer.style.display = 'block';
 
             try {
-                let profileData = null;
+                let profileFileId = "";
+                
+                // 1. අලුත් මොඩල් කෙනෙක් නම් Profile Pic එක Telegram එකට Upload කරලා File ID එක ගන්නවා
                 if (actressSelect === 'NEW') {
-                    statusText.innerText = "Processing Profile Picture...";
-                    profileData = await fileToBase64(profilePic);
+                    statusText.innerText = "Uploading Profile Picture to Telegram...";
+                    profileFileId = await uploadToTelegram(profilePic, profilePic.name, true);
                 }
 
                 if (method === 'tiktok') {
-                    statusText.innerText = "Fetching TikTok Data...";
+                    // TikTok Download එක
+                    statusText.innerText = "Fetching TikTok Video...";
                     bar.style.width = '20%';
 
                     const apiUrl = `https://www.tikwm.com/api/?url=${encodeURIComponent(tkLink)}&hd=1`;
@@ -504,74 +527,65 @@
                         throw new Error("Invalid TikTok link or API error");
                     }
 
-                    statusText.innerText = "Downloading TikTok to Server...";
+                    statusText.innerText = "Downloading TikTok File...";
                     bar.style.width = '40%';
 
                     const videoResp = await fetch(tkData.data.play);
                     const videoBlob = await videoResp.blob();
 
-                    statusText.innerText = "Processing Video Data...";
-                    bar.style.width = '60%';
+                    statusText.innerText = "Uploading directly to Telegram...";
+                    
+                    // 2. TikTok වීඩියෝව Telegram එකට Upload කරලා File ID එක ගන්නවා
+                    const mediaFileId = await uploadToTelegram(videoBlob, `TikTok_${Date.now()}.mp4`, false);
 
-                    const base64Data = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => resolve(reader.result.split(',')[1]);
-                        reader.onerror = reject;
-                        reader.readAsDataURL(videoBlob);
-                    });
+                    statusText.innerText = "Saving to Google Sheet...";
+                    bar.style.width = '95%';
 
-                    statusText.innerText = "Uploading to Telegram... (1/1)";
-                    bar.style.width = '80%';
-
+                    // 3. Telegram එකෙන් ආව File IDs ටික විතරක් App Script එකට යවනවා
                     const payload = {
                         name: (actressSelect === 'NEW') ? newName : actressSelect,
+                        profile: profileFileId,
                         type: 'VIDEO',
-                        fileName: `TikTok_${Date.now()}.mp4`,
-                        fileType: videoBlob.type || 'video/mp4',
-                        fileBase64: base64Data
+                        link: mediaFileId 
                     };
-
-                    if (profileData) {
-                        payload.profileBase64 = profileData.base64;
-                        payload.profileType = profileData.type;
-                    }
 
                     const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
                     const result = await response.text();
                     if (!result.includes("Success")) throw new Error(result);
 
                 } else {
+                    // සාමාන්‍ය File Upload එක
                     for (let i = 0; i < files.length; i++) {
-                        statusText.innerText = `Uploading to Telegram (${i + 1} of ${files.length})...`;
-                        bar.style.width = `${((i) / files.length) * 100}%`;
-
                         const currentFile = files[i];
-                        const mediaData = await fileToBase64(currentFile);
+                        
+                        statusText.innerText = `Uploading File ${i + 1} of ${files.length} to Telegram...`;
+                        
+                        // 2. File එක Telegram එකට Upload කරලා File ID එක ගන්නවා
+                        const mediaFileId = await uploadToTelegram(currentFile, currentFile.name, false);
 
+                        statusText.innerText = "Saving to Google Sheet...";
+                        
+                        // 3. Telegram එකෙන් ආව File IDs ටික විතරක් App Script එකට යවනවා
                         const payload = {
                             name: (actressSelect === 'NEW') ? newName : actressSelect,
+                            profile: (i === 0) ? profileFileId : "", // පළවෙනි එකට විතරක් profile ID යවනවා
                             type: contentType,
-                            fileName: currentFile.name,
-                            fileType: currentFile.type,
-                            fileBase64: mediaData.base64
+                            link: mediaFileId 
                         };
-
-                        if (i === 0 && profileData) {
-                            payload.profileBase64 = profileData.base64;
-                            payload.profileType = profileData.type;
-                        }
 
                         const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
                         const result = await response.text();
-                        if (!result.includes("Success")) throw new Error("Failed to upload file " + (i + 1) + ": " + result);
-
-                        bar.style.width = `${((i + 1) / files.length) * 100}%`;
+                        if (!result.includes("Success")) throw new Error("Database save failed: " + result);
                     }
                 }
 
                 bar.style.width = '100%';
-                document.getElementById('formView').style.display = 'none';
-                document.getElementById('successView').style.display = 'block';
+                statusText.innerText = "Done!";
+                
+                setTimeout(() => {
+                    document.getElementById('formView').style.display = 'none';
+                    document.getElementById('successView').style.display = 'block';
+                }, 500);
 
             } catch (error) {
                 console.error("Upload Error:", error);
